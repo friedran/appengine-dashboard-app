@@ -21,27 +21,25 @@ import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import com.friedran.appengine.dashboard.R;
 import com.friedran.appengine.dashboard.model.Account;
 import com.friedran.appengine.dashboard.model.App;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class MainActivity extends Activity {
     private DrawerLayout mDrawerLayout;
-    private ListView mNavDrawer;
+    private ListView mDrawerList;
     private ActionBarDrawerToggle mDrawerToggle;
-
-    private final String TITLE = "AppName";
-    private final String SUBTITLE = "someaccount@google.com";
 
     /**
      * Called when the activity is first created.
@@ -64,23 +62,42 @@ public class MainActivity extends Activity {
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
 
-        mNavDrawer = (ListView) findViewById(R.id.left_drawer);
-        mNavDrawer.setAdapter(new ArrayAdapter<String>(this, R.layout.drawer_list_item, getAccountNames()));
+        mDrawerList = (ListView) findViewById(R.id.left_drawer);
+        mDrawerList.setAdapter(new ArrayAdapter<String>(this, R.layout.drawer_list_item, getAccountNames()));
+        mDrawerList.setOnItemClickListener(new ListView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Account account = getSavedAccounts().get(position);
+                getActionBar().setTitle(account.getName());
+                getActionBar().setSubtitle(account.apps().get(0).getName());
+                mDrawerLayout.closeDrawer(mDrawerList);
+            }
+        });
 
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
                 R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_close) {
             public void onDrawerClosed(View view) {
-                getActionBar().setTitle(TITLE);
                 invalidateOptionsMenu();
             }
 
             public void onDrawerOpened(View drawerView) {
-                getActionBar().setTitle(TITLE);
                 invalidateOptionsMenu();
+            }
+
+            @Override
+            public boolean onOptionsItemSelected(MenuItem item) {
+                setActionBarTitle(item.getTitle());
+                return super.onOptionsItemSelected(item);
             }
         };
         mDrawerLayout.setDrawerListener(mDrawerToggle);
 
+    }
+
+    private void setActionBarTitle(CharSequence accountName) {
+        Account account = getAccount(accountName);
+        getActionBar().setTitle(account.getName());
+        getActionBar().setSubtitle(account.apps().get(0).getName());
     }
 
     @Override
@@ -126,4 +143,13 @@ public class MainActivity extends Activity {
         return Arrays.asList("account1@google.com", "account2@google.com");
     }
 
+    private Account getAccount(CharSequence accountName) {
+        List<Account> accounts = getSavedAccounts();
+        for (Account account : accounts) {
+            if (account.getName().equals(accountName))
+                return account;
+        }
+
+        return null;
+    }
 }
