@@ -1,5 +1,6 @@
 package com.friedran.appengine.dashboard;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -13,6 +14,10 @@ public class MainActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+
+        ActionBar actionBar = getActionBar();
+        actionBar.setTitle("AppName");
+        actionBar.setSubtitle("account@google.com");
     }
 
     @Override
