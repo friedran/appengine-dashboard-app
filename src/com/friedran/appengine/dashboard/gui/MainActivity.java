@@ -1,4 +1,4 @@
-package com.friedran.appengine.dashboard;
+package com.friedran.appengine.dashboard.gui;
 
 import android.app.ActionBar;
 import android.app.Activity;
@@ -13,6 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import com.friedran.appengine.dashboard.R;
 
 public class MainActivity extends Activity {
     private DrawerLayout mDrawerLayout;
@@ -44,13 +45,8 @@ public class MainActivity extends Activity {
         mNavDrawer = (ListView) findViewById(R.id.left_drawer);
         mNavDrawer.setAdapter(new ArrayAdapter<String>(this, R.layout.drawer_list_item, appsList));
 
-        mDrawerToggle = new ActionBarDrawerToggle(
-                this,
-                mDrawerLayout,
-                R.drawable.ic_drawer,  /* nav drawer image to replace 'Up' caret */
-                R.string.drawer_open,  /* "open drawer" description for accessibility */
-                R.string.drawer_close  /* "close drawer" description for accessibility */
-        ) {
+        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
+                R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_close) {
             public void onDrawerClosed(View view) {
                 getActionBar().setTitle(TITLE);
                 invalidateOptionsMenu();
