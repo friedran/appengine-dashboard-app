@@ -28,6 +28,12 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import com.friedran.appengine.dashboard.R;
+import com.friedran.appengine.dashboard.model.Account;
+import com.friedran.appengine.dashboard.model.App;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class MainActivity extends Activity {
     private DrawerLayout mDrawerLayout;
@@ -51,13 +57,11 @@ public class MainActivity extends Activity {
         actionBar.setDisplayHomeAsUpEnabled(true);  // enable ActionBar app icon to behave as action to toggle nav drawer
         actionBar.setHomeButtonEnabled(true);
 
-        String[] appsList = {"AppName1", "AppName2", "AppName3"};
-
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
 
         mNavDrawer = (ListView) findViewById(R.id.left_drawer);
-        mNavDrawer.setAdapter(new ArrayAdapter<String>(this, R.layout.drawer_list_item, appsList));
+        mNavDrawer.setAdapter(new ArrayAdapter<String>(this, R.layout.drawer_list_item, getAccountNames()));
 
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
                 R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_close) {
@@ -106,4 +110,16 @@ public class MainActivity extends Activity {
         super.onConfigurationChanged(newConfig);
         mDrawerToggle.onConfigurationChanged(newConfig);
     }
+
+    private List<Account> getSavedAccounts() {
+        return Arrays.asList(
+            new Account("account1@google.com", Arrays.asList(new App("App1"), new App("App2"), new App("App3"))),
+            new Account("account2@google.com", Arrays.asList(new App("App4"), new App("App5"), new App("App6")))
+        );
+    }
+
+    private List<String> getAccountNames() {
+        return Arrays.asList("account1@google.com", "account2@google.com");
+    }
+
 }

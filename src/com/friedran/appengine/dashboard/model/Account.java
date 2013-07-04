@@ -32,6 +32,12 @@ public class Account {
         this.apps = new ArrayList<App>();
     }
 
+    public Account(String name, List apps) {
+        this.id = 0;    // TODO: Currently just a mockup
+        this.name = name;
+        this.apps = apps;
+    }
+
     public String getName() {
         return name;
     }
