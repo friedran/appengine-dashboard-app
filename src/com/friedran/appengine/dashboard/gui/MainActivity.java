@@ -51,9 +51,13 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
+        List<Account> accounts = getSavedAccounts();
+        Account defaultAccount = accounts.get(0);
+        App defaultApp = defaultAccount.apps().get(0);
+
         ActionBar actionBar = getActionBar();
-        actionBar.setTitle(TITLE);
-        actionBar.setSubtitle(SUBTITLE);
+        actionBar.setTitle(defaultAccount.getName());
+        actionBar.setSubtitle(defaultApp.getName());
         actionBar.setDisplayHomeAsUpEnabled(true);  // enable ActionBar app icon to behave as action to toggle nav drawer
         actionBar.setHomeButtonEnabled(true);
 

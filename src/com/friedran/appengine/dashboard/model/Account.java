@@ -46,12 +46,8 @@ public class Account {
         this.name = name;
     }
 
-    public void addApp(App app) {
-        apps.add(app);
-    }
-
-    public void removeApp(App app) {
-        apps.remove(app);
+    public List<App> apps() {
+        return apps;
     }
 
     @Override
