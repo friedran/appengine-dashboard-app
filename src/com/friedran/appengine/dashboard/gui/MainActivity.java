@@ -70,7 +70,7 @@ public class MainActivity extends FragmentActivity {
 
         @Override
         public CharSequence getPageTitle(int position) {
-            return VIEWS[position];
+            return VIEWS[position].toUpperCase();
         }
     }
 

@@ -13,7 +13,8 @@
                 android:id="@+id/dashboard_pager"
                 android:layout_width="fill_parent"
                 android:layout_height="0dp"
-                android:layout_weight="1">
+                android:layout_weight="1"
+                android:background="#ffffff">
 
             <!--
             This title strip will display the currently visible page title, as well as the page
@@ -24,8 +25,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="top"
-                    android:background="#33b5e5"
-                    android:textColor="#fff"
+                    android:background="#ededed"
+                    android:textSize="16dp"
                     android:paddingTop="4dp"
                     android:paddingBottom="4dp" />
 
