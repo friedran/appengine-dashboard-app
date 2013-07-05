@@ -14,11 +14,11 @@
 
 package com.friedran.appengine.dashboard.gui;
 
-import android.accounts.Account;
-import android.accounts.AccountManager;
+import android.accounts.*;
 import android.app.ActionBar;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.ActionBarDrawerToggle;
@@ -29,12 +29,18 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.view.*;
-import android.widget.ArrayAdapter;
-import android.widget.AdapterView;
-import android.widget.ListView;
-import android.widget.TextView;
+import android.widget.*;
 import com.friedran.appengine.dashboard.R;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.params.ClientPNames;
+import org.apache.http.cookie.Cookie;
+import org.apache.http.impl.client.DefaultHttpClient;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -48,6 +54,8 @@ public class MainActivity extends FragmentActivity {
 
     private DashboardCollectionPagerAdapter mDashboardCollectionPagerAdapter;
     private ViewPager mViewPager;
+
+    DefaultHttpClient mHttpClient = new DefaultHttpClient();
 
     private static final String[] VIEWS = {"Instances", "Load", "Quotas"};
 
@@ -221,5 +229,109 @@ public class MainActivity extends FragmentActivity {
         }
 
         return null;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        AccountManager accountManager = AccountManager.get(getApplicationContext());
+
+        accountManager.getAuthToken(mDisplayedAccount, "ah", false, new GetAuthTokenCallback(), null);
+    }
+
+    private class GetAuthTokenCallback implements AccountManagerCallback {
+        public void run(AccountManagerFuture result) {
+            Bundle bundle;
+            try {
+                bundle = (Bundle) result.getResult();
+                Intent intent = (Intent)bundle.get(AccountManager.KEY_INTENT);
+                if(intent != null) {
+                    // User input required
+                    startActivity(intent);
+                } else {
+                    onGetAuthToken(bundle);
+                }
+            } catch (OperationCanceledException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (AuthenticatorException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+    };
+
+    protected void onGetAuthToken(Bundle bundle) {
+        String auth_token = bundle.getString(AccountManager.KEY_AUTHTOKEN);
+        new GetCookieTask().execute(auth_token);
+    }
+
+    private class GetCookieTask extends AsyncTask {
+        @Override
+        protected Object doInBackground(Object... params) {
+            try {
+                // Don't follow redirects
+                mHttpClient.getParams().setBooleanParameter(ClientPNames.HANDLE_REDIRECTS, false);
+
+                HttpGet httpGet = new HttpGet("https://yourapp.appspot.com/_ah/login?continue=http://localhost/&auth=" + params[0]);
+                HttpResponse response;
+                response = mHttpClient.execute(httpGet);
+                if(response.getStatusLine().getStatusCode() != 302)
+                    // Response should be a redirect
+                    return false;
+
+                for(Cookie cookie : mHttpClient.getCookieStore().getCookies()) {
+                    if(cookie.getName().equals("ACSID"))
+                        return true;
+                }
+            } catch (ClientProtocolException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } finally {
+                mHttpClient.getParams().setBooleanParameter(ClientPNames.HANDLE_REDIRECTS, true);
+            }
+            return false;
+        }
+
+        protected void onPostExecute(Boolean result) {
+            new AuthenticatedRequestTask().execute("http://yourapp.appspot.com/admin/");
+        }
+    }
+
+    private class AuthenticatedRequestTask extends AsyncTask {
+        @Override
+        protected Object doInBackground(Object... params) {
+            try {
+                HttpGet http_get = new HttpGet((String) params[0]);
+                return mHttpClient.execute(http_get);
+            } catch (ClientProtocolException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        protected void onPostExecute(HttpResponse result) {
+            try {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(result.getEntity().getContent()));
+                String first_line = reader.readLine();
+                Toast.makeText(getApplicationContext(), first_line, Toast.LENGTH_LONG).show();
+            } catch (IllegalStateException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
     }
 }
