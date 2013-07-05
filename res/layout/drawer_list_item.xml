@@ -7,7 +7,7 @@
           android:gravity="center_vertical"
           android:padding="12dp"
           android:drawablePadding="10dp"
-          android:textColor="#575757"
+          android:textColor="@color/drawer_list_item_text_color"
           android:checkMark=
                   "@null"
           android:drawableLeft="?android:attr/listChoiceIndicatorSingle"
