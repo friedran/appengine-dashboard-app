@@ -18,16 +18,19 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
+import android.view.*;
 import android.widget.ArrayAdapter;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 import com.friedran.appengine.dashboard.R;
 import com.friedran.appengine.dashboard.model.Account;
 import com.friedran.appengine.dashboard.model.App;
@@ -35,10 +38,55 @@ import com.friedran.appengine.dashboard.model.App;
 import java.util.Arrays;
 import java.util.List;
 
-public class MainActivity extends Activity {
+public class MainActivity extends FragmentActivity {
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerList;
     private ActionBarDrawerToggle mDrawerToggle;
+
+    private DashboardCollectionPagerAdapter mDashboardCollectionPagerAdapter;
+    private ViewPager mViewPager;
+
+    public class DashboardCollectionPagerAdapter extends FragmentPagerAdapter {
+        public DashboardCollectionPagerAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        @Override
+        public Fragment getItem(int i) {
+            Fragment fragment = new DashboardFragment();
+            Bundle args = new Bundle();
+            // Our object is just an integer :-P
+            args.putInt(DashboardFragment.ARG_OBJECT, i + 1);
+            fragment.setArguments(args);
+            return fragment;
+        }
+
+        @Override
+        public int getCount() {
+            return 3;
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return "OBJECT " + (position + 1);
+        }
+    }
+
+    public static class DashboardFragment extends Fragment {
+        public static final String ARG_OBJECT = "object";
+
+        @Override
+        public View onCreateView(LayoutInflater inflater,
+                                 ViewGroup container, Bundle savedInstanceState) {
+            View rootView = inflater.inflate(
+                    R.layout.dashboard_fragment_collection_item, container, false);
+            Bundle args = getArguments();
+            ((TextView) rootView.findViewById(android.R.id.text1)).setText(
+                    Integer.toString(args.getInt(ARG_OBJECT)));
+            return rootView;
+        }
+    }
+
 
     /**
      * Called when the activity is first created.
@@ -91,6 +139,15 @@ public class MainActivity extends Activity {
         if (savedInstanceState == null) {
             selectItem(0);
         }
+
+        mViewPager = (ViewPager) findViewById(R.id.dashboard_pager);
+        mViewPager.setOnPageChangeListener(
+            new ViewPager.SimpleOnPageChangeListener() {
+                @Override
+                public void onPageSelected(int position) {
+                    // TODO
+                }
+            });
     }
 
     private void setActionBarTitle(Account account) {
