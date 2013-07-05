@@ -21,14 +21,12 @@ import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AdapterView;
-import android.widget.CheckedTextView;
 import android.widget.ListView;
 import com.friedran.appengine.dashboard.R;
 import com.friedran.appengine.dashboard.model.Account;
@@ -50,7 +48,7 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-        List<Account> accounts = getSavedAccounts();
+        List<Account> accounts = getAccounts();
         Account defaultAccount = accounts.get(0);
         App defaultApp = defaultAccount.apps().get(0);
 
@@ -103,7 +101,7 @@ public class MainActivity extends Activity {
     private void selectItem(int position) {
         // update selected item, then close the drawer
         mDrawerList.setItemChecked(position, true);
-        setActionBarTitle(getSavedAccounts().get(position));
+        setActionBarTitle(getAccounts().get(position));
         mDrawerLayout.closeDrawer(mDrawerList);
     }
 
@@ -139,7 +137,7 @@ public class MainActivity extends Activity {
         mDrawerToggle.onConfigurationChanged(newConfig);
     }
 
-    private List<Account> getSavedAccounts() {
+    private List<Account> getAccounts() {
         return Arrays.asList(
             new Account("account1@google.com", Arrays.asList(new App("App1"), new App("App2"), new App("App3"))),
             new Account("account2@google.com", Arrays.asList(new App("App4"), new App("App5"), new App("App6")))
@@ -151,7 +149,7 @@ public class MainActivity extends Activity {
     }
 
     private Account getAccount(CharSequence accountName) {
-        List<Account> accounts = getSavedAccounts();
+        List<Account> accounts = getAccounts();
         for (Account account : accounts) {
             if (account.getName().equals(accountName))
                 return account;
