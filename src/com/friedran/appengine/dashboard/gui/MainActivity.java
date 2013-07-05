@@ -14,6 +14,8 @@
 
 package com.friedran.appengine.dashboard.gui;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.res.Configuration;
@@ -32,9 +34,9 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 import com.friedran.appengine.dashboard.R;
-import com.friedran.appengine.dashboard.model.Account;
 import com.friedran.appengine.dashboard.model.App;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -42,6 +44,7 @@ public class MainActivity extends FragmentActivity {
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerList;
     private ActionBarDrawerToggle mDrawerToggle;
+    private List<Account> mAccounts;
 
     private DashboardCollectionPagerAdapter mDashboardCollectionPagerAdapter;
     private ViewPager mViewPager;
@@ -98,9 +101,12 @@ public class MainActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-        List<Account> accounts = getAccounts();
-        Account defaultAccount = accounts.get(0);
-        App defaultApp = defaultAccount.apps().get(0);
+        mAccounts = getAccounts();
+        List<String> accountNames = new ArrayList<String>();
+        for (Account account : mAccounts) {
+            accountNames.add(account.name);
+        }
+        Account defaultAccount = mAccounts.get(0);
 
         setActionBarTitle(defaultAccount);
         ActionBar actionBar = getActionBar();
@@ -111,7 +117,7 @@ public class MainActivity extends FragmentActivity {
         mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
 
         mDrawerList = (ListView) findViewById(R.id.left_drawer);
-        mDrawerList.setAdapter(new ArrayAdapter<String>(this, R.layout.drawer_list_item, getAccountNames()));
+        mDrawerList.setAdapter(new ArrayAdapter<String>(this, R.layout.drawer_list_item, accountNames));
         mDrawerList.setOnItemClickListener(new ListView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -157,14 +163,14 @@ public class MainActivity extends FragmentActivity {
     }
 
     private void setActionBarTitle(Account account) {
-        getActionBar().setTitle(account.getName());
-        getActionBar().setSubtitle(account.apps().get(0).getName());
+        getActionBar().setTitle(account.name);
+        getActionBar().setSubtitle("App " + account.name);
     }
 
     private void selectItem(int position) {
         // update selected item, then close the drawer
         mDrawerList.setItemChecked(position, true);
-        setActionBarTitle(getAccounts().get(position));
+        setActionBarTitle(mAccounts.get(position));
         mDrawerLayout.closeDrawer(mDrawerList);
     }
 
@@ -201,20 +207,15 @@ public class MainActivity extends FragmentActivity {
     }
 
     private List<Account> getAccounts() {
-        return Arrays.asList(
-            new Account("account1@google.com", Arrays.asList(new App("App1"), new App("App2"), new App("App3"))),
-            new Account("account2@google.com", Arrays.asList(new App("App4"), new App("App5"), new App("App6")))
-        );
-    }
+        AccountManager accountManager = AccountManager.get(getApplicationContext());
+        Account[] accounts = accountManager.getAccountsByType("com.google");
 
-    private List<String> getAccountNames() {
-        return Arrays.asList("account1@google.com", "account2@google.com");
+        return Arrays.asList(accounts);
     }
 
     private Account getAccount(CharSequence accountName) {
-        List<Account> accounts = getAccounts();
-        for (Account account : accounts) {
-            if (account.getName().equals(accountName))
+        for (Account account : mAccounts) {
+            if (account.name.equals(accountName))
                 return account;
         }
 
