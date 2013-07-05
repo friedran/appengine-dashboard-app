@@ -17,7 +17,6 @@ package com.friedran.appengine.dashboard.gui;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.ActionBar;
-import android.app.Activity;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -34,7 +33,6 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 import com.friedran.appengine.dashboard.R;
-import com.friedran.appengine.dashboard.model.App;
 
 import java.util.ArrayList;
 import java.util.Arrays;
