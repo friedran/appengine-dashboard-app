@@ -17,6 +17,7 @@ package com.friedran.appengine.dashboard.gui;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.ActionBar;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -43,6 +44,7 @@ public class MainActivity extends FragmentActivity {
     private ListView mDrawerList;
     private ActionBarDrawerToggle mDrawerToggle;
     private List<Account> mAccounts;
+    private Account mDisplayedAccount;
 
     private DashboardCollectionPagerAdapter mDashboardCollectionPagerAdapter;
     private ViewPager mViewPager;
@@ -104,9 +106,9 @@ public class MainActivity extends FragmentActivity {
         for (Account account : mAccounts) {
             accountNames.add(account.name);
         }
-        Account defaultAccount = mAccounts.get(0);
+        mDisplayedAccount = mAccounts.get(0);
 
-        setActionBarTitle(defaultAccount);
+        setActionBarTitle(mDisplayedAccount);
         ActionBar actionBar = getActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);  // enable ActionBar app icon to behave as action to toggle nav drawer
         actionBar.setHomeButtonEnabled(true);
@@ -135,7 +137,8 @@ public class MainActivity extends FragmentActivity {
 
             @Override
             public boolean onOptionsItemSelected(MenuItem item) {
-                setActionBarTitle(getAccount(item.getTitle()));
+                mDisplayedAccount = getAccount(item.getTitle());
+                setActionBarTitle(mDisplayedAccount);
                 return super.onOptionsItemSelected(item);
             }
         };
