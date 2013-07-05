@@ -28,6 +28,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AdapterView;
+import android.widget.CheckedTextView;
 import android.widget.ListView;
 import com.friedran.appengine.dashboard.R;
 import com.friedran.appengine.dashboard.model.Account;
@@ -53,9 +54,8 @@ public class MainActivity extends Activity {
         Account defaultAccount = accounts.get(0);
         App defaultApp = defaultAccount.apps().get(0);
 
+        setActionBarTitle(defaultAccount);
         ActionBar actionBar = getActionBar();
-        actionBar.setTitle(defaultAccount.getName());
-        actionBar.setSubtitle(defaultApp.getName());
         actionBar.setDisplayHomeAsUpEnabled(true);  // enable ActionBar app icon to behave as action to toggle nav drawer
         actionBar.setHomeButtonEnabled(true);
 
@@ -67,10 +67,7 @@ public class MainActivity extends Activity {
         mDrawerList.setOnItemClickListener(new ListView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Account account = getSavedAccounts().get(position);
-                getActionBar().setTitle(account.getName());
-                getActionBar().setSubtitle(account.apps().get(0).getName());
-                mDrawerLayout.closeDrawer(mDrawerList);
+                selectItem(position);
             }
         });
 
@@ -86,18 +83,28 @@ public class MainActivity extends Activity {
 
             @Override
             public boolean onOptionsItemSelected(MenuItem item) {
-                setActionBarTitle(item.getTitle());
+                setActionBarTitle(getAccount(item.getTitle()));
                 return super.onOptionsItemSelected(item);
             }
         };
         mDrawerLayout.setDrawerListener(mDrawerToggle);
 
+        // Mark the default account
+        if (savedInstanceState == null) {
+            selectItem(0);
+        }
     }
 
-    private void setActionBarTitle(CharSequence accountName) {
-        Account account = getAccount(accountName);
+    private void setActionBarTitle(Account account) {
         getActionBar().setTitle(account.getName());
         getActionBar().setSubtitle(account.apps().get(0).getName());
+    }
+
+    private void selectItem(int position) {
+        // update selected item, then close the drawer
+        mDrawerList.setItemChecked(position, true);
+        setActionBarTitle(getSavedAccounts().get(position));
+        mDrawerLayout.closeDrawer(mDrawerList);
     }
 
     @Override
