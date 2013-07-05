@@ -46,6 +46,8 @@ public class MainActivity extends FragmentActivity {
     private DashboardCollectionPagerAdapter mDashboardCollectionPagerAdapter;
     private ViewPager mViewPager;
 
+    private static final String[] VIEWS = {"Instances", "Load", "Quotas"};
+
     public class DashboardCollectionPagerAdapter extends FragmentPagerAdapter {
         public DashboardCollectionPagerAdapter(FragmentManager fm) {
             super(fm);
@@ -56,7 +58,7 @@ public class MainActivity extends FragmentActivity {
             Fragment fragment = new DashboardFragment();
             Bundle args = new Bundle();
             // Our object is just an integer :-P
-            args.putInt(DashboardFragment.ARG_OBJECT, i + 1);
+            args.putInt(DashboardFragment.ARG_OBJECT, i);
             fragment.setArguments(args);
             return fragment;
         }
@@ -68,7 +70,7 @@ public class MainActivity extends FragmentActivity {
 
         @Override
         public CharSequence getPageTitle(int position) {
-            return "OBJECT " + (position + 1);
+            return VIEWS[position];
         }
     }
 
@@ -82,7 +84,7 @@ public class MainActivity extends FragmentActivity {
                     R.layout.dashboard_fragment_collection_item, container, false);
             Bundle args = getArguments();
             ((TextView) rootView.findViewById(android.R.id.text1)).setText(
-                    Integer.toString(args.getInt(ARG_OBJECT)));
+                    VIEWS[args.getInt(ARG_OBJECT)] + " View");
             return rootView;
         }
     }
@@ -140,7 +142,11 @@ public class MainActivity extends FragmentActivity {
             selectItem(0);
         }
 
+        // Set up the dashboard view pager
+        mDashboardCollectionPagerAdapter = new DashboardCollectionPagerAdapter(getSupportFragmentManager());
+
         mViewPager = (ViewPager) findViewById(R.id.dashboard_pager);
+        mViewPager.setAdapter(mDashboardCollectionPagerAdapter);
         mViewPager.setOnPageChangeListener(
             new ViewPager.SimpleOnPageChangeListener() {
                 @Override
