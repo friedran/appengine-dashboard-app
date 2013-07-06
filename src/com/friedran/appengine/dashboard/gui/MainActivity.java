@@ -28,9 +28,11 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
+import android.util.Log;
 import android.view.*;
 import android.widget.*;
 import com.friedran.appengine.dashboard.R;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
@@ -40,10 +42,12 @@ import org.apache.http.impl.client.DefaultHttpClient;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends FragmentActivity {
     private DrawerLayout mDrawerLayout;
@@ -236,6 +240,7 @@ public class MainActivity extends FragmentActivity {
         super.onResume();
         AccountManager accountManager = AccountManager.get(getApplicationContext());
 
+        // Gets the auth token asynchronously, calling the callback with its result.
         accountManager.getAuthToken(mDisplayedAccount, "ah", false, new GetAuthTokenCallback(), null);
     }
 
@@ -265,18 +270,23 @@ public class MainActivity extends FragmentActivity {
     };
 
     protected void onGetAuthToken(Bundle bundle) {
-        String auth_token = bundle.getString(AccountManager.KEY_AUTHTOKEN);
-        new GetCookieTask().execute(auth_token);
+        String authToken = bundle.getString(AccountManager.KEY_AUTHTOKEN);
+        Log.i("MainActivity", "onGetAuthToken: Got the auth token " + authToken + ", starting to load apps");
+        new LoadAppsTask().execute(authToken);
     }
 
-    private class GetCookieTask extends AsyncTask {
+    private class LoadAppsTask extends AsyncTask<String, Void, Boolean> {
         @Override
-        protected Object doInBackground(Object... params) {
+        protected Boolean doInBackground(String... params) {
             try {
+                String authToken = (String) params[0];
+
                 // Don't follow redirects
                 mHttpClient.getParams().setBooleanParameter(ClientPNames.HANDLE_REDIRECTS, false);
 
-                HttpGet httpGet = new HttpGet("https://yourapp.appspot.com/_ah/login?continue=http://localhost/&auth=" + params[0]);
+                String url = "https://appengine.google.com/_ah/login?continue=http://localhost/&auth=" + authToken;
+                Log.i("LoadAppsTask", "Executing GET request: " + url);
+                HttpGet httpGet = new HttpGet(url);
                 HttpResponse response;
                 response = mHttpClient.execute(httpGet);
                 if(response.getStatusLine().getStatusCode() != 302)
@@ -284,7 +294,8 @@ public class MainActivity extends FragmentActivity {
                     return false;
 
                 for(Cookie cookie : mHttpClient.getCookieStore().getCookies()) {
-                    if(cookie.getName().equals("ACSID"))
+                    Log.i("LoadAppsTask", "Cookie name: " + cookie.getName());
+                    if(cookie.getName().equals("SACSID"))
                         return true;
                 }
             } catch (ClientProtocolException e) {
@@ -299,14 +310,15 @@ public class MainActivity extends FragmentActivity {
             return false;
         }
 
+        @Override
         protected void onPostExecute(Boolean result) {
-            new AuthenticatedRequestTask().execute("http://yourapp.appspot.com/admin/");
+            new AuthenticatedRequestTask().execute("https://appengine.google.com/");
         }
     }
 
-    private class AuthenticatedRequestTask extends AsyncTask {
+    private class AuthenticatedRequestTask extends AsyncTask<String, Void, HttpResponse> {
         @Override
-        protected Object doInBackground(Object... params) {
+        protected HttpResponse doInBackground(String... params) {
             try {
                 HttpGet http_get = new HttpGet((String) params[0]);
                 return mHttpClient.execute(http_get);
@@ -320,18 +332,33 @@ public class MainActivity extends FragmentActivity {
             return null;
         }
 
-        protected void onPostExecute(HttpResponse result) {
-            try {
-                BufferedReader reader = new BufferedReader(new InputStreamReader(result.getEntity().getContent()));
-                String first_line = reader.readLine();
-                Toast.makeText(getApplicationContext(), first_line, Toast.LENGTH_LONG).show();
-            } catch (IllegalStateException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+        @Override
+        protected void onPostExecute(final HttpResponse result) {
+            new Thread() {
+                @Override
+                public void run() {
+                    Log.i("AuthenticatedRequestTask", entityToString(result.getEntity()));
+                }
+            }.start();
         }
+    }
+
+    private static String entityToString(HttpEntity entity) {
+        StringBuilder str = new StringBuilder();
+        try {
+            InputStream is = entity.getContent();
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(is));
+
+            String line = null;
+
+            while ((line = bufferedReader.readLine()) != null) {
+                str.append(line + "\n");
+            }
+
+            is.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return str.toString();
     }
 }
