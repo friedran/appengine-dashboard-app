@@ -120,8 +120,8 @@ public class AppEngineDashboardClient {
         @Override
         protected HttpResponse doInBackground(String... params) {
             try {
-                HttpGet http_get = new HttpGet((String) params[0]);
-                return mHttpClient.execute(http_get);
+                HttpGet httpGet = new HttpGet(mURL);
+                return mHttpClient.execute(httpGet);
             } catch (ClientProtocolException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
