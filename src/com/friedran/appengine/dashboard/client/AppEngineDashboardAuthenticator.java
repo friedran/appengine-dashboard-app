@@ -29,11 +29,11 @@ public class AppEngineDashboardAuthenticator {
         public void run(boolean result);
     }
 
-    public AppEngineDashboardAuthenticator(Account account, DefaultHttpClient httpClient, Context applicationContext,
+    public AppEngineDashboardAuthenticator(Account account, DefaultHttpClient httpClient, Context context,
                                            PostAuthenticateCallback callback) {
         mAccount = account;
         mHttpClient = httpClient;
-        mApplicationContext = applicationContext;
+        mApplicationContext = context.getApplicationContext();
         mPostAuthenticateCallback = callback;
     }
 

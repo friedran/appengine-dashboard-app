@@ -26,9 +26,9 @@ public class AppEngineDashboardClient {
         public void run(boolean result);
     }
 
-    public AppEngineDashboardClient(Account account, Context applicationContext, PostAuthenticateCallback callback) {
+    public AppEngineDashboardClient(Account account, Context context, PostAuthenticateCallback callback) {
         mAccount = account;
-        mApplicationContext = applicationContext;
+        mApplicationContext = context.getApplicationContext();
         mPostAuthenticateCallback = callback;
 
         mHttpClient = new DefaultHttpClient();
