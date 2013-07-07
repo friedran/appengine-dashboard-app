@@ -20,10 +20,17 @@ public class AppEngineDashboardClient {
     protected DefaultHttpClient mHttpClient;
     protected Context mApplicationContext;
     protected AppEngineDashboardAuthenticator mAppEngineDashboardAuthenticator;
+    protected PostAuthenticateCallback mPostAuthenticateCallback;
 
-    public AppEngineDashboardClient(Account account, Context applicationContext) {
+    public interface PostAuthenticateCallback {
+        public void run(boolean result);
+    }
+
+    public AppEngineDashboardClient(Account account, Context applicationContext, PostAuthenticateCallback callback) {
         mAccount = account;
         mApplicationContext = applicationContext;
+        mPostAuthenticateCallback = callback;
+
         mHttpClient = new DefaultHttpClient();
 
         mAppEngineDashboardAuthenticator = new AppEngineDashboardAuthenticator(
@@ -31,7 +38,7 @@ public class AppEngineDashboardClient {
             new AppEngineDashboardAuthenticator.PostAuthenticateCallback() {
             @Override
             public void run(boolean result) {
-                // TODO
+                mPostAuthenticateCallback.run(result);
             }
         });
     }

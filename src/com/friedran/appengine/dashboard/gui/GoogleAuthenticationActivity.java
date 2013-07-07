@@ -47,7 +47,15 @@ public class GoogleAuthenticationActivity extends Activity {
         AccountManager accountManager = AccountManager.get(applicationContext);
 
         Account defaultAccount = accountManager.getAccounts()[0];
-        AppEngineDashboardClient client = new AppEngineDashboardClient(defaultAccount, applicationContext);
+
+        AppEngineDashboardClient client = new AppEngineDashboardClient(defaultAccount, applicationContext,
+            new AppEngineDashboardClient.PostAuthenticateCallback() {
+            @Override
+            public void run(boolean result) {
+                Log.i("GoogleAuthenticationActivity", "Authentication done, result = " + result);
+            }
+        });
+
         client.executeAuthentication();
     }
 
