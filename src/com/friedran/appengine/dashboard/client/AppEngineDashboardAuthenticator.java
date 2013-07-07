@@ -46,12 +46,15 @@ public class AppEngineDashboardAuthenticator {
         public void run(AccountManagerFuture result) {
             Bundle bundle;
             try {
+                Log.i("AppEngineDashboardAuthenticator", "GetAuthTokenCallback.run started...");
                 bundle = (Bundle) result.getResult();
                 Intent intent = (Intent)bundle.get(AccountManager.KEY_INTENT);
                 if(intent != null) {
                     // User input required
+                    Log.i("AppEngineDashboardAuthenticator", "User input is required...");
                     mApplicationContext.startActivity(intent);
                 } else {
+                    Log.i("AppEngineDashboardAuthenticator", "Authenticated, getting auth token...");
                     onGetAuthToken(bundle);
                 }
             } catch (OperationCanceledException e) {
@@ -69,7 +72,7 @@ public class AppEngineDashboardAuthenticator {
 
     protected void onGetAuthToken(Bundle bundle) {
         String authToken = bundle.getString(AccountManager.KEY_AUTHTOKEN);
-        Log.i("MainActivity", "onGetAuthToken: Got the auth token " + authToken + ", starting to load apps");
+        Log.i("AppEngineDashboardAuthenticator", "onGetAuthToken: Got the auth token " + authToken);
         new LoginToAppEngineTask().execute(authToken);
     }
 
@@ -77,6 +80,7 @@ public class AppEngineDashboardAuthenticator {
         @Override
         protected Boolean doInBackground(String... params) {
             try {
+                Log.i("AppEngineDashboardAuthenticator", "LoginToAppEngine starting...");
                 String authToken = (String) params[0];
 
                 // Don't follow redirects
@@ -105,11 +109,13 @@ public class AppEngineDashboardAuthenticator {
             } finally {
                 mHttpClient.getParams().setBooleanParameter(ClientPNames.HANDLE_REDIRECTS, true);
             }
+            Log.i("AppEngineDashboardAuthenticator", "LoginToAppEngine failed...");
             return false;
         }
 
         @Override
         protected void onPostExecute(Boolean result) {
+            Log.i("AppEngineDashboardAuthenticator", "LoginToAppEngine onPostExecute");
             mPostAuthenticateCallback.run(result);
         }
     }
