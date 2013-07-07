@@ -56,7 +56,7 @@ public class GoogleAuthenticationActivity extends Activity {
                 if (result) {
                     onSuccessfulAuthentication();
                 } else {
-                    mProgressDialog.dismiss();
+                    safelyDismissProgress();
                     Toast.makeText(GoogleAuthenticationActivity.this, "Authentication failed, please try again later", 2000);
                 }
             }
@@ -75,7 +75,7 @@ public class GoogleAuthenticationActivity extends Activity {
         mAppEngineClient.executeGetApplications(new AppEngineDashboardClient.PostExecuteCallback() {
             @Override
             public void run(Bundle resultBundle) {
-                mProgressDialog.dismiss();
+                safelyDismissProgress();
 
                 boolean result = resultBundle.getBoolean(AppEngineDashboardClient.KEY_RESULT);
                 Log.i("GoogleAuthenticationActivity", "GetApplications done, result = " + result);
@@ -84,7 +84,8 @@ public class GoogleAuthenticationActivity extends Activity {
                     for (String application : resultBundle.getStringArrayList(AppEngineDashboardClient.KEY_APPLICATIONS)) {
                         Log.i("GoogleAuthenticationActivity", "Application: " + application);
                     }
-                    Intent intent = new Intent(GoogleAuthenticationActivity.this, DashboardActivity.class);
+                    Intent intent = new Intent(GoogleAuthenticationActivity.this, DashboardActivity.class)
+                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);
 
                 } else {
@@ -92,6 +93,23 @@ public class GoogleAuthenticationActivity extends Activity {
                 }
             }
         });
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        safelyDismissProgress();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        safelyDismissProgress();
+    }
+
+    private void safelyDismissProgress() {
+        if (mProgressDialog.isShowing())
+            mProgressDialog.dismiss();
     }
 
 }
