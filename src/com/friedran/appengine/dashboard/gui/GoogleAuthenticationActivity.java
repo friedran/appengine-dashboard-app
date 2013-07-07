@@ -15,35 +15,30 @@ package com.friedran.appengine.dashboard.gui;
 
 import android.accounts.*;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import com.friedran.appengine.dashboard.client.AppEngineDashboardAPI;
 import com.friedran.appengine.dashboard.client.AppEngineDashboardClient;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.params.ClientPNames;
-import org.apache.http.cookie.Cookie;
-import org.apache.http.impl.client.DefaultHttpClient;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 
 public class GoogleAuthenticationActivity extends Activity {
 
+    ProgressDialog mProgressDialog;
+
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mProgressDialog = new ProgressDialog(this);
+        mProgressDialog.setTitle("Loading");
+        mProgressDialog.setMessage("Authenticating with your Google AppEngine account...");
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+
         Context applicationContext = getApplicationContext();
         AccountManager accountManager = AccountManager.get(applicationContext);
 
@@ -53,7 +48,9 @@ public class GoogleAuthenticationActivity extends Activity {
             new AppEngineDashboardClient.PostAuthenticateCallback() {
             @Override
             public void run(boolean result) {
+                mProgressDialog.dismiss();
                 Log.i("GoogleAuthenticationActivity", "Authentication done, result = " + result);
+
                 if (result) {
                     Intent intent = new Intent(GoogleAuthenticationActivity.this, DashboardActivity.class);
                     startActivity(intent);
@@ -67,6 +64,7 @@ public class GoogleAuthenticationActivity extends Activity {
         appEngineAPI.setClient(defaultAccount, client);
 
         client.executeAuthentication();
+        mProgressDialog.show();
     }
 
 }
