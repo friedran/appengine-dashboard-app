@@ -16,6 +16,7 @@ package com.friedran.appengine.dashboard.gui;
 
 import android.accounts.*;
 import android.app.ActionBar;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.AsyncTask;
@@ -111,11 +112,15 @@ public class DashboardActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-        mAccounts = getAccounts();
+        Context applicationContext = getApplicationContext();
+        AccountManager accountManager = AccountManager.get(applicationContext);
+
+        mAccounts = Arrays.asList(accountManager.getAccounts());
         List<String> accountNames = new ArrayList<String>();
         for (Account account : mAccounts) {
             accountNames.add(account.name);
         }
+
         mDisplayedAccount = mAccounts.get(0);
 
         setActionBarTitle(mDisplayedAccount);
@@ -215,13 +220,6 @@ public class DashboardActivity extends FragmentActivity {
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         mDrawerToggle.onConfigurationChanged(newConfig);
-    }
-
-    private List<Account> getAccounts() {
-        AccountManager accountManager = AccountManager.get(getApplicationContext());
-        Account[] accounts = accountManager.getAccountsByType("com.google");
-
-        return Arrays.asList(accounts);
     }
 
     private Account getAccount(CharSequence accountName) {
