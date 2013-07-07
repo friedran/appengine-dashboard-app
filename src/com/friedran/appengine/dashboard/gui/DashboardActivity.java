@@ -33,6 +33,8 @@ import android.util.Log;
 import android.view.*;
 import android.widget.*;
 import com.friedran.appengine.dashboard.R;
+import com.friedran.appengine.dashboard.client.AppEngineDashboardAPI;
+import com.friedran.appengine.dashboard.client.AppEngineDashboardClient;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -55,7 +57,10 @@ public class DashboardActivity extends FragmentActivity {
     private ListView mDrawerList;
     private ActionBarDrawerToggle mDrawerToggle;
     private List<Account> mAccounts;
+
     private Account mDisplayedAccount;
+    private List<String> mDisplayedAccountApplicationIDs;
+    private AppEngineDashboardClient mDashboardClient;
 
     private DashboardCollectionPagerAdapter mDashboardCollectionPagerAdapter;
     private ViewPager mViewPager;
@@ -122,8 +127,10 @@ public class DashboardActivity extends FragmentActivity {
         }
 
         mDisplayedAccount = mAccounts.get(0);
+        mDashboardClient = AppEngineDashboardAPI.getInstance().getClient(mDisplayedAccount);
+        mDisplayedAccountApplicationIDs = mDashboardClient.getLastRetrievedApplications();
 
-        setActionBarTitle(mDisplayedAccount);
+        setActionBarTitle(mDisplayedAccount, mDisplayedAccountApplicationIDs.get(0));
         ActionBar actionBar = getActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);  // enable ActionBar app icon to behave as action to toggle nav drawer
         actionBar.setHomeButtonEnabled(true);
@@ -153,7 +160,7 @@ public class DashboardActivity extends FragmentActivity {
             @Override
             public boolean onOptionsItemSelected(MenuItem item) {
                 mDisplayedAccount = getAccount(item.getTitle());
-                setActionBarTitle(mDisplayedAccount);
+                setActionBarTitle(mDisplayedAccount, mDisplayedAccountApplicationIDs.get(0));
                 return super.onOptionsItemSelected(item);
             }
         };
@@ -178,15 +185,15 @@ public class DashboardActivity extends FragmentActivity {
             });
     }
 
-    private void setActionBarTitle(Account account) {
+    private void setActionBarTitle(Account account, String app) {
         getActionBar().setTitle(account.name);
-        getActionBar().setSubtitle("App " + account.name);
+        getActionBar().setSubtitle(app);
     }
 
     private void selectItem(int position) {
         // update selected item, then close the drawer
         mDrawerList.setItemChecked(position, true);
-        setActionBarTitle(mAccounts.get(position));
+        setActionBarTitle(mAccounts.get(position), mDisplayedAccountApplicationIDs.get(0));
         mDrawerLayout.closeDrawer(mDrawerList);
     }
 
