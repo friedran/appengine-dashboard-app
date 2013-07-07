@@ -118,7 +118,7 @@ public class DashboardActivity extends FragmentActivity {
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
 
-        mDrawerList = (ListView) findViewById(R.id.left_drawer);
+        mDrawerList = (ListView) findViewById(R.id.drawer_accounts);
         mDrawerList.setAdapter(new ArrayAdapter<String>(this, R.layout.drawer_list_item, accountNames));
         mDrawerList.setOnItemClickListener(new ListView.OnItemClickListener() {
             @Override
