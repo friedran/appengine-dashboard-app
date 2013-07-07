@@ -175,7 +175,7 @@ public class DashboardActivity extends FragmentActivity {
         // update selected item, then close the drawer
         mDrawerList.setItemChecked(position, true);
         setActionBarTitle(mAccounts.get(position), mDisplayedAccountApplicationIDs.get(0));
-        mDrawerLayout.closeDrawer(mDrawerList);
+        mDrawerLayout.closeDrawer(GravityCompat.START);
     }
 
     @Override
