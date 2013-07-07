@@ -111,53 +111,6 @@ public class AppEngineDashboardAuthenticator {
         @Override
         protected void onPostExecute(Boolean result) {
             mPostAuthenticateCallback.run(result);
-            //new AuthenticatedRequestTask().execute("https://appengine.google.com/");
         }
-    }
-
-    private class AuthenticatedRequestTask extends AsyncTask<String, Void, HttpResponse> {
-        @Override
-        protected HttpResponse doInBackground(String... params) {
-            try {
-                HttpGet http_get = new HttpGet((String) params[0]);
-                return mHttpClient.execute(http_get);
-            } catch (ClientProtocolException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(final HttpResponse result) {
-            new Thread() {
-                @Override
-                public void run() {
-                    Log.i("AuthenticatedRequestTask", entityToString(result.getEntity()));
-                }
-            }.start();
-        }
-    }
-
-    private static String entityToString(HttpEntity entity) {
-        StringBuilder str = new StringBuilder();
-        try {
-            InputStream is = entity.getContent();
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(is));
-
-            String line = null;
-
-            while ((line = bufferedReader.readLine()) != null) {
-                str.append(line + "\n");
-            }
-
-            is.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        return str.toString();
     }
 }
