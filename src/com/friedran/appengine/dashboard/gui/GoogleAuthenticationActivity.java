@@ -53,6 +53,11 @@ public class GoogleAuthenticationActivity extends Activity {
             @Override
             public void run(boolean result) {
                 Log.i("GoogleAuthenticationActivity", "Authentication done, result = " + result);
+                if (result) {
+                    startActivity(new Intent(GoogleAuthenticationActivity.this, DashboardActivity.class));
+                } else {
+                    // TODO: Display a problem message, and offer to retry.
+                }
             }
         });
 
