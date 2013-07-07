@@ -45,10 +45,12 @@ public class GoogleAuthenticationActivity extends Activity {
         Account defaultAccount = accountManager.getAccounts()[0];
 
         AppEngineDashboardClient client = new AppEngineDashboardClient(defaultAccount, applicationContext,
-            new AppEngineDashboardClient.PostAuthenticateCallback() {
+            new AppEngineDashboardClient.PostExecuteCallback() {
             @Override
-            public void run(boolean result) {
+            public void run(Bundle resultBundle) {
                 mProgressDialog.dismiss();
+
+                boolean result = resultBundle.getBoolean(AppEngineDashboardClient.KEY_RESULT);
                 Log.i("GoogleAuthenticationActivity", "Authentication done, result = " + result);
 
                 if (result) {

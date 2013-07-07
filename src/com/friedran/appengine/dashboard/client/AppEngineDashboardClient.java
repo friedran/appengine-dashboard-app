@@ -3,6 +3,7 @@ package com.friedran.appengine.dashboard.client;
 import android.accounts.Account;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.util.Log;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -20,16 +21,20 @@ public class AppEngineDashboardClient {
     protected DefaultHttpClient mHttpClient;
     protected Context mApplicationContext;
     protected AppEngineDashboardAuthenticator mAppEngineDashboardAuthenticator;
-    protected PostAuthenticateCallback mPostAuthenticateCallback;
 
-    public interface PostAuthenticateCallback {
-        public void run(boolean result);
+    protected PostExecuteCallback mPostAuthenticateCallback;
+
+    public static final String KEY_RESULT = "RESULT";
+
+    public interface PostExecuteCallback {
+        public void run(Bundle result);
     }
 
-    public AppEngineDashboardClient(Account account, Context context, PostAuthenticateCallback callback) {
+    public AppEngineDashboardClient(Account account, Context context,
+                                    PostExecuteCallback postAuthenticationCallback) {
         mAccount = account;
         mApplicationContext = context.getApplicationContext();
-        mPostAuthenticateCallback = callback;
+        mPostAuthenticateCallback = postAuthenticationCallback;
 
         mHttpClient = new DefaultHttpClient();
 
@@ -38,7 +43,9 @@ public class AppEngineDashboardClient {
             new AppEngineDashboardAuthenticator.PostAuthenticateCallback() {
             @Override
             public void run(boolean result) {
-                mPostAuthenticateCallback.run(result);
+                Bundle bundle = new Bundle();
+                bundle.putBoolean(KEY_RESULT, result);
+                mPostAuthenticateCallback.run(bundle);
             }
         });
     }
