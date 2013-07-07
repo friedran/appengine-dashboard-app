@@ -39,7 +39,7 @@
               android:layout_height="match_parent"
               android:layout_gravity="start"
               android:choiceMode="singleChoice"
-              android:divider="#575757"
+              android:divider="#D7D7D7"
               android:dividerHeight="1dp"
-              android:background="#EEEEEE"/>
+              android:background="#E8E8E8"/>
 </android.support.v4.widget.DrawerLayout>
