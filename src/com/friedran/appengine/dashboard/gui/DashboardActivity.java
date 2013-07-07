@@ -38,10 +38,11 @@ import java.util.List;
 
 public class DashboardActivity extends FragmentActivity {
     private DrawerLayout mDrawerLayout;
-    private ListView mDrawerList;
+    private ListView mDrawerAccountsList;
+    private ListView mDrawerApplicationsList;
     private ActionBarDrawerToggle mDrawerToggle;
-    private List<Account> mAccounts;
 
+    private List<Account> mAccounts;
     private Account mDisplayedAccount;
     private List<String> mDisplayedAccountApplicationIDs;
 
@@ -95,7 +96,7 @@ public class DashboardActivity extends FragmentActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);
+        setContentView(R.layout.dashboard);
 
         Context applicationContext = getApplicationContext();
         AccountManager accountManager = AccountManager.get(applicationContext);
@@ -118,12 +119,21 @@ public class DashboardActivity extends FragmentActivity {
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
 
-        mDrawerList = (ListView) findViewById(R.id.drawer_accounts);
-        mDrawerList.setAdapter(new ArrayAdapter<String>(this, R.layout.drawer_list_item, accountNames));
-        mDrawerList.setOnItemClickListener(new ListView.OnItemClickListener() {
+        mDrawerAccountsList = (ListView) findViewById(R.id.drawer_accounts);
+        mDrawerAccountsList.setAdapter(new ArrayAdapter<String>(this, R.layout.drawer_accounts_list_item, accountNames));
+        mDrawerAccountsList.setOnItemClickListener(new ListView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                selectItem(position);
+                selectAccountItem(position);
+            }
+        });
+
+        mDrawerApplicationsList = (ListView) findViewById(R.id.drawer_applications);
+        mDrawerApplicationsList.setAdapter(new ArrayAdapter<String>(this, R.layout.drawer_applications_list_item, mDisplayedAccountApplicationIDs));
+        mDrawerApplicationsList.setOnItemClickListener(new ListView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                selectApplicationItem(position);
             }
         });
 
@@ -148,7 +158,7 @@ public class DashboardActivity extends FragmentActivity {
 
         // Mark the default account
         if (savedInstanceState == null) {
-            selectItem(0);
+            selectApplicationItem(0);
         }
 
         // Set up the dashboard view pager
@@ -171,10 +181,17 @@ public class DashboardActivity extends FragmentActivity {
         getActionBar().setSubtitle(app);
     }
 
-    private void selectItem(int position) {
+    private void selectAccountItem(int position) {
         // update selected item, then close the drawer
-        mDrawerList.setItemChecked(position, true);
+        mDrawerAccountsList.setItemChecked(position, true);
         setActionBarTitle(mAccounts.get(position), mDisplayedAccountApplicationIDs.get(0));
+        mDrawerLayout.closeDrawer(GravityCompat.START);
+    }
+
+    private void selectApplicationItem(int position) {
+        // update selected item, then close the drawer
+        mDrawerApplicationsList.setItemChecked(position, true);
+        setActionBarTitle(mAccounts.get(position), mDisplayedAccountApplicationIDs.get(position));
         mDrawerLayout.closeDrawer(GravityCompat.START);
     }
 

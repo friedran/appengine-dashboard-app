@@ -14,7 +14,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
-                android:background="#ffffff">
+                android:background="@color/black">
 
             <!--
             This title strip will display the currently visible page title, as well as the page
@@ -25,7 +25,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="top"
-                    android:background="#ededed"
+                    android:background="@color/background_gray"
                     android:textSize="16dp"
                     android:paddingTop="4dp"
                     android:paddingBottom="4dp" />
@@ -39,13 +39,13 @@
                   android:layout_gravity="start"
                   android:layout_width="300dp"
                   android:layout_height="match_parent"
-                  android:background="#E8E8E8">
+                  android:background="@color/background_gray">
 
         <ListView android:id="@+id/drawer_accounts"
                   android:layout_width="match_parent"
                   android:layout_height="wrap_content"
                   android:choiceMode="singleChoice"
-                  android:divider="#D7D7D7"
+                  android:divider="@color/divider_gray"
                   android:dividerHeight="1dp"/>
 
         <TextView xmlns:android="http://schemas.android.com/apk/res/android"
@@ -57,7 +57,7 @@
                          android:text="@string/applications"
                          android:textAllCaps="true"
                          android:textAppearance="@android:style/TextAppearance.Small"
-                         android:textColor="#575757"
+                         android:textColor="@color/text_gray"
                          android:textStyle="bold" />
 
         <View style="@style/Divider"/>
@@ -66,7 +66,7 @@
                   android:layout_width="match_parent"
                   android:layout_height="wrap_content"
                   android:choiceMode="singleChoice"
-                  android:divider="#D7D7D7"
+                  android:divider="@color/divider_gray"
                   android:dividerHeight="1dp"/>
 
     </LinearLayout>
