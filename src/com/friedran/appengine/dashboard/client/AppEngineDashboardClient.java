@@ -28,6 +28,8 @@ public class AppEngineDashboardClient {
 
     protected PostExecuteCallback mPostAuthenticateCallback;
 
+    protected ArrayList<String> mLastRetrievedApplications;
+
     public static final String KEY_RESULT = "RESULT";
 
     public interface PostExecuteCallback {
@@ -40,6 +42,7 @@ public class AppEngineDashboardClient {
         mApplicationContext = context.getApplicationContext();
         mPostAuthenticateCallback = postAuthenticationCallback;
 
+        mLastRetrievedApplications = new ArrayList<String>();
         mHttpClient = new DefaultHttpClient();
 
         mAppEngineDashboardAuthenticator = new AppEngineDashboardAuthenticator(
@@ -71,6 +74,10 @@ public class AppEngineDashboardClient {
         }).execute();
     }
 
+    public List<String> getLastRetrievedApplications() {
+        return mLastRetrievedApplications;
+    }
+
     /**
      * Called when the GetApplication request is done, parses the result and returns the list of applications to the given callback.
      *
@@ -84,12 +91,12 @@ public class AppEngineDashboardClient {
                 try {
                     // Read the content and parse it. That might take some time...
                     InputStream is = httpEntityResult.getContent();
-                    ArrayList<String> applicationIds = AppEngineParserUtils.getApplicationIDs(is);
+                    mLastRetrievedApplications = AppEngineParserUtils.getApplicationIDs(is);
                     is.close();
 
                     Bundle result = new Bundle();
                     result.putBoolean(KEY_RESULT, true);
-                    result.putStringArrayList(KEY_APPLICATIONS, applicationIds);
+                    result.putStringArrayList(KEY_APPLICATIONS, mLastRetrievedApplications);
                     postGetApplicationsCallback.run(result);
 
                 } catch (IOException e) {
