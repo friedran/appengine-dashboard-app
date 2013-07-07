@@ -14,10 +14,12 @@
 
 package com.friedran.appengine.dashboard.gui;
 
-import android.accounts.Account;
-import android.accounts.AccountManager;
+import android.accounts.*;
 import android.app.ActionBar;
+import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.ActionBarDrawerToggle;
@@ -27,22 +29,33 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
+import android.util.Log;
 import android.view.*;
-import android.widget.ArrayAdapter;
-import android.widget.AdapterView;
-import android.widget.ListView;
-import android.widget.TextView;
+import android.widget.*;
 import com.friedran.appengine.dashboard.R;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.params.ClientPNames;
+import org.apache.http.cookie.Cookie;
+import org.apache.http.impl.client.DefaultHttpClient;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
-public class MainActivity extends FragmentActivity {
+public class DashboardActivity extends FragmentActivity {
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerList;
     private ActionBarDrawerToggle mDrawerToggle;
     private List<Account> mAccounts;
+    private Account mDisplayedAccount;
 
     private DashboardCollectionPagerAdapter mDashboardCollectionPagerAdapter;
     private ViewPager mViewPager;
@@ -99,14 +112,18 @@ public class MainActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-        mAccounts = getAccounts();
+        Context applicationContext = getApplicationContext();
+        AccountManager accountManager = AccountManager.get(applicationContext);
+
+        mAccounts = Arrays.asList(accountManager.getAccounts());
         List<String> accountNames = new ArrayList<String>();
         for (Account account : mAccounts) {
             accountNames.add(account.name);
         }
-        Account defaultAccount = mAccounts.get(0);
 
-        setActionBarTitle(defaultAccount);
+        mDisplayedAccount = mAccounts.get(0);
+
+        setActionBarTitle(mDisplayedAccount);
         ActionBar actionBar = getActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);  // enable ActionBar app icon to behave as action to toggle nav drawer
         actionBar.setHomeButtonEnabled(true);
@@ -135,7 +152,8 @@ public class MainActivity extends FragmentActivity {
 
             @Override
             public boolean onOptionsItemSelected(MenuItem item) {
-                setActionBarTitle(getAccount(item.getTitle()));
+                mDisplayedAccount = getAccount(item.getTitle());
+                setActionBarTitle(mDisplayedAccount);
                 return super.onOptionsItemSelected(item);
             }
         };
@@ -202,13 +220,6 @@ public class MainActivity extends FragmentActivity {
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         mDrawerToggle.onConfigurationChanged(newConfig);
-    }
-
-    private List<Account> getAccounts() {
-        AccountManager accountManager = AccountManager.get(getApplicationContext());
-        Account[] accounts = accountManager.getAccountsByType("com.google");
-
-        return Arrays.asList(accounts);
     }
 
     private Account getAccount(CharSequence accountName) {
