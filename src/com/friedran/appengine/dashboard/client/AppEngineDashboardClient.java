@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import com.friedran.appengine.dashboard.utils.AppEngineParserUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -15,8 +16,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 
 public class AppEngineDashboardClient {
+    public static final String KEY_APPLICATIONS = "APPLICATIONS";
     protected Account mAccount;
     protected DefaultHttpClient mHttpClient;
     protected Context mApplicationContext;
@@ -54,25 +58,56 @@ public class AppEngineDashboardClient {
         mAppEngineDashboardAuthenticator.executeAuthentication();
     }
 
-    public void executeGetApplications() {
+    /**
+     * Send an authenticated GetApplications request asynchronously and return its results to the given callback.
+     */
+    public void executeGetApplications(final PostExecuteCallback postGetApplicationsCallback) {
         new AuthenticatedRequestTask("https://appengine.google.com/",
             new AuthenticatedRequestTaskCallback() {
                 @Override
-                public void run(final HttpEntity result) {
-                    new Thread() {
-                        @Override
-                        public void run() {
-                            Log.i("AuthenticatedRequestTask", entityToString(result));
-                        }
-                    }.start();
+                public void run(final HttpEntity httpEntityResult) {
+                    onPostExecuteGetApplications(httpEntityResult, postGetApplicationsCallback);
                 }
         }).execute();
     }
 
-    private interface AuthenticatedRequestTaskCallback {
-        public void run(HttpEntity result);
+    /**
+     * Called when the GetApplication request is done, parses the result and returns the list of applications to the given callback.
+     *
+     * @param httpEntityResult Result of the GetApplication AuthenticatedRequest
+     * @param postGetApplicationsCallback The callback that should be called with the results of GetApplications
+     */
+    private void onPostExecuteGetApplications(final HttpEntity httpEntityResult, final PostExecuteCallback postGetApplicationsCallback) {
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    // Read the content and parse it. That might take some time...
+                    InputStream is = httpEntityResult.getContent();
+                    ArrayList<String> applicationIds = AppEngineParserUtils.getApplicationIDs(is);
+                    is.close();
+
+                    Bundle result = new Bundle();
+                    result.putBoolean(KEY_RESULT, true);
+                    result.putStringArrayList(KEY_APPLICATIONS, applicationIds);
+                    postGetApplicationsCallback.run(result);
+
+                } catch (IOException e) {
+                    Log.e("AppEngineDashboardClient#onPostExecuteGetApplications", "Exception caught when tried to parse result", e);
+                    e.printStackTrace();
+                    Bundle result = new Bundle();
+                    result.putBoolean(KEY_RESULT, false);
+                    postGetApplicationsCallback.run(result);
+                }
+            }
+        };
+        new Thread(runnable).start();
     }
 
+    /**
+     * Inner class responsible of sending authenticated requests to Google's AppEngine servers and returning its
+     *  responses via asynchronous callbacks.
+     */
     private class AuthenticatedRequestTask extends AsyncTask<String, Void, HttpResponse> {
         protected String mURL;
         protected AuthenticatedRequestTaskCallback mCallback;
@@ -103,22 +138,7 @@ public class AppEngineDashboardClient {
         }
     }
 
-    private static String entityToString(HttpEntity entity) {
-        StringBuilder str = new StringBuilder();
-        try {
-            InputStream is = entity.getContent();
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(is));
-
-            String line = null;
-
-            while ((line = bufferedReader.readLine()) != null) {
-                str.append(line + "\n");
-            }
-
-            is.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        return str.toString();
+    private interface AuthenticatedRequestTaskCallback {
+        public void run(HttpEntity result);
     }
 }

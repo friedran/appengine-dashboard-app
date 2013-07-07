@@ -12,12 +12,12 @@ import java.util.regex.Pattern;
 public class AppEngineParserUtils {
     private static final Pattern APPLICATIONS_PATTERN = Pattern.compile("<a\\s+([^>]*\\s+)?href=\"/dashboard\\?\\&app_id=s\\~([^>\"]+)\"");
 
-    public static List<String> getApplicationIDs(InputStream in) {
+    public static ArrayList<String> getApplicationIDs(InputStream in) {
         return getMatches(in, APPLICATIONS_PATTERN);
     }
 
-    private static List<String> getMatches(InputStream in, Pattern pattern) {
-        List<String> matches = new ArrayList<String>();
+    private static ArrayList<String> getMatches(InputStream in, Pattern pattern) {
+        ArrayList<String> matches = new ArrayList<String>();
         Scanner scanner = new Scanner(in, "UTF-8");
         String match = "";
         while (match != null) {
