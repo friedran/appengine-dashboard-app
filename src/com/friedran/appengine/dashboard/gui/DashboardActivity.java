@@ -11,46 +11,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.friedran.appengine.dashboard.gui;
 
-import android.accounts.*;
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.app.ActionBar;
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.Configuration;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.ActionBarDrawerToggle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
+import android.support.v4.app.*;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
-import android.util.Log;
 import android.view.*;
-import android.widget.*;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.TextView;
 import com.friedran.appengine.dashboard.R;
 import com.friedran.appengine.dashboard.client.AppEngineDashboardAPI;
 import com.friedran.appengine.dashboard.client.AppEngineDashboardClient;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.params.ClientPNames;
-import org.apache.http.cookie.Cookie;
-import org.apache.http.impl.client.DefaultHttpClient;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 public class DashboardActivity extends FragmentActivity {
     private DrawerLayout mDrawerLayout;
@@ -60,10 +44,6 @@ public class DashboardActivity extends FragmentActivity {
 
     private Account mDisplayedAccount;
     private List<String> mDisplayedAccountApplicationIDs;
-    private AppEngineDashboardClient mDashboardClient;
-
-    private DashboardCollectionPagerAdapter mDashboardCollectionPagerAdapter;
-    private ViewPager mViewPager;
 
     private static final String[] VIEWS = {"Instances", "Load", "Quotas"};
 
@@ -127,8 +107,8 @@ public class DashboardActivity extends FragmentActivity {
         }
 
         mDisplayedAccount = mAccounts.get(0);
-        mDashboardClient = AppEngineDashboardAPI.getInstance().getClient(mDisplayedAccount);
-        mDisplayedAccountApplicationIDs = mDashboardClient.getLastRetrievedApplications();
+        AppEngineDashboardClient dashboardClient = AppEngineDashboardAPI.getInstance().getClient(mDisplayedAccount);
+        mDisplayedAccountApplicationIDs = dashboardClient.getLastRetrievedApplications();
 
         setActionBarTitle(mDisplayedAccount, mDisplayedAccountApplicationIDs.get(0));
         ActionBar actionBar = getActionBar();
@@ -172,17 +152,18 @@ public class DashboardActivity extends FragmentActivity {
         }
 
         // Set up the dashboard view pager
-        mDashboardCollectionPagerAdapter = new DashboardCollectionPagerAdapter(getSupportFragmentManager());
+        DashboardCollectionPagerAdapter dashboardCollectionPagerAdapter =
+                new DashboardCollectionPagerAdapter(getSupportFragmentManager());
 
-        mViewPager = (ViewPager) findViewById(R.id.dashboard_pager);
-        mViewPager.setAdapter(mDashboardCollectionPagerAdapter);
-        mViewPager.setOnPageChangeListener(
-            new ViewPager.SimpleOnPageChangeListener() {
-                @Override
-                public void onPageSelected(int position) {
-                    // TODO
-                }
-            });
+        ViewPager viewPager = (ViewPager) findViewById(R.id.dashboard_pager);
+        viewPager.setAdapter(dashboardCollectionPagerAdapter);
+        viewPager.setOnPageChangeListener(
+                new ViewPager.SimpleOnPageChangeListener() {
+                    @Override
+                    public void onPageSelected(int position) {
+                        // TODO
+                    }
+                });
     }
 
     private void setActionBarTitle(Account account, String app) {
@@ -206,11 +187,7 @@ public class DashboardActivity extends FragmentActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (mDrawerToggle.onOptionsItemSelected(item)) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
+        return mDrawerToggle.onOptionsItemSelected(item) || super.onOptionsItemSelected(item);
     }
 
     /**
