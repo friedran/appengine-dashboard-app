@@ -15,10 +15,12 @@ package com.friedran.appengine.dashboard.gui;
 
 import android.accounts.*;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import com.friedran.appengine.dashboard.client.AppEngineDashboardClient;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -41,7 +43,12 @@ public class GoogleAuthenticationActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        AccountManager accountManager = AccountManager.get(getApplicationContext());
+        Context applicationContext = getApplicationContext();
+        AccountManager accountManager = AccountManager.get(applicationContext);
+
+        Account defaultAccount = accountManager.getAccounts()[0];
+        AppEngineDashboardClient client = new AppEngineDashboardClient(defaultAccount, applicationContext);
+        client.executeAuthentication();
     }
 
 }

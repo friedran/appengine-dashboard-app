@@ -37,7 +37,7 @@ public class AppEngineDashboardAuthenticator {
         mPostAuthenticateCallback = callback;
     }
 
-    public void startAuthentication() {
+    public void executeAuthentication() {
         // Gets the auth token asynchronously, calling the callback with its result.
         AccountManager.get(mApplicationContext).getAuthToken(mAccount, "ah", false, new GetAuthTokenCallback(), null);
     }

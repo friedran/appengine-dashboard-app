@@ -36,8 +36,8 @@ public class AppEngineDashboardClient {
         });
     }
 
-    public void startAuthentication() {
-        mAppEngineDashboardAuthenticator.startAuthentication();
+    public void executeAuthentication() {
+        mAppEngineDashboardAuthenticator.executeAuthentication();
     }
 
     public void executeGetApplications() {
