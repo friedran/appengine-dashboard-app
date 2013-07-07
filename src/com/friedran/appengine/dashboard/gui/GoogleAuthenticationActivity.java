@@ -55,11 +55,10 @@ public class GoogleAuthenticationActivity extends Activity {
             public void run(boolean result) {
                 Log.i("GoogleAuthenticationActivity", "Authentication done, result = " + result);
                 if (result) {
-                    Intent intent = new Intent(GoogleAuthenticationActivity.this, DashboardActivity.class)
-                            .addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                    Intent intent = new Intent(GoogleAuthenticationActivity.this, DashboardActivity.class);
                     startActivity(intent);
                 } else {
-                    // TODO: Display a problem message, and offer to retry.
+                    // TODO: Display an error message and offer to retry.
                 }
             }
         });
