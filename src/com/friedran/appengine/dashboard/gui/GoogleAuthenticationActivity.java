@@ -20,6 +20,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import com.friedran.appengine.dashboard.client.AppEngineDashboardAPI;
 import com.friedran.appengine.dashboard.client.AppEngineDashboardClient;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -60,6 +61,9 @@ public class GoogleAuthenticationActivity extends Activity {
                 }
             }
         });
+
+        AppEngineDashboardAPI appEngineAPI = AppEngineDashboardAPI.getInstance();
+        appEngineAPI.setClient(defaultAccount, client);
 
         client.executeAuthentication();
     }
