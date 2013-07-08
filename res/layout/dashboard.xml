@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                        android:id="@+id/drawer_layout"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="match_parent"
+                                        >
+    <!-- The main content view -->
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                  android:orientation="vertical"
+                  android:layout_width="fill_parent"
+                  android:layout_height="fill_parent">
+        <android.support.v4.view.ViewPager
+                android:id="@+id/dashboard_pager"
+                android:layout_width="fill_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1">
+
+            <!--
+            This title strip will display the currently visible page title, as well as the page
+            titles for adjacent pages.
+            -->
+            <android.support.v4.view.PagerTitleStrip
+                    android:id="@+id/dashboard_pager_title_strip"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top"
+                    android:background="@color/background_gray"
+                    android:textSize="16dp"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="4dp" />
+
+        </android.support.v4.view.ViewPager>
+    </LinearLayout>
+
+    <!-- The navigation drawer -->
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                  android:orientation="vertical"
+                  android:layout_gravity="start"
+                  android:layout_width="300dp"
+                  android:layout_height="match_parent"
+                  android:background="@color/background_gray">
+
+        <ListView android:id="@+id/drawer_accounts"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:choiceMode="singleChoice"
+                  android:divider="@color/divider_gray"
+                  android:dividerHeight="1dp"/>
+
+        <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+                         android:layout_width="match_parent"
+                         android:layout_height="wrap_content"
+                         android:gravity="center_vertical"
+                         android:padding="12dp"
+                         android:drawablePadding="10dp"
+                         android:text="@string/applications"
+                         android:textAllCaps="true"
+                         android:textAppearance="@android:style/TextAppearance.Small"
+                         android:textColor="@color/text_gray"
+                         android:textStyle="bold" />
+
+        <View style="@style/Divider"/>
+
+        <ListView android:id="@+id/drawer_applications"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:choiceMode="singleChoice"
+                  android:divider="@color/divider_gray"
+                  android:dividerHeight="1dp"/>
+
+    </LinearLayout>
+
+</android.support.v4.widget.DrawerLayout>
