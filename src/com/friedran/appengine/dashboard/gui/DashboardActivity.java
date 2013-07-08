@@ -23,17 +23,14 @@ import android.support.v4.app.*;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
+import android.util.Log;
 import android.view.*;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
-import android.widget.TextView;
+import android.widget.*;
 import com.friedran.appengine.dashboard.R;
 import com.friedran.appengine.dashboard.client.AppEngineDashboardAPI;
 import com.friedran.appengine.dashboard.client.AppEngineDashboardClient;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class DashboardActivity extends FragmentActivity {
@@ -41,10 +38,6 @@ public class DashboardActivity extends FragmentActivity {
     private ListView mDrawerAccountsList;
     private ListView mDrawerApplicationsList;
     private ActionBarDrawerToggle mDrawerToggle;
-
-    private List<Account> mAccounts;
-    private Account mDisplayedAccount;
-    private List<String> mDisplayedAccountApplicationIDs;
 
     private static final String[] VIEWS = {"Instances", "Load", "Quotas"};
 
@@ -101,20 +94,13 @@ public class DashboardActivity extends FragmentActivity {
         Context applicationContext = getApplicationContext();
         AccountManager accountManager = AccountManager.get(applicationContext);
 
-        mAccounts = Arrays.asList(accountManager.getAccounts());
+        Account[] accounts = accountManager.getAccounts();
         List<String> accountNames = new ArrayList<String>();
-        for (Account account : mAccounts) {
+        for (Account account : accounts) {
             accountNames.add(account.name);
         }
-
-        mDisplayedAccount = mAccounts.get(0);
-        AppEngineDashboardClient dashboardClient = AppEngineDashboardAPI.getInstance().getClient(mDisplayedAccount);
-        mDisplayedAccountApplicationIDs = dashboardClient.getLastRetrievedApplications();
-
-        setActionBarTitle(mDisplayedAccount, mDisplayedAccountApplicationIDs.get(0));
-        ActionBar actionBar = getActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);  // enable ActionBar app icon to behave as action to toggle nav drawer
-        actionBar.setHomeButtonEnabled(true);
+        AppEngineDashboardClient dashboardClient = AppEngineDashboardAPI.getInstance().getClient(accounts[0]);
+        List<String> applicationsList = dashboardClient.getLastRetrievedApplications();
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
@@ -129,7 +115,8 @@ public class DashboardActivity extends FragmentActivity {
         });
 
         mDrawerApplicationsList = (ListView) findViewById(R.id.drawer_applications);
-        mDrawerApplicationsList.setAdapter(new ArrayAdapter<String>(this, R.layout.drawer_applications_list_item, mDisplayedAccountApplicationIDs));
+        mDrawerApplicationsList.setAdapter(
+                new ArrayAdapter<String>(this, R.layout.drawer_applications_list_item, applicationsList));
         mDrawerApplicationsList.setOnItemClickListener(new ListView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -159,6 +146,11 @@ public class DashboardActivity extends FragmentActivity {
             selectAccountItem(0);
             selectApplicationItem(0);
         }
+        setActionBarTitleFromNavigation();
+
+        ActionBar actionBar = getActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);  // enable ActionBar app icon to behave as action to toggle nav drawer
+        actionBar.setHomeButtonEnabled(true);
 
         // Set up the dashboard view pager
         DashboardCollectionPagerAdapter dashboardCollectionPagerAdapter =
@@ -175,24 +167,43 @@ public class DashboardActivity extends FragmentActivity {
                 });
     }
 
-    private void setActionBarTitle(Account account, String app) {
-        getActionBar().setTitle(account.name);
-        getActionBar().setSubtitle(app);
-    }
-
     private void selectAccountItem(int position) {
-        // update selected item, then close the drawer
-        mDrawerAccountsList.setItemChecked(position, true);
-        mDrawerApplicationsList.setItemChecked(0, true);
-        setActionBarTitle(mAccounts.get(position), mDisplayedAccountApplicationIDs.get(0));
         mDrawerLayout.closeDrawer(GravityCompat.START);
+
+        if (mDrawerAccountsList.getSelectedItemPosition() != position)
+            mDrawerApplicationsList.setItemChecked(0, true);
+
+        mDrawerAccountsList.setItemChecked(position, true);
+        setActionBarTitleFromNavigation();
     }
 
     private void selectApplicationItem(int position) {
+        mDrawerLayout.closeDrawer(GravityCompat.START);
+
         // update selected item, then close the drawer
         mDrawerApplicationsList.setItemChecked(position, true);
-        setActionBarTitle(mDisplayedAccount, mDisplayedAccountApplicationIDs.get(position));
-        mDrawerLayout.closeDrawer(GravityCompat.START);
+        setActionBarTitleFromNavigation();
+    }
+
+    private void setActionBarTitleFromNavigation() {
+        String selectedAccount = getNavigationListCheckedItem(mDrawerAccountsList);
+        String selectedApp = getNavigationListCheckedItem(mDrawerApplicationsList);
+
+        if (selectedAccount==null || selectedApp==null) {
+            Log.e("DashboardActivity", "No selected Account/App");
+            return;
+        }
+
+        getActionBar().setTitle(selectedAccount);
+        getActionBar().setSubtitle(selectedApp);
+    }
+
+    private static String getNavigationListCheckedItem(ListView listView) {
+        int checkedPosition = listView.getCheckedItemPosition();
+        if (checkedPosition == ListView.INVALID_POSITION)
+            return null;
+
+        return (String) listView.getItemAtPosition(checkedPosition);
     }
 
     @Override
@@ -221,14 +232,5 @@ public class DashboardActivity extends FragmentActivity {
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         mDrawerToggle.onConfigurationChanged(newConfig);
-    }
-
-    private Account getAccount(CharSequence accountName) {
-        for (Account account : mAccounts) {
-            if (account.name.equals(accountName))
-                return account;
-        }
-
-        return null;
     }
 }
