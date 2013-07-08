@@ -73,7 +73,7 @@
             android:text="@string/requests_seconds"/>
 
     <ImageView
-            android:id="@+id/load_chart"
+            android:id="@+id/load_chart_image"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
