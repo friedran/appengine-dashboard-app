@@ -149,8 +149,6 @@ public class DashboardActivity extends FragmentActivity {
 
             @Override
             public boolean onOptionsItemSelected(MenuItem item) {
-                mDisplayedAccount = getAccount(item.getTitle());
-                setActionBarTitle(mDisplayedAccount, mDisplayedAccountApplicationIDs.get(0));
                 return super.onOptionsItemSelected(item);
             }
         };
@@ -158,6 +156,7 @@ public class DashboardActivity extends FragmentActivity {
 
         // Mark the default account
         if (savedInstanceState == null) {
+            selectAccountItem(0);
             selectApplicationItem(0);
         }
 
@@ -184,6 +183,7 @@ public class DashboardActivity extends FragmentActivity {
     private void selectAccountItem(int position) {
         // update selected item, then close the drawer
         mDrawerAccountsList.setItemChecked(position, true);
+        mDrawerApplicationsList.setItemChecked(0, true);
         setActionBarTitle(mAccounts.get(position), mDisplayedAccountApplicationIDs.get(0));
         mDrawerLayout.closeDrawer(GravityCompat.START);
     }
@@ -191,7 +191,7 @@ public class DashboardActivity extends FragmentActivity {
     private void selectApplicationItem(int position) {
         // update selected item, then close the drawer
         mDrawerApplicationsList.setItemChecked(position, true);
-        setActionBarTitle(mAccounts.get(position), mDisplayedAccountApplicationIDs.get(position));
+        setActionBarTitle(mDisplayedAccount, mDisplayedAccountApplicationIDs.get(position));
         mDrawerLayout.closeDrawer(GravityCompat.START);
     }
 
