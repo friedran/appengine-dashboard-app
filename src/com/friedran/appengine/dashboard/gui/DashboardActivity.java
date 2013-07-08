@@ -41,6 +41,8 @@ public class DashboardActivity extends FragmentActivity {
 
     private static final String[] VIEWS = {"Load", "Instances", "Quotas"};
 
+    public static final String FRAGMENT_INDEX = "INDEX";
+
     public class DashboardCollectionPagerAdapter extends FragmentPagerAdapter {
         public DashboardCollectionPagerAdapter(FragmentManager fm) {
             super(fm);
@@ -48,11 +50,21 @@ public class DashboardActivity extends FragmentActivity {
 
         @Override
         public Fragment getItem(int i) {
-            Fragment fragment = new DashboardFragment();
+            Fragment fragment;
+            switch (i) {
+                case 0:
+                    fragment = new DashboardLoadFragment();
+                    break;
+
+                default:
+                    fragment = new DashboardStaticFragment();
+                    break;
+            }
+
             Bundle args = new Bundle();
-            // Our object is just an integer :-P
-            args.putInt(DashboardFragment.ARG_OBJECT, i);
+            args.putInt(FRAGMENT_INDEX, i);
             fragment.setArguments(args);
+
             return fragment;
         }
 
@@ -67,8 +79,7 @@ public class DashboardActivity extends FragmentActivity {
         }
     }
 
-    public static class DashboardFragment extends Fragment {
-        public static final String ARG_OBJECT = "object";
+    public static class DashboardStaticFragment extends Fragment {
 
         @Override
         public View onCreateView(LayoutInflater inflater,
@@ -77,7 +88,7 @@ public class DashboardActivity extends FragmentActivity {
                     R.layout.dashboard_fragment_collection_item, container, false);
             Bundle args = getArguments();
             ((TextView) rootView.findViewById(android.R.id.text1)).setText(
-                    VIEWS[args.getInt(ARG_OBJECT)] + " View");
+                    VIEWS[args.getInt(FRAGMENT_INDEX)] + " View");
             return rootView;
         }
     }
