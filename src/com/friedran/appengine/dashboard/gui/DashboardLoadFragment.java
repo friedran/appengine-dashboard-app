@@ -20,6 +20,7 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
     public static final String CHART_URL_BACKGROUND_COLOR_SUFFIX = "&chf=bg,s,E8E8E8";
     private AppEngineDashboardClient mAppEngineClient;
     private String mApplicationId;
+
     private int mDisplayedMetricTypeID;
     private int mDisplayedTimeWindowID;
 
@@ -62,7 +63,7 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
     public void onResume() {
         super.onResume();
 
-        executeLoadingChartIfChanged();
+        executeLoadingChartIfChanged(true);
     }
 
     /**
@@ -70,7 +71,7 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
      */
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        executeLoadingChartIfChanged();
+        executeLoadingChartIfChanged(false);
     }
 
     @Override
@@ -81,11 +82,12 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
     /**
      * Gets and renders the chart URL asynchronously
      */
-    private void executeLoadingChartIfChanged() {
+    private void executeLoadingChartIfChanged(boolean forceLoad) {
         final int selectedMetricType = mMetricSpinner.getSelectedItemPosition();
         final int selectedTimeWindow = mTimeSpinner.getSelectedItemPosition();
 
-        if (selectedMetricType == mDisplayedMetricTypeID && selectedTimeWindow == mDisplayedTimeWindowID)
+        // If the options haven't changed then don't reload the chart (unless forced)
+        if (!forceLoad && selectedMetricType == mDisplayedMetricTypeID && selectedTimeWindow == mDisplayedTimeWindowID)
             return;
 
         mDisplayedMetricTypeID = selectedMetricType;
