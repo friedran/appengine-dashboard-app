@@ -13,6 +13,8 @@
  */
 package com.friedran.appengine.dashboard.gui;
 
+import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
@@ -41,6 +43,7 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
     private Spinner mMetricSpinner;
     private Spinner mTimeSpinner;
     private DisplayMetrics mMetrics;
+    private GridView mChartsGrid;
 
     public DashboardLoadFragment(AppEngineDashboardClient client, String applicationID) {
         mAppEngineClient = client;
@@ -58,6 +61,9 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
 
         mMetrics = new DisplayMetrics();
         getActivity().getWindowManager().getDefaultDisplay().getMetrics(mMetrics);
+
+        mChartsGrid = (GridView) layout.findViewById(R.id.load_charts_grid);
+        mChartsGrid.setAdapter(new ChartAdapter(getActivity()));
 
         return layout;
     }
@@ -161,6 +167,53 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
 
         protected void onPostExecute(Bitmap result) {
             bmImage.setImageBitmap(result);
+        }
+    }
+
+    private class ChartAdapter extends BaseAdapter {
+        private Context mContext;
+        private String[] mMetricTitles;
+
+        public ChartAdapter(Context c) {
+            mContext = c;
+            mMetricTitles = getResources().getStringArray(R.array.load_metric_options);
+        }
+
+        @Override
+        public int getCount() {
+            return mMetricTitles.length;
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return null; // TODO?
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return 0; // TODO?
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View chartView;
+
+            if (convertView == null) {
+
+                chartView = new View(mContext);
+                chartView = inflater.inflate(R.layout.load_charts_grid_item, null);
+
+                TextView textView = (TextView) chartView.findViewById(R.id.load_chart_title);
+                textView.setText(mMetricTitles[position]);
+
+                // TODO: setImageResource to default empty image
+
+            } else {
+                chartView = (View) convertView;
+            }
+
+            return chartView;
         }
     }
 }
