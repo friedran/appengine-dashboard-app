@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string-array name="load_metrics">
+    <string-array name="load_metric_options">
         <item>Requests/Second</item>
         <item>Requests by Type/Second</item>
         <item>Milliseconds/Request</item>
