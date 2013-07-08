@@ -5,6 +5,7 @@ import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,14 +19,15 @@ import java.io.InputStream;
 public class DashboardLoadFragment extends Fragment implements AdapterView.OnItemSelectedListener {
 
     public static final String CHART_URL_BACKGROUND_COLOR_SUFFIX = "&chf=bg,s,E8E8E8";
+    public static final int CHART_HEIGHT_PIXELS = 240;
+    public static final int CHART_MAX_WIDTH_PIXELS = 1000;
     private AppEngineDashboardClient mAppEngineClient;
     private String mApplicationId;
-
     private int mDisplayedMetricTypeID;
     private int mDisplayedTimeWindowID;
-
     private Spinner mMetricSpinner;
     private Spinner mTimeSpinner;
+    private DisplayMetrics mMetrics;
 
     public DashboardLoadFragment(AppEngineDashboardClient client, String applicationID) {
         mAppEngineClient = client;
@@ -40,6 +42,9 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
 
         mMetricSpinner = setSpinnerWithItems(layout, R.array.load_metric_options, R.id.load_chart_metric_spinner);
         mTimeSpinner = setSpinnerWithItems(layout, R.array.load_time_options, R.id.load_chart_time_spinner);
+
+        mMetrics = new DisplayMetrics();
+        getActivity().getWindowManager().getDefaultDisplay().getMetrics(mMetrics);
 
         return layout;
     }
@@ -105,10 +110,19 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
                         }
 
                         String chartUrl = result.getString(AppEngineDashboardClient.KEY_CHART_URL);
-                        new DownloadImageTask((ImageView) getActivity().findViewById(R.id.load_chart_image))
-                                .execute(chartUrl + CHART_URL_BACKGROUND_COLOR_SUFFIX);
+                        chartUrl = chartUrl.replaceAll("chs=\\d+x\\d+",
+                                String.format("chs=%sx%s", Math.min(mMetrics.widthPixels, CHART_MAX_WIDTH_PIXELS), CHART_HEIGHT_PIXELS));
+                        chartUrl += CHART_URL_BACKGROUND_COLOR_SUFFIX;
+                        Log.i("DashboardLoadFragment", "Downloading chart from: " + chartUrl);
+
+                        new DownloadImageTask((ImageView) getActivity().findViewById(R.id.load_chart_image)).execute(chartUrl);
                     }
                 });
+    }
+
+    private void resetDisplayedOptions() {
+        mDisplayedMetricTypeID = -1;
+        mDisplayedTimeWindowID = -1;
     }
 
     private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
@@ -135,10 +149,5 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
         protected void onPostExecute(Bitmap result) {
             bmImage.setImageBitmap(result);
         }
-    }
-
-    private void resetDisplayedOptions() {
-        mDisplayedMetricTypeID = -1;
-        mDisplayedTimeWindowID = -1;
     }
 }
