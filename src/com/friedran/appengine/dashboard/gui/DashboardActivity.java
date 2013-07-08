@@ -174,6 +174,7 @@ public class DashboardActivity extends FragmentActivity {
 
         ViewPager viewPager = (ViewPager) findViewById(R.id.dashboard_pager);
         viewPager.setAdapter(dashboardCollectionPagerAdapter);
+        viewPager.setOffscreenPageLimit(2);     // Cache all pages
         viewPager.setOnPageChangeListener(
                 new ViewPager.SimpleOnPageChangeListener() {
                     @Override
