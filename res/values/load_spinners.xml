@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="load_metric_options">
+        <item>Requests/Second</item>
+        <item>Requests by Type/Second</item>
+        <item>Milliseconds/Request</item>
+        <item>Errors/Second</item>
+        <item>Bytes Received/Second</item>
+        <item>Bytes Sent/Second</item>
+        <item>CPU Seconds Used/Second</item>
+        <item>Milliseconds Used/Second</item>
+        <item>Number of Quota Denials/Second</item>
+        <item>Instances</item>
+        <item>Memory Usage (MB)</item>
+        <item>Memcache Operations/Second</item>
+    </string-array>
+    <string-array name="load_time_options">
+        <item>30 mins</item>
+        <item>3 hrs</item>
+        <item>6 hrs</item>
+        <item>12 hrs</item>
+        <item>24 hrs</item>
+        <item>2 days</item>
+        <item>4 days</item>
+        <item>7 days</item>
+        <item>14 days</item>
+        <item>30 days</item>
+    </string-array>
+</resources>

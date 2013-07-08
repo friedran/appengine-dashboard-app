@@ -39,20 +39,37 @@ public class DashboardActivity extends FragmentActivity {
     private ListView mDrawerApplicationsList;
     private ActionBarDrawerToggle mDrawerToggle;
 
-    private static final String[] VIEWS = {"Instances", "Load", "Quotas"};
+    private AppEngineDashboardClient mAppEngineClient;
+
+    private static final String[] VIEWS = {"Load", "Instances", "Quotas"};
+
+    public static final String FRAGMENT_INDEX = "INDEX";
 
     public class DashboardCollectionPagerAdapter extends FragmentPagerAdapter {
-        public DashboardCollectionPagerAdapter(FragmentManager fm) {
+        private String mApplicationID;
+
+        public DashboardCollectionPagerAdapter(FragmentManager fm, String applicationID) {
             super(fm);
+            mApplicationID = applicationID;
         }
 
         @Override
         public Fragment getItem(int i) {
-            Fragment fragment = new DashboardFragment();
+            Fragment fragment;
+            switch (i) {
+                case 0:
+                    fragment = new DashboardLoadFragment(mAppEngineClient, mApplicationID);
+                    break;
+
+                default:
+                    fragment = new DashboardStaticFragment();
+                    break;
+            }
+
             Bundle args = new Bundle();
-            // Our object is just an integer :-P
-            args.putInt(DashboardFragment.ARG_OBJECT, i);
+            args.putInt(FRAGMENT_INDEX, i);
             fragment.setArguments(args);
+
             return fragment;
         }
 
@@ -67,8 +84,7 @@ public class DashboardActivity extends FragmentActivity {
         }
     }
 
-    public static class DashboardFragment extends Fragment {
-        public static final String ARG_OBJECT = "object";
+    public static class DashboardStaticFragment extends Fragment {
 
         @Override
         public View onCreateView(LayoutInflater inflater,
@@ -77,7 +93,7 @@ public class DashboardActivity extends FragmentActivity {
                     R.layout.dashboard_fragment_collection_item, container, false);
             Bundle args = getArguments();
             ((TextView) rootView.findViewById(android.R.id.text1)).setText(
-                    VIEWS[args.getInt(ARG_OBJECT)] + " View");
+                    VIEWS[args.getInt(FRAGMENT_INDEX)] + " View");
             return rootView;
         }
     }
@@ -99,8 +115,8 @@ public class DashboardActivity extends FragmentActivity {
         for (Account account : accounts) {
             accountNames.add(account.name);
         }
-        AppEngineDashboardClient dashboardClient = AppEngineDashboardAPI.getInstance().getClient(accounts[0]);
-        List<String> applicationsList = dashboardClient.getLastRetrievedApplications();
+        mAppEngineClient = AppEngineDashboardAPI.getInstance().getClient(accounts[0]);
+        List<String> applicationsList = mAppEngineClient.getLastRetrievedApplications();
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
@@ -154,10 +170,11 @@ public class DashboardActivity extends FragmentActivity {
 
         // Set up the dashboard view pager
         DashboardCollectionPagerAdapter dashboardCollectionPagerAdapter =
-                new DashboardCollectionPagerAdapter(getSupportFragmentManager());
+                new DashboardCollectionPagerAdapter(getSupportFragmentManager(), applicationsList.get(0));
 
         ViewPager viewPager = (ViewPager) findViewById(R.id.dashboard_pager);
         viewPager.setAdapter(dashboardCollectionPagerAdapter);
+        viewPager.setOffscreenPageLimit(2);     // Cache all pages
         viewPager.setOnPageChangeListener(
                 new ViewPager.SimpleOnPageChangeListener() {
                     @Override
