@@ -6,13 +6,13 @@
               android:layout_height="match_parent">
 
     <Spinner
-            android:id="@+id/load_chart_metric_spinner"
+            android:id="@+id/load_chart_time_spinner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"/>
 
     <Spinner
-            android:id="@+id/load_chart_time_spinner"
+            android:id="@+id/load_chart_metric_spinner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"/>
