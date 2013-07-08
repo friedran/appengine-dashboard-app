@@ -39,7 +39,7 @@ public class DashboardActivity extends FragmentActivity {
     private ListView mDrawerApplicationsList;
     private ActionBarDrawerToggle mDrawerToggle;
 
-    private static final String[] VIEWS = {"Instances", "Load", "Quotas"};
+    private static final String[] VIEWS = {"Load", "Instances", "Quotas"};
 
     public class DashboardCollectionPagerAdapter extends FragmentPagerAdapter {
         public DashboardCollectionPagerAdapter(FragmentManager fm) {

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+
+    <LinearLayout android:orientation="horizontal"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content">
+        <Button
+                android:id="@+id/load_30_mins"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="30 minutes"/>
+        <Button
+                android:id="@+id/load_3_hrs"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="3 hours"/>
+        <Button
+                android:id="@+id/load_6_hrs"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="6 hours"/>
+        <Button
+                android:id="@+id/load_12_hrs"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="12 hours"/>
+        <Button
+                android:id="@+id/load_24_hrs"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="24 hours"/>
+        <Button
+                android:id="@+id/load_2_days"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="2 days"/>
+        <Button
+                android:id="@+id/load_4_days"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="4 days"/>
+        <Button
+                android:id="@+id/load_7_days"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="7 days"/>
+        <Button
+                android:id="@+id/load_14_days"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="14 days"/>
+        <Button
+                android:id="@+id/load_30_days"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="30 days"/>
+    </LinearLayout>
+
+    <TextView
+            android:id="@+id/load_chart_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:padding="12dp"
+            android:textAppearance="@android:style/TextAppearance.Medium"
+            android:textColor="@color/text_gray"
+            android:textStyle="bold"
+            android:text="Requests / Second"/>
+
+    <ImageView
+            android:id="@+id/load_chart"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="Load Chart"/>
+
+</LinearLayout>
