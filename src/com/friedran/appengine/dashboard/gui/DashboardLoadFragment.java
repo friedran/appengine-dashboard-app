@@ -51,7 +51,13 @@ public class DashboardLoadFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        // Get the chart URL and render it asynchronously
+        executeLoadingChart();
+    }
+
+    /**
+     * Gets and renders the chart URL asynchronously
+     */
+    private void executeLoadingChart() {
         mAppEngineClient.executeGetChartUrl(mApplicationId, 0, 0, new AppEngineDashboardClient.PostExecuteCallback() {
             @Override
             public void run(Bundle result) {
