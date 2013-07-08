@@ -24,6 +24,9 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,6 +35,7 @@ import java.util.List;
 
 public class AppEngineDashboardClient {
     public static final String KEY_APPLICATIONS = "APPLICATIONS";
+    public static final String KEY_CHART_URL = "CHART_URL";
     protected Account mAccount;
     protected DefaultHttpClient mHttpClient;
     protected Context mApplicationContext;
@@ -123,6 +127,58 @@ public class AppEngineDashboardClient {
     }
 
     /**
+     * Send an authenticated GetChart request asynchronously and return its results to the given callback.
+     */
+    public void executeGetChartUrl(
+            String appID, int chartTypeID, int chartWindowID, final PostExecuteCallback postGetChartUrlCallback) {
+
+        String url = String.format(
+                "https://appengine.google.com/dashboard/stats?app_id=s~%s&type=%d&window=%d",
+                appID, chartTypeID, chartWindowID);
+
+        new AuthenticatedRequestTask(url,
+                new AuthenticatedRequestTaskCallback() {
+                    @Override
+                    public void run(final HttpEntity httpEntityResult) {
+                        onPostExecuteGetChartURL(httpEntityResult, postGetChartUrlCallback);
+                    }
+                }).execute();
+    }
+
+    /**
+     * Called when the GetChartURL request is done, parses the result and returns the chart url to the given callback.
+     *
+     * @param httpEntityResult Result of the GetChartURL AuthenticatedRequest
+     * @param postGetChartUrlCallback The callback that should be called with the results of GetChartURL
+     */
+    private void onPostExecuteGetChartURL(final HttpEntity httpEntityResult, final PostExecuteCallback postGetChartUrlCallback) {
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    // Parse the result as a JSON object
+                    String content = EntityUtils.toString(httpEntityResult);
+                    JSONObject jsonData = new JSONObject(content);
+                    String chart_url = jsonData.getString("chart_url");
+
+                    Bundle result = new Bundle();
+                    result.putBoolean(KEY_RESULT, true);
+                    result.putString(KEY_CHART_URL, chart_url);
+                    postGetChartUrlCallback.run(result);
+
+                } catch (Exception e) {
+                    Log.e("AppEngineDashboardClient#onPostExecuteGetChartURL", "Exception caught when tried to parse result", e);
+                    e.printStackTrace();
+                    Bundle result = new Bundle();
+                    result.putBoolean(KEY_RESULT, false);
+                    postGetChartUrlCallback.run(result);
+                }
+            }
+        };
+        new Thread(runnable).start();
+    }
+
+    /**
      * Inner class responsible of sending authenticated requests to Google's AppEngine servers and returning its
      *  responses via asynchronous callbacks.
      */
@@ -138,6 +194,7 @@ public class AppEngineDashboardClient {
         @Override
         protected HttpResponse doInBackground(String... params) {
             try {
+                Log.i("AppEngineDashboardClient", "Executing authenticated request: " + mURL);
                 HttpGet httpGet = new HttpGet(mURL);
                 return mHttpClient.execute(httpGet);
             } catch (ClientProtocolException e) {

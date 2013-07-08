@@ -39,13 +39,18 @@ public class DashboardActivity extends FragmentActivity {
     private ListView mDrawerApplicationsList;
     private ActionBarDrawerToggle mDrawerToggle;
 
+    private AppEngineDashboardClient mAppEngineClient;
+
     private static final String[] VIEWS = {"Load", "Instances", "Quotas"};
 
     public static final String FRAGMENT_INDEX = "INDEX";
 
     public class DashboardCollectionPagerAdapter extends FragmentPagerAdapter {
-        public DashboardCollectionPagerAdapter(FragmentManager fm) {
+        private String mApplicationID;
+
+        public DashboardCollectionPagerAdapter(FragmentManager fm, String applicationID) {
             super(fm);
+            mApplicationID = applicationID;
         }
 
         @Override
@@ -53,7 +58,7 @@ public class DashboardActivity extends FragmentActivity {
             Fragment fragment;
             switch (i) {
                 case 0:
-                    fragment = new DashboardLoadFragment();
+                    fragment = new DashboardLoadFragment(mAppEngineClient, mApplicationID);
                     break;
 
                 default:
@@ -110,8 +115,8 @@ public class DashboardActivity extends FragmentActivity {
         for (Account account : accounts) {
             accountNames.add(account.name);
         }
-        AppEngineDashboardClient dashboardClient = AppEngineDashboardAPI.getInstance().getClient(accounts[0]);
-        List<String> applicationsList = dashboardClient.getLastRetrievedApplications();
+        mAppEngineClient = AppEngineDashboardAPI.getInstance().getClient(accounts[0]);
+        List<String> applicationsList = mAppEngineClient.getLastRetrievedApplications();
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
@@ -165,7 +170,7 @@ public class DashboardActivity extends FragmentActivity {
 
         // Set up the dashboard view pager
         DashboardCollectionPagerAdapter dashboardCollectionPagerAdapter =
-                new DashboardCollectionPagerAdapter(getSupportFragmentManager());
+                new DashboardCollectionPagerAdapter(getSupportFragmentManager(), applicationsList.get(0));
 
         ViewPager viewPager = (ViewPager) findViewById(R.id.dashboard_pager);
         viewPager.setAdapter(dashboardCollectionPagerAdapter);
