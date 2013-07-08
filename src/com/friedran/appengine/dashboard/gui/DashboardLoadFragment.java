@@ -9,7 +9,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.Spinner;
 import com.friedran.appengine.dashboard.R;
 import com.friedran.appengine.dashboard.client.AppEngineDashboardClient;
 
@@ -18,7 +21,6 @@ import java.io.InputStream;
 public class DashboardLoadFragment extends Fragment {
 
     public static final String CHART_URL_BACKGROUND_COLOR_SUFFIX = "&chf=bg,s,E8E8E8";
-
     private AppEngineDashboardClient mAppEngineClient;
     private String mApplicationId;
 
@@ -30,7 +32,19 @@ public class DashboardLoadFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.dashboard_load_fragment, container, false);
+        LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.dashboard_load_fragment, container, false);
+
+        setSpinnerItems(layout, R.array.load_metrics, R.id.load_chart_metric_spinner);
+        setSpinnerItems(layout, R.array.load_time_options, R.id.load_chart_time_spinner);
+
+        return layout;
+    }
+
+    private void setSpinnerItems(LinearLayout layout, int optionsListResourceID, int spinnerResourceID) {
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(),
+                optionsListResourceID, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        ((Spinner) layout.findViewById(spinnerResourceID)).setAdapter(adapter);
     }
 
     @Override

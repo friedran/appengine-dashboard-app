@@ -5,78 +5,24 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent">
 
-    <LinearLayout android:orientation="horizontal"
-                  android:gravity="center_horizontal"
-                  android:layout_width="match_parent"
-                  android:layout_height="wrap_content">
-        <Button
-                android:id="@+id/load_30_mins"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/load_30_mins"/>
-        <Button
-                android:id="@+id/load_3_hrs"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/load_3_hrs"/>
-        <Button
-                android:id="@+id/load_6_hrs"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/load_6_hrs"/>
-        <Button
-                android:id="@+id/load_12_hrs"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/load_12_hrs"/>
-        <Button
-                android:id="@+id/load_24_hrs"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/load_24_hrs"/>
-        <Button
-                android:id="@+id/load_2_days"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/load_2_days"/>
-        <Button
-                android:id="@+id/load_4_days"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/load_4_days"/>
-        <Button
-                android:id="@+id/load_7_days"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/load_7_days"/>
-        <Button
-                android:id="@+id/load_14_days"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/load_14_days"/>
-        <Button
-                android:id="@+id/load_30_days"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/load_30_days"/>
-    </LinearLayout>
-
-    <TextView
-            android:id="@+id/load_chart_title"
+    <Spinner
+            android:id="@+id/load_chart_metric_spinner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:padding="12dp"
-            android:textAppearance="@android:style/TextAppearance.Medium"
-            android:textColor="@color/text_gray"
-            android:textStyle="bold"
-            android:text="@string/requests_seconds"/>
+            android:gravity="center_horizontal"/>
+
+    <Spinner
+            android:id="@+id/load_chart_time_spinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"/>
 
     <ImageView
             android:id="@+id/load_chart_image"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
+            android:paddingTop="24dp"
             android:contentDescription="@string/load_chart"/>
 
 </LinearLayout>
