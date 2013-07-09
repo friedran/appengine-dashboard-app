@@ -38,7 +38,6 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
 
     private AppEngineDashboardClient mAppEngineClient;
     private String mApplicationId;
-    private int mDisplayedMetricTypeID;
     private int mDisplayedTimeWindowID;
     private Spinner mTimeSpinner;
     private DisplayMetrics mDisplayMetrics;
@@ -137,32 +136,22 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
                         chartUrl = chartUrl.replaceAll("chs=\\d+x\\d+",
                                 String.format("chs=%sx%s", Math.min(mDisplayMetrics.widthPixels, CHART_MAX_WIDTH_PIXELS), CHART_HEIGHT_PIXELS));
                         chartUrl += CHART_URL_BACKGROUND_COLOR_SUFFIX;
-                        Log.i("DashboardLoadFragment", String.format("Downloading chart (%s, %s) from: %s", selectedTimeWindow, metricTypeID, chartUrl));
 
-                        View chartView = mChartsGrid.getChildAt(metricTypeID);
-                        new DownloadImageTask((ImageView) chartView.findViewById(R.id.load_chart_image),
-                            new Runnable() {
-                                @Override
-                                public void run() {
-                                    mChartGridAdapter.notifyDataSetChanged();
-                                }
-                            }).execute(chartUrl);
+                        Log.i("DashboardLoadFragment", String.format("Downloading chart (%s, %s) from: %s", selectedTimeWindow, metricTypeID, chartUrl));
+                        new DownloadImageTask(mChartGridAdapter.getChartImage(metricTypeID)).execute(chartUrl);
                     }
                 });
     }
 
     private void resetDisplayedOptions() {
-        mDisplayedMetricTypeID = -1;
         mDisplayedTimeWindowID = -1;
     }
 
     private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
         ImageView mImage;
-        Runnable mOnPostExecute;
 
-        public DownloadImageTask(ImageView bmImage, Runnable onPostExecute) {
+        public DownloadImageTask(ImageView bmImage) {
             mImage = bmImage;
-            mOnPostExecute = onPostExecute;
         }
 
         protected Bitmap doInBackground(String... urls) {
@@ -181,7 +170,6 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
 
         protected void onPostExecute(Bitmap result) {
             mImage.setImageBitmap(result);
-            mOnPostExecute.run();
         }
     }
 
@@ -194,6 +182,10 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
             mContext = c;
             mAppEngineMetrics = getResources().getStringArray(R.array.load_metric_options);
             mChartImages = new ImageView[mAppEngineMetrics.length];
+        }
+
+        public ImageView getChartImage(int position) {
+            return mChartImages[position];
         }
 
         @Override
