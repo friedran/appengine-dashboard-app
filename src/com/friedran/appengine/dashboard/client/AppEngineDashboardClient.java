@@ -25,7 +25,6 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -86,7 +85,7 @@ public class AppEngineDashboardClient {
                 public void run(final HttpEntity httpEntityResult) {
                     onPostExecuteGetApplications(httpEntityResult, postGetApplicationsCallback);
                 }
-        }).execute();
+        }).executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
     }
 
     public List<String> getLastRetrievedApplications() {
@@ -142,7 +141,7 @@ public class AppEngineDashboardClient {
                     public void run(final HttpEntity httpEntityResult) {
                         onPostExecuteGetChartURL(httpEntityResult, postGetChartUrlCallback);
                     }
-                }).execute();
+                }).executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
     }
 
     /**
@@ -155,22 +154,23 @@ public class AppEngineDashboardClient {
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
+                Bundle result = new Bundle();
+
                 try {
                     // Parse the result as a JSON object
                     String content = EntityUtils.toString(httpEntityResult);
                     JSONObject jsonData = new JSONObject(content);
                     String chart_url = jsonData.getString("chart_url");
 
-                    Bundle result = new Bundle();
                     result.putBoolean(KEY_RESULT, true);
                     result.putString(KEY_CHART_URL, chart_url);
-                    postGetChartUrlCallback.run(result);
 
                 } catch (Exception e) {
                     Log.e("AppEngineDashboardClient#onPostExecuteGetChartURL", "Exception caught when tried to parse result", e);
                     e.printStackTrace();
-                    Bundle result = new Bundle();
                     result.putBoolean(KEY_RESULT, false);
+
+                } finally {
                     postGetChartUrlCallback.run(result);
                 }
             }
