@@ -20,7 +20,7 @@
 
     <GridView android:id="@+id/load_charts_grid"
               android:layout_width="match_parent"
-              android:layout_height="wrap_content"
+              android:layout_height="match_parent"
               android:numColumns="auto_fit"
               android:columnWidth="630dp"
               android:verticalSpacing="10dp"
