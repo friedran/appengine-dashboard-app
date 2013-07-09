@@ -38,14 +38,12 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
     public static final int CHART_MAX_WIDTH_PIXELS = 1000;
     private AppEngineDashboardClient mAppEngineClient;
     private String mApplicationId;
-    private int mDisplayedTimeWindowID;
     private Spinner mTimeSpinner;
     private DisplayMetrics mDisplayMetrics;
 
     public DashboardLoadFragment(AppEngineDashboardClient client, String applicationID) {
         mAppEngineClient = client;
         mApplicationId = applicationID;
-        resetDisplayedOptions();
     }
 
     @Override
@@ -83,8 +81,6 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
     @Override
     public void onResume() {
         super.onResume();
-
-        executeLoadingChartIfChanged(true);
     }
 
     /**
@@ -92,29 +88,12 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
      */
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        executeLoadingChartIfChanged(false);
+        // TODO
     }
 
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
         // Do Nothing
-    }
-
-    /**
-     * Gets and renders the chart URL asynchronously
-     */
-    private void executeLoadingChartIfChanged(boolean forceLoad) {
-        final int selectedTimeWindow = mTimeSpinner.getSelectedItemPosition();
-
-        // If the options haven't changed then don't reload the chart (unless forced)
-        if (!forceLoad && selectedTimeWindow == mDisplayedTimeWindowID)
-            return;
-
-        mDisplayedTimeWindowID = selectedTimeWindow;
-    }
-
-    private void resetDisplayedOptions() {
-        mDisplayedTimeWindowID = -1;
     }
 
     private class ChartAdapter extends BaseAdapter {
@@ -153,7 +132,7 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
                 textView.setText(mAppEngineMetrics[position]);
 
                 // Start loading the image asynchronously
-                executeGetAndDisplayChart(chartView, mDisplayedTimeWindowID, position);
+                executeGetAndDisplayChart(chartView, mTimeSpinner.getSelectedItemPosition(), position);
 
             } else {
                 chartView = convertView;
@@ -170,9 +149,7 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
                     @Override
                     public void run(Bundle result) {
                         if (!result.getBoolean(AppEngineDashboardClient.KEY_RESULT)) {
-                            // TODO: Display an error message
                             Log.e("DashboardLoadFragment", "GetChartURL has failed");
-                            resetDisplayedOptions();
                             return;
                         }
 
@@ -206,7 +183,6 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
             } catch (Exception e) {
                 Log.e("Error", e.getMessage());
                 e.printStackTrace();
-                resetDisplayedOptions();
             }
             return decodedBitmap;
         }
