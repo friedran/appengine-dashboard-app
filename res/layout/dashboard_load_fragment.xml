@@ -11,13 +11,6 @@
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"/>
 
-    <Spinner
-            android:id="@+id/load_chart_metric_spinner"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_horizontal"/>
-
-
     <GridView android:id="@+id/load_charts_grid"
               android:layout_width="match_parent"
               android:layout_height="match_parent"

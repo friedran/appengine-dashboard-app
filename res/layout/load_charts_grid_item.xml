@@ -3,14 +3,13 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:orientation="vertical"
               android:layout_width="match_parent"
-              android:layout_height="match_parent">
+              android:layout_height="wrap_content">
 
     <TextView android:id="@+id/load_chart_title"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:gravity="center_horizontal"
-              android:text="Chart"
-              android:textAppearance="@android:style/TextAppearance.Medium"
+              android:textAppearance="@android:style/TextAppearance.Small"
               android:textColor="@color/text_gray" />
 
     <ImageView android:id="@+id/load_chart_image"
