@@ -42,7 +42,6 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
     private Spinner mTimeSpinner;
     private DisplayMetrics mDisplayMetrics;
     private ChartAdapter mChartGridAdapter;
-    private GridView mChartsGrid;
 
     public DashboardLoadFragment(AppEngineDashboardClient client, String applicationID) {
         mAppEngineClient = client;
@@ -55,14 +54,13 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
                              Bundle savedInstanceState) {
         LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.dashboard_load_fragment, container, false);
 
-        //mMetricSpinner = setSpinnerWithItems(layout, R.array.load_metric_options, R.id.load_chart_metric_spinner);
         mTimeSpinner = setSpinnerWithItems(layout, R.array.load_time_options, R.id.load_chart_time_spinner);
 
         mDisplayMetrics = new DisplayMetrics();
         getActivity().getWindowManager().getDefaultDisplay().getMetrics(mDisplayMetrics);
 
         mChartGridAdapter = new ChartAdapter(getActivity());
-        mChartsGrid = (GridView) layout.findViewById(R.id.load_charts_grid);
+        GridView mChartsGrid = (GridView) layout.findViewById(R.id.load_charts_grid);
         mChartsGrid.setAdapter(mChartGridAdapter);
 
         return layout;
