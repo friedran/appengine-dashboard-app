@@ -38,8 +38,10 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
     public static final int CHART_MAX_WIDTH_PIXELS = 1000;
     private AppEngineDashboardClient mAppEngineClient;
     private String mApplicationId;
-    private Spinner mTimeSpinner;
+    private ChartAdapter mChartGridAdapter;
     private DisplayMetrics mDisplayMetrics;
+
+    int mDisplayedTimeID;
 
     public DashboardLoadFragment(AppEngineDashboardClient client, String applicationID) {
         mAppEngineClient = client;
@@ -51,14 +53,15 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
                              Bundle savedInstanceState) {
         LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.dashboard_load_fragment, container, false);
 
-        mTimeSpinner = setSpinnerWithItems(layout, R.array.load_time_options, R.id.load_chart_time_spinner);
+        setSpinnerWithItems(layout, R.array.load_time_options, R.id.load_chart_time_spinner);
+        mDisplayedTimeID = 0;
 
         mDisplayMetrics = new DisplayMetrics();
         getActivity().getWindowManager().getDefaultDisplay().getMetrics(mDisplayMetrics);
 
-        ChartAdapter mChartGridAdapter = new ChartAdapter(getActivity());
-        GridView mChartsGrid = (GridView) layout.findViewById(R.id.load_charts_grid);
-        mChartsGrid.setAdapter(mChartGridAdapter);
+        mChartGridAdapter = new ChartAdapter(getActivity());
+        GridView chartsGridView = (GridView) layout.findViewById(R.id.load_charts_grid);
+        chartsGridView.setAdapter(mChartGridAdapter);
 
         return layout;
     }
@@ -84,11 +87,15 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
     }
 
     /**
-     * Called when one of the spinners is changed
+     * Called when the time spinner is selected
      */
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        // TODO
+        if (position != mDisplayedTimeID) {
+            Log.i("DashboardLoadFragment", "Time option selected: " + mDisplayedTimeID + " ==> " + position);
+            mDisplayedTimeID = position;
+            mChartGridAdapter.notifyDataSetChanged();
+        }
     }
 
     @Override
@@ -131,12 +138,19 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
                 TextView textView = (TextView) chartView.findViewById(R.id.load_chart_title);
                 textView.setText(mAppEngineMetrics[position]);
 
-                // Start loading the image asynchronously
-                executeGetAndDisplayChart(chartView, mTimeSpinner.getSelectedItemPosition(), position);
-
             } else {
                 chartView = convertView;
             }
+
+            Integer chartDisplayedTimeID = (Integer) chartView.getTag();
+            if (chartDisplayedTimeID == null || chartDisplayedTimeID != mDisplayedTimeID) {
+                // Load the image asynchronously, while displaying the progress animation
+                ViewSwitcher switcher = (ViewSwitcher) chartView.findViewById(R.id.load_chart_switcher);
+                switchChartToProgress(switcher);
+
+                executeGetAndDisplayChart(chartView, mDisplayedTimeID, position);
+            }
+
 
             return chartView;
         }
@@ -159,7 +173,7 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
                         chartUrl += CHART_URL_BACKGROUND_COLOR_SUFFIX;
 
                         Log.i("DashboardLoadFragment", String.format("Downloading chart (%s, %s) from: %s", selectedTimeWindow, metricTypeID, chartUrl));
-                        new ChartDownloadTask(getActivity(), chartView).execute(chartUrl);
+                        new ChartDownloadTask(getActivity(), chartView, selectedTimeWindow, chartUrl).execute();
                     }
                 });
     }
@@ -168,17 +182,20 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
     private class ChartDownloadTask extends AsyncTask<String, Void, Bitmap> {
         Context mContext;
         View mChartView;
+        int mTimeWindowID;
+        String mUrl;
 
-        public ChartDownloadTask(Context context, View chartView) {
+        public ChartDownloadTask(Context context, View chartView, int timeWindowID, String url) {
             mContext = context;
             mChartView = chartView;
+            mTimeWindowID = timeWindowID;
+            mUrl = url;
         }
 
-        protected Bitmap doInBackground(String... urls) {
-            String urldisplay = urls[0];
+        protected Bitmap doInBackground(String... params) {
             Bitmap decodedBitmap = null;
             try {
-                InputStream in = new java.net.URL(urldisplay).openStream();
+                InputStream in = new java.net.URL(mUrl).openStream();
                 decodedBitmap = BitmapFactory.decodeStream(in);
             } catch (Exception e) {
                 Log.e("Error", e.getMessage());
@@ -190,15 +207,23 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
         protected void onPostExecute(Bitmap result) {
             ImageView chartImageView = (ImageView) mChartView.findViewById(R.id.load_chart_image);
             chartImageView.setImageBitmap(result);
+            chartImageView.setTag(mDisplayedTimeID);
 
             ViewSwitcher chartSwitcherView = (ViewSwitcher) mChartView.findViewById(R.id.load_chart_switcher);
-            if (chartSwitcherView.getDisplayedChild() == 0) {
-                chartSwitcherView.setAnimation(AnimationUtils.makeInAnimation(mContext, true));
-                chartSwitcherView.showNext();
+            switchChartToImage(chartSwitcherView);
+        }
+    }
 
-            } else {
-                Log.e("ChartDownloadTask", "Already showing image");
-            }
+    private void switchChartToProgress(ViewSwitcher switcher) {
+        if (switcher.getDisplayedChild() != 0) {
+            switcher.showPrevious();
+        }
+    }
+
+    private void switchChartToImage(ViewSwitcher switcher) {
+        if (switcher.getDisplayedChild() != 1) {
+            switcher.setAnimation(AnimationUtils.makeInAnimation(getActivity(), true));
+            switcher.showNext();
         }
     }
 }
