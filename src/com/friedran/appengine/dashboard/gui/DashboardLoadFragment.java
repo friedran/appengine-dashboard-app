@@ -36,7 +36,6 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
     public static final String CHART_URL_BACKGROUND_COLOR_SUFFIX = "&chf=bg,s,E8E8E8";
     public static final int CHART_HEIGHT_PIXELS = 240;
     public static final int CHART_MAX_WIDTH_PIXELS = 1000;
-
     private AppEngineDashboardClient mAppEngineClient;
     private String mApplicationId;
     private int mDisplayedTimeWindowID;
@@ -114,70 +113,8 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
         mDisplayedTimeWindowID = selectedTimeWindow;
     }
 
-    private void executeGetAndDisplayChart(final View chartView, final int selectedTimeWindow, final int metricTypeID) {
-
-        mAppEngineClient.executeGetChartUrl(mApplicationId, metricTypeID, selectedTimeWindow,
-                new AppEngineDashboardClient.PostExecuteCallback() {
-                    @Override
-                    public void run(Bundle result) {
-                        if (!result.getBoolean(AppEngineDashboardClient.KEY_RESULT)) {
-                            // TODO: Display an error message
-                            Log.e("DashboardLoadFragment", "GetChartURL has failed");
-                            resetDisplayedOptions();
-                            return;
-                        }
-
-                        String chartUrl = result.getString(AppEngineDashboardClient.KEY_CHART_URL);
-                        chartUrl = chartUrl.replaceAll("chs=\\d+x\\d+",
-                                String.format("chs=%sx%s", Math.min(mDisplayMetrics.widthPixels, CHART_MAX_WIDTH_PIXELS), CHART_HEIGHT_PIXELS));
-                        chartUrl += CHART_URL_BACKGROUND_COLOR_SUFFIX;
-
-                        Log.i("DashboardLoadFragment", String.format("Downloading chart (%s, %s) from: %s", selectedTimeWindow, metricTypeID, chartUrl));
-                        new ChartDownloadTask(getActivity(), chartView).execute(chartUrl);
-                    }
-                });
-    }
-
     private void resetDisplayedOptions() {
         mDisplayedTimeWindowID = -1;
-    }
-
-    private class ChartDownloadTask extends AsyncTask<String, Void, Bitmap> {
-        Context mContext;
-        View mChartView;
-
-        public ChartDownloadTask(Context context, View chartView) {
-            mContext = context;
-            mChartView = chartView;
-        }
-
-        protected Bitmap doInBackground(String... urls) {
-            String urldisplay = urls[0];
-            Bitmap decodedBitmap = null;
-            try {
-                InputStream in = new java.net.URL(urldisplay).openStream();
-                decodedBitmap = BitmapFactory.decodeStream(in);
-            } catch (Exception e) {
-                Log.e("Error", e.getMessage());
-                e.printStackTrace();
-                resetDisplayedOptions();
-            }
-            return decodedBitmap;
-        }
-
-        protected void onPostExecute(Bitmap result) {
-            ImageView chartImageView = (ImageView) mChartView.findViewById(R.id.load_chart_image);
-            chartImageView.setImageBitmap(result);
-
-            ViewSwitcher chartSwitcherView = (ViewSwitcher) mChartView.findViewById(R.id.load_chart_switcher);
-            if (chartSwitcherView.getDisplayedChild() == 0) {
-                chartSwitcherView.setAnimation(AnimationUtils.makeInAnimation(mContext, true));
-                chartSwitcherView.showNext();
-
-            } else {
-                Log.e("ChartDownloadTask", "Already showing image");
-            }
-        }
     }
 
     private class ChartAdapter extends BaseAdapter {
@@ -223,6 +160,69 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
             }
 
             return chartView;
+        }
+    }
+
+    private void executeGetAndDisplayChart(final View chartView, final int selectedTimeWindow, final int metricTypeID) {
+
+        mAppEngineClient.executeGetChartUrl(mApplicationId, metricTypeID, selectedTimeWindow,
+                new AppEngineDashboardClient.PostExecuteCallback() {
+                    @Override
+                    public void run(Bundle result) {
+                        if (!result.getBoolean(AppEngineDashboardClient.KEY_RESULT)) {
+                            // TODO: Display an error message
+                            Log.e("DashboardLoadFragment", "GetChartURL has failed");
+                            resetDisplayedOptions();
+                            return;
+                        }
+
+                        String chartUrl = result.getString(AppEngineDashboardClient.KEY_CHART_URL);
+                        chartUrl = chartUrl.replaceAll("chs=\\d+x\\d+",
+                                String.format("chs=%sx%s", Math.min(mDisplayMetrics.widthPixels, CHART_MAX_WIDTH_PIXELS), CHART_HEIGHT_PIXELS));
+                        chartUrl += CHART_URL_BACKGROUND_COLOR_SUFFIX;
+
+                        Log.i("DashboardLoadFragment", String.format("Downloading chart (%s, %s) from: %s", selectedTimeWindow, metricTypeID, chartUrl));
+                        new ChartDownloadTask(getActivity(), chartView).execute(chartUrl);
+                    }
+                });
+    }
+
+
+    private class ChartDownloadTask extends AsyncTask<String, Void, Bitmap> {
+        Context mContext;
+        View mChartView;
+
+        public ChartDownloadTask(Context context, View chartView) {
+            mContext = context;
+            mChartView = chartView;
+        }
+
+        protected Bitmap doInBackground(String... urls) {
+            String urldisplay = urls[0];
+            Bitmap decodedBitmap = null;
+            try {
+                InputStream in = new java.net.URL(urldisplay).openStream();
+                decodedBitmap = BitmapFactory.decodeStream(in);
+            } catch (Exception e) {
+                Log.e("Error", e.getMessage());
+                e.printStackTrace();
+                resetDisplayedOptions();
+            }
+            return decodedBitmap;
+        }
+
+        protected void onPostExecute(Bitmap result) {
+            ImageView chartImageView = (ImageView) mChartView.findViewById(R.id.load_chart_image);
+            chartImageView.setImageBitmap(result);
+
+            ViewSwitcher chartSwitcherView = (ViewSwitcher) mChartView.findViewById(R.id.load_chart_switcher);
+            if (chartSwitcherView.getDisplayedChild() == 0) {
+                chartSwitcherView.setAnimation(AnimationUtils.makeInAnimation(mContext, true));
+                chartSwitcherView.showNext();
+
+            } else {
+                Log.e("ChartDownloadTask", "Already showing image");
+            }
         }
     }
 }
