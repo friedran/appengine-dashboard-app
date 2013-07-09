@@ -100,6 +100,7 @@ public class AppEngineDashboardAuthenticator {
                 HttpGet httpGet = new HttpGet(url);
                 HttpResponse response;
                 response = mHttpClient.execute(httpGet);
+                response.getEntity().consumeContent();
                 if(response.getStatusLine().getStatusCode() != 302)
                     // Response should be a redirect
                     return false;
