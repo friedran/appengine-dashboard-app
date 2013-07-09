@@ -42,7 +42,6 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
     private int mDisplayedTimeWindowID;
     private Spinner mTimeSpinner;
     private DisplayMetrics mDisplayMetrics;
-    private ChartAdapter mChartGridAdapter;
 
     public DashboardLoadFragment(AppEngineDashboardClient client, String applicationID) {
         mAppEngineClient = client;
@@ -60,7 +59,7 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
         mDisplayMetrics = new DisplayMetrics();
         getActivity().getWindowManager().getDefaultDisplay().getMetrics(mDisplayMetrics);
 
-        mChartGridAdapter = new ChartAdapter(getActivity());
+        ChartAdapter mChartGridAdapter = new ChartAdapter(getActivity());
         GridView mChartsGrid = (GridView) layout.findViewById(R.id.load_charts_grid);
         mChartsGrid.setAdapter(mChartGridAdapter);
 
@@ -113,12 +112,9 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
             return;
 
         mDisplayedTimeWindowID = selectedTimeWindow;
-
-        for (int metricType = 0; metricType < mChartGridAdapter.getCount(); ++metricType)
-            executeGetAndDisplayChart(selectedTimeWindow, metricType);
     }
 
-    private void executeGetAndDisplayChart(final int selectedTimeWindow, final int metricTypeID) {
+    private void executeGetAndDisplayChart(final View chartView, final int selectedTimeWindow, final int metricTypeID) {
 
         mAppEngineClient.executeGetChartUrl(mApplicationId, metricTypeID, selectedTimeWindow,
                 new AppEngineDashboardClient.PostExecuteCallback() {
@@ -137,7 +133,7 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
                         chartUrl += CHART_URL_BACKGROUND_COLOR_SUFFIX;
 
                         Log.i("DashboardLoadFragment", String.format("Downloading chart (%s, %s) from: %s", selectedTimeWindow, metricTypeID, chartUrl));
-                        new ChartDownloadTask(getActivity(), mChartGridAdapter.getChartView(metricTypeID)).execute(chartUrl);
+                        new ChartDownloadTask(getActivity(), chartView).execute(chartUrl);
                     }
                 });
     }
@@ -186,17 +182,11 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
 
     private class ChartAdapter extends BaseAdapter {
         private Context mContext;
-        private View[] mChartViews;
         private String[] mAppEngineMetrics;
 
         public ChartAdapter(Context c) {
             mContext = c;
             mAppEngineMetrics = getResources().getStringArray(R.array.load_metric_options);
-            mChartViews = new View[mAppEngineMetrics.length];
-        }
-
-        public View getChartView(int position) {
-            return mChartViews[position];
         }
 
         @Override
@@ -225,11 +215,13 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
                 TextView textView = (TextView) chartView.findViewById(R.id.load_chart_title);
                 textView.setText(mAppEngineMetrics[position]);
 
+                // Start loading the image asynchronously
+                executeGetAndDisplayChart(chartView, mDisplayedTimeWindowID, position);
+
             } else {
                 chartView = convertView;
             }
 
-            mChartViews[position] = chartView;
             return chartView;
         }
     }
