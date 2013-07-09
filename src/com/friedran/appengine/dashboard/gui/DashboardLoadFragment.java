@@ -24,6 +24,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
 import android.widget.*;
 import com.friedran.appengine.dashboard.R;
 import com.friedran.appengine.dashboard.client.AppEngineDashboardClient;
@@ -136,7 +137,7 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
                         chartUrl += CHART_URL_BACKGROUND_COLOR_SUFFIX;
 
                         Log.i("DashboardLoadFragment", String.format("Downloading chart (%s, %s) from: %s", selectedTimeWindow, metricTypeID, chartUrl));
-                        new DownloadImageTask(mChartGridAdapter.getChartImage(metricTypeID)).execute(chartUrl);
+                        new ChartDownloadTask(getActivity(), mChartGridAdapter.getChartView(metricTypeID)).execute(chartUrl);
                     }
                 });
     }
@@ -145,11 +146,13 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
         mDisplayedTimeWindowID = -1;
     }
 
-    private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
-        ImageView mImage;
+    private class ChartDownloadTask extends AsyncTask<String, Void, Bitmap> {
+        Context mContext;
+        View mChartView;
 
-        public DownloadImageTask(ImageView bmImage) {
-            mImage = bmImage;
+        public ChartDownloadTask(Context context, View chartView) {
+            mContext = context;
+            mChartView = chartView;
         }
 
         protected Bitmap doInBackground(String... urls) {
@@ -167,23 +170,33 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
         }
 
         protected void onPostExecute(Bitmap result) {
-            mImage.setImageBitmap(result);
+            ImageView chartImageView = (ImageView) mChartView.findViewById(R.id.load_chart_image);
+            chartImageView.setImageBitmap(result);
+
+            ViewSwitcher chartSwitcherView = (ViewSwitcher) mChartView.findViewById(R.id.load_chart_switcher);
+            if (chartSwitcherView.getDisplayedChild() == 0) {
+                chartSwitcherView.setAnimation(AnimationUtils.makeInAnimation(mContext, true));
+                chartSwitcherView.showNext();
+
+            } else {
+                Log.e("ChartDownloadTask", "Already showing image");
+            }
         }
     }
 
     private class ChartAdapter extends BaseAdapter {
         private Context mContext;
-        private ImageView[] mChartImages;
+        private View[] mChartViews;
         private String[] mAppEngineMetrics;
 
         public ChartAdapter(Context c) {
             mContext = c;
             mAppEngineMetrics = getResources().getStringArray(R.array.load_metric_options);
-            mChartImages = new ImageView[mAppEngineMetrics.length];
+            mChartViews = new View[mAppEngineMetrics.length];
         }
 
-        public ImageView getChartImage(int position) {
-            return mChartImages[position];
+        public View getChartView(int position) {
+            return mChartViews[position];
         }
 
         @Override
@@ -212,13 +225,11 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
                 TextView textView = (TextView) chartView.findViewById(R.id.load_chart_title);
                 textView.setText(mAppEngineMetrics[position]);
 
-                // TODO: setImageResource to default empty image
-
             } else {
                 chartView = convertView;
             }
 
-            mChartImages[position] = (ImageView) chartView.findViewById(R.id.load_chart_image);
+            mChartViews[position] = chartView;
             return chartView;
         }
     }
