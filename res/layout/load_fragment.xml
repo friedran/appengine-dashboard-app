@@ -13,8 +13,7 @@
                 android:id="@+id/load_chart_time_spinner"
                 android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:paddingRight="50dp"/>
+                android:layout_alignParentLeft="true"/>
 
         <TextView
                 android:layout_width="match_parent"
