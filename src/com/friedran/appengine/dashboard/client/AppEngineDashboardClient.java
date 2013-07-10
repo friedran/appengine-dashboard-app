@@ -94,7 +94,7 @@ public class AppEngineDashboardClient {
                     }
                     return result;
                 }
-            }, postGetApplicationsCallback).executeSerially();
+            }, postGetApplicationsCallback).executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
     }
 
     public List<String> getLastRetrievedApplications() {
@@ -131,7 +131,7 @@ public class AppEngineDashboardClient {
 
                     return result;
                 }
-            }, postGetChartUrlCallback).executeSerially();
+            }, postGetChartUrlCallback).executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
     }
 
     /**
@@ -149,10 +149,6 @@ public class AppEngineDashboardClient {
             mURL = url;
             mBackgroundCallback = backgroundCallback;
             mPostExecuteCallback = postExecuteCallback;
-        }
-
-        public void executeSerially() {
-            executeOnExecutor(SERIAL_EXECUTOR);
         }
 
         @Override

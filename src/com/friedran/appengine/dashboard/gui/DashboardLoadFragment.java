@@ -198,12 +198,12 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
                         chartUrl += CHART_URL_BACKGROUND_COLOR_SUFFIX;
 
                         Log.i("DashboardLoadFragment", String.format("Downloading chart (%s, %s) from: %s", selectedTimeWindow, metricTypeID, chartUrl));
-                        new ChartDownloadTask(getActivity(), chartView, selectedTimeWindow, metricTypeID, chartUrl).execute();
+                        new ChartDownloadTask(getActivity(), chartView, selectedTimeWindow, metricTypeID, chartUrl).executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
                     }
                 });
     }
 
-
+    /** Downloads a chart image and displays it asynchronously */
     private class ChartDownloadTask extends AsyncTask<String, Void, Bitmap> {
         Context mContext;
         View mChartView;
@@ -219,6 +219,7 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
             mUrl = url;
         }
 
+        @Override
         protected Bitmap doInBackground(String... params) {
             Bitmap decodedBitmap = null;
             try {
@@ -228,12 +229,16 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
                 Log.e("Error", e.getMessage());
                 e.printStackTrace();
             }
+
+            updateChartImageInCache(mMetricTypeID, mTimeWindowID, decodedBitmap);
+
             return decodedBitmap;
         }
 
+        @Override
         protected void onPostExecute(Bitmap result) {
-            updateChartImageInCache(mMetricTypeID, mTimeWindowID, result);
             updateChartImage(mChartView, result);
+            Log.i("ChartDownloadTask", String.format("Updating chart image for %d,%d", mMetricTypeID, mTimeWindowID));
         }
     }
 
