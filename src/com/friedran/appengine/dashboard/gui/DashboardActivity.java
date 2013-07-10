@@ -21,11 +21,12 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.*;
 import android.support.v4.view.GravityCompat;
-import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.*;
-import android.widget.*;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import com.friedran.appengine.dashboard.R;
 import com.friedran.appengine.dashboard.client.AppEngineDashboardAPI;
 import com.friedran.appengine.dashboard.client.AppEngineDashboardClient;
@@ -38,66 +39,7 @@ public class DashboardActivity extends FragmentActivity {
     private ListView mDrawerAccountsList;
     private ListView mDrawerApplicationsList;
     private ActionBarDrawerToggle mDrawerToggle;
-
     private AppEngineDashboardClient mAppEngineClient;
-
-    private static final String[] VIEWS = {"Load", "Instances", "Quotas"};
-
-    public static final String FRAGMENT_INDEX = "INDEX";
-
-    public class DashboardCollectionPagerAdapter extends FragmentPagerAdapter {
-        private String mApplicationID;
-
-        public DashboardCollectionPagerAdapter(FragmentManager fm, String applicationID) {
-            super(fm);
-            mApplicationID = applicationID;
-        }
-
-        @Override
-        public Fragment getItem(int i) {
-            Fragment fragment;
-            switch (i) {
-                case 0:
-                    fragment = new DashboardLoadFragment(mAppEngineClient, mApplicationID);
-                    break;
-
-                default:
-                    fragment = new DashboardStaticFragment();
-                    break;
-            }
-
-            Bundle args = new Bundle();
-            args.putInt(FRAGMENT_INDEX, i);
-            fragment.setArguments(args);
-
-            return fragment;
-        }
-
-        @Override
-        public int getCount() {
-            return 3;
-        }
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            return VIEWS[position].toUpperCase();
-        }
-    }
-
-    public static class DashboardStaticFragment extends Fragment {
-
-        @Override
-        public View onCreateView(LayoutInflater inflater,
-                                 ViewGroup container, Bundle savedInstanceState) {
-            View rootView = inflater.inflate(
-                    R.layout.dashboard_fragment_collection_item, container, false);
-            Bundle args = getArguments();
-            ((TextView) rootView.findViewById(android.R.id.text1)).setText(
-                    VIEWS[args.getInt(FRAGMENT_INDEX)] + " View");
-            return rootView;
-        }
-    }
-
 
     /**
      * Called when the activity is first created.
@@ -168,20 +110,17 @@ public class DashboardActivity extends FragmentActivity {
         actionBar.setDisplayHomeAsUpEnabled(true);  // enable ActionBar app icon to behave as action to toggle nav drawer
         actionBar.setHomeButtonEnabled(true);
 
-        // Set up the dashboard view pager
-        DashboardCollectionPagerAdapter dashboardCollectionPagerAdapter =
-                new DashboardCollectionPagerAdapter(getSupportFragmentManager(), applicationsList.get(0));
+        // If we're being restored from a previous state, then we don't need to do anything
+        if (savedInstanceState == null)
+            setLoadFragment();
+    }
 
-        ViewPager viewPager = (ViewPager) findViewById(R.id.dashboard_pager);
-        viewPager.setAdapter(dashboardCollectionPagerAdapter);
-        viewPager.setOffscreenPageLimit(2);     // Cache all pages
-        viewPager.setOnPageChangeListener(
-                new ViewPager.SimpleOnPageChangeListener() {
-                    @Override
-                    public void onPageSelected(int position) {
-                        // TODO
-                    }
-                });
+    private void setLoadFragment() {
+        Fragment dashboardLoadFragment = new DashboardLoadFragment(
+                mAppEngineClient, (String) mDrawerApplicationsList.getItemAtPosition(0));
+
+        getSupportFragmentManager().beginTransaction()
+                .add(R.id.fragment_container, dashboardLoadFragment).commit();
     }
 
     private void selectAccountItem(int position) {
