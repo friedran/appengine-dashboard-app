@@ -197,8 +197,7 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
                                 String.format("chs=%sx%s", Math.min(mDisplayMetrics.widthPixels, CHART_MAX_WIDTH_PIXELS), CHART_HEIGHT_PIXELS));
                         chartUrl += CHART_URL_BACKGROUND_COLOR_SUFFIX;
 
-                        Log.i("DashboardLoadFragment", String.format("Downloading chart (%s, %s) from: %s", selectedTimeWindow, metricTypeID, chartUrl));
-                        new ChartDownloadTask(getActivity(), chartView, selectedTimeWindow, metricTypeID, chartUrl).executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
+                        new ChartDownloadTask(getActivity(), chartView, selectedTimeWindow, metricTypeID, chartUrl).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                     }
                 });
     }
@@ -223,6 +222,7 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
         protected Bitmap doInBackground(String... params) {
             Bitmap decodedBitmap = null;
             try {
+                Log.i("DashboardLoadFragment", String.format("Downloading chart (%s, %s) from: %s", mTimeWindowID, mMetricTypeID, mUrl));
                 InputStream in = new java.net.URL(mUrl).openStream();
                 decodedBitmap = BitmapFactory.decodeStream(in);
             } catch (Exception e) {
@@ -238,7 +238,6 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
         @Override
         protected void onPostExecute(Bitmap result) {
             updateChartImage(mChartView, result);
-            Log.i("ChartDownloadTask", String.format("Updating chart image for %d,%d", mMetricTypeID, mTimeWindowID));
         }
     }
 
