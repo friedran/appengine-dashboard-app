@@ -19,11 +19,16 @@ import android.app.ActionBar;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.support.v4.app.*;
+import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
-import android.view.*;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -69,6 +74,7 @@ public class DashboardActivity extends FragmentActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 selectAccountItem(position);
+                updateUIWithChosenParameters();
             }
         });
 
@@ -79,6 +85,7 @@ public class DashboardActivity extends FragmentActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 selectApplicationItem(position);
+                updateUIWithChosenParameters();
             }
         });
 
@@ -104,23 +111,11 @@ public class DashboardActivity extends FragmentActivity {
             selectAccountItem(0);
             selectApplicationItem(0);
         }
-        setActionBarTitleFromNavigation();
+        updateUIWithChosenParameters();
 
         ActionBar actionBar = getActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);  // enable ActionBar app icon to behave as action to toggle nav drawer
         actionBar.setHomeButtonEnabled(true);
-
-        // If we're being restored from a previous state, then we don't need to do anything
-        if (savedInstanceState == null)
-            setLoadFragment();
-    }
-
-    private void setLoadFragment() {
-        Fragment dashboardLoadFragment = new DashboardLoadFragment(
-                mAppEngineClient, (String) mDrawerApplicationsList.getItemAtPosition(0));
-
-        getSupportFragmentManager().beginTransaction()
-                .add(R.id.fragment_container, dashboardLoadFragment).commit();
     }
 
     private void selectAccountItem(int position) {
@@ -130,21 +125,23 @@ public class DashboardActivity extends FragmentActivity {
             mDrawerApplicationsList.setItemChecked(0, true);
 
         mDrawerAccountsList.setItemChecked(position, true);
-        setActionBarTitleFromNavigation();
     }
 
     private void selectApplicationItem(int position) {
         mDrawerLayout.closeDrawer(GravityCompat.START);
 
-        // update selected item, then close the drawer
         mDrawerApplicationsList.setItemChecked(position, true);
-        setActionBarTitleFromNavigation();
     }
 
-    private void setActionBarTitleFromNavigation() {
+    private void updateUIWithChosenParameters() {
         String selectedAccount = getNavigationListCheckedItem(mDrawerAccountsList);
         String selectedApp = getNavigationListCheckedItem(mDrawerApplicationsList);
 
+        updateActionBarTitleFromNavigation(selectedAccount, selectedApp);
+        updateLoadFragmentFromNavigation(selectedAccount, selectedApp);
+    }
+
+    private void updateActionBarTitleFromNavigation(String selectedAccount, String selectedApp) {
         if (selectedAccount==null || selectedApp==null) {
             Log.e("DashboardActivity", "No selected Account/App");
             return;
@@ -152,6 +149,15 @@ public class DashboardActivity extends FragmentActivity {
 
         getActionBar().setTitle(selectedAccount);
         getActionBar().setSubtitle(selectedApp);
+    }
+
+    private void updateLoadFragmentFromNavigation(String selectedAccount, String selectedApp) {
+        // TODO: Currently ignores the account
+        Fragment dashboardLoadFragment = new DashboardLoadFragment(
+                mAppEngineClient, selectedApp);
+
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, dashboardLoadFragment).commit();
     }
 
     private static String getNavigationListCheckedItem(ListView listView) {
