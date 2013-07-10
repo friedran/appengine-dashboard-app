@@ -157,7 +157,6 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
     }
 
     private void executeGetAndDisplayChart(final View chartView, final int selectedTimeWindow, final int metricTypeID) {
-
         mAppEngineClient.executeGetChartUrl(mApplicationId, metricTypeID, selectedTimeWindow,
                 new AppEngineDashboardClient.PostExecuteCallback() {
                     @Override
@@ -207,10 +206,10 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
         protected void onPostExecute(Bitmap result) {
             ImageView chartImageView = (ImageView) mChartView.findViewById(R.id.load_chart_image);
             chartImageView.setImageBitmap(result);
-            chartImageView.setTag(mDisplayedTimeID);
 
             ViewSwitcher chartSwitcherView = (ViewSwitcher) mChartView.findViewById(R.id.load_chart_switcher);
             switchChartToImage(chartSwitcherView);
+            mChartView.setTag(mDisplayedTimeID);
         }
     }
 
