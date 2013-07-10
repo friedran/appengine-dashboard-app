@@ -220,7 +220,7 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
 
     private void switchChartToImage(ViewSwitcher switcher) {
         if (switcher.getDisplayedChild() != 1) {
-            switcher.setAnimation(AnimationUtils.makeInAnimation(getActivity(), true));
+            switcher.setAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.fadein));
             switcher.showNext();
         }
     }
