@@ -36,6 +36,8 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
     public static final String CHART_URL_BACKGROUND_COLOR_SUFFIX = "&chf=bg,s,E8E8E8";
     public static final int CHART_HEIGHT_PIXELS = 240;
     public static final int CHART_MAX_WIDTH_PIXELS = 1000;
+    public static final String KEY_TIME_ID = "KEY_TIME_ID";
+    public static final String KEY_METRIC_TYPE_ID = "KEY_METRIC_TYPE_ID";
     private AppEngineDashboardClient mAppEngineClient;
     private String mApplicationId;
     private ChartAdapter mChartGridAdapter;
@@ -134,16 +136,14 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
 
             if (convertView == null) {
                 chartView = inflater.inflate(R.layout.load_charts_grid_item, null);
-
-                TextView textView = (TextView) chartView.findViewById(R.id.load_chart_title);
-                textView.setText(mAppEngineMetrics[position]);
-
             } else {
                 chartView = convertView;
             }
 
-            Integer chartDisplayedTimeID = (Integer) chartView.getTag();
-            if (chartDisplayedTimeID == null || chartDisplayedTimeID != mDisplayedTimeID) {
+            TextView textView = (TextView) chartView.findViewById(R.id.load_chart_title);
+            textView.setText(mAppEngineMetrics[position]);
+
+            if (shouldUpdateChartImage((Bundle) chartView.getTag(), position)) {
                 // Load the image asynchronously, while displaying the progress animation
                 ViewSwitcher switcher = (ViewSwitcher) chartView.findViewById(R.id.load_chart_switcher);
                 switchChartToProgress(switcher);
@@ -152,6 +152,12 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
             }
 
             return chartView;
+        }
+
+        private boolean shouldUpdateChartImage(Bundle chartDisplayedParameters, int currentMetricID) {
+            return (chartDisplayedParameters == null) ||
+                   (chartDisplayedParameters.getInt(KEY_TIME_ID) != mDisplayedTimeID) ||
+                   (chartDisplayedParameters.getInt(KEY_METRIC_TYPE_ID) != currentMetricID);
         }
     }
 
@@ -171,7 +177,7 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
                         chartUrl += CHART_URL_BACKGROUND_COLOR_SUFFIX;
 
                         Log.i("DashboardLoadFragment", String.format("Downloading chart (%s, %s) from: %s", selectedTimeWindow, metricTypeID, chartUrl));
-                        new ChartDownloadTask(getActivity(), chartView, selectedTimeWindow, chartUrl).execute();
+                        new ChartDownloadTask(getActivity(), chartView, selectedTimeWindow, metricTypeID, chartUrl).execute();
                     }
                 });
     }
@@ -181,12 +187,14 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
         Context mContext;
         View mChartView;
         int mTimeWindowID;
+        int mMetricTypeID;
         String mUrl;
 
-        public ChartDownloadTask(Context context, View chartView, int timeWindowID, String url) {
+        public ChartDownloadTask(Context context, View chartView, int timeWindowID, int metricTypeID, String url) {
             mContext = context;
             mChartView = chartView;
             mTimeWindowID = timeWindowID;
+            mMetricTypeID = metricTypeID;
             mUrl = url;
         }
 
@@ -208,7 +216,11 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
 
             ViewSwitcher chartSwitcherView = (ViewSwitcher) mChartView.findViewById(R.id.load_chart_switcher);
             switchChartToImage(chartSwitcherView);
-            mChartView.setTag(mDisplayedTimeID);
+
+            Bundle displayedParameters = new Bundle();
+            displayedParameters.putInt(KEY_TIME_ID, mDisplayedTimeID);
+            displayedParameters.putInt(KEY_METRIC_TYPE_ID, mMetricTypeID);
+            mChartView.setTag(displayedParameters);
         }
     }
 
