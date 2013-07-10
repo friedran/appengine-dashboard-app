@@ -51,7 +51,7 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.dashboard_load_fragment, container, false);
+        LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.load_fragment, container, false);
 
         setSpinnerWithItems(layout, R.array.load_time_options, R.id.load_chart_time_spinner);
         mDisplayedTimeID = 0;
@@ -150,7 +150,6 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
 
                 executeGetAndDisplayChart(chartView, mDisplayedTimeID, position);
             }
-
 
             return chartView;
         }
