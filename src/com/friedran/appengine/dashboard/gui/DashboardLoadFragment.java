@@ -114,6 +114,20 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
             mAppEngineMetrics = getResources().getStringArray(R.array.load_metric_options);
         }
 
+        // Disables highlighting items
+        @Override
+        public boolean areAllItemsEnabled()
+        {
+            return false;
+        }
+
+        // Disables highlighting items
+        @Override
+        public boolean isEnabled(int position)
+        {
+            return false;
+        }
+
         @Override
         public int getCount() {
             return mAppEngineMetrics.length;
