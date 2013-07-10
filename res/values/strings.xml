@@ -19,4 +19,5 @@
     <string name="load_7_days">7 days</string>
     <string name="load_14_days">14 days</string>
     <string name="load_30_days">30 days</string>
+    <string name="load_charts">Load Charts</string>
 </resources>
