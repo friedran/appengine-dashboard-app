@@ -17,10 +17,7 @@ import com.friedran.appengine.dashboard.client.AppEngineDashboardAPI;
 import com.friedran.appengine.dashboard.client.AppEngineDashboardAuthenticator;
 import com.friedran.appengine.dashboard.client.AppEngineDashboardClient;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class LoginActivity extends Activity implements View.OnClickListener,
         AppEngineDashboardAuthenticator.OnUserInputRequiredCallback,
@@ -31,7 +28,7 @@ public class LoginActivity extends Activity implements View.OnClickListener,
     protected ProgressDialog mProgressDialog;
     protected AppEngineDashboardClient mAppEngineClient;
 
-    protected Map<String, Account> mAccounts;
+    protected List<Account> mAccounts;
 
     // State parameters
     protected boolean mLoginInProgress;
@@ -41,13 +38,14 @@ public class LoginActivity extends Activity implements View.OnClickListener,
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login);
 
-        mAccounts = new HashMap<String, Account>();
-        for (Account account : AccountManager.get(this).getAccounts()) {
-            mAccounts.put(account.name, account);
+        mAccounts = Arrays.asList(AccountManager.get(this).getAccounts());
+        List<String> accountNames = new ArrayList<String>();
+        for (Account account : mAccounts) {
+            accountNames.add(account.name);
         }
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(
-                this, android.R.layout.simple_spinner_item, new ArrayList<String>(mAccounts.keySet()));
+                this, android.R.layout.simple_spinner_item, new ArrayList<String>(accountNames));
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mAccountSpinner = (Spinner) findViewById(R.id.login_account_spinner);
         mAccountSpinner.setAdapter(adapter);
@@ -77,8 +75,7 @@ public class LoginActivity extends Activity implements View.OnClickListener,
     public void onClick(View v) {
         showProgressDialog("Authenticating with Google AppEngine...");
 
-        String accountName = (String) mAccountSpinner.getSelectedItem();
-        Account selectedAccount = mAccounts.get(accountName);
+        Account selectedAccount = mAccounts.get(mAccountSpinner.getSelectedItemPosition());
         mAppEngineClient = new AppEngineDashboardClient(selectedAccount, this, this, this);
 
         AppEngineDashboardAPI appEngineAPI = AppEngineDashboardAPI.getInstance();
