@@ -68,7 +68,6 @@ public class LoginActivity extends Activity implements View.OnClickListener,
 
         // If we're in the middle of the login process, then continue automatically
         if (mLoginInProgress) {
-            showProgressDialog("Authenticating with Google AppEngine...");
             mAppEngineClient.executeAuthentication();
         }
     }
