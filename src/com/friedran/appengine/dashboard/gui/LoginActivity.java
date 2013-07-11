@@ -112,7 +112,7 @@ public class LoginActivity extends Activity implements View.OnClickListener,
             onSuccessfulAuthentication();
         } else {
             dismissProgress(true);
-            Toast.makeText(LoginActivity.this, "Authentication failed, please try again later", 2000);
+            Toast.makeText(LoginActivity.this, "Authentication failed, please try again later", 2000).show();
         }
     }
 
@@ -137,11 +137,11 @@ public class LoginActivity extends Activity implements View.OnClickListener,
                                 .putExtra(LoginActivity.EXTRA_ACCOUNT, targetAccount);
                         startActivity(intent);
                     } else {
-                        Toast.makeText(LoginActivity.this, "No applications found for " + targetAccount.name, 2000);
+                        Toast.makeText(LoginActivity.this, "No applications found for " + targetAccount.name, 2000).show();
                     }
 
                 } else {
-                    Toast.makeText(LoginActivity.this, "Failed retrieving list of applications for " + targetAccount.name, 2000);
+                    Toast.makeText(LoginActivity.this, "Failed retrieving list of applications for " + targetAccount.name, 2000).show();
                 }
             }
         });
