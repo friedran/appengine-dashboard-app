@@ -25,11 +25,12 @@ public class LoginActivity extends Activity implements View.OnClickListener {
     public static final String EXTRA_ACCOUNT = "EXTRA_ACCOUNT";
     protected Spinner mAccountSpinner;
     protected Button mLoginButton;
+    protected ProgressDialog mProgressDialog;
+    protected AppEngineDashboardClient mAppEngineClient;
+
     protected Map<String, Account> mAccounts;
     protected Account mSelectedAccount;
-
-    ProgressDialog mProgressDialog;
-    AppEngineDashboardClient mAppEngineClient;
+    protected boolean mLoginStarted;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,6 +52,8 @@ public class LoginActivity extends Activity implements View.OnClickListener {
 
         mProgressDialog = new ProgressDialog(this);
         mProgressDialog.setTitle("Loading");
+
+        mLoginStarted = false;
     }
 
     @Override
@@ -94,6 +97,7 @@ public class LoginActivity extends Activity implements View.OnClickListener {
         AppEngineDashboardAPI appEngineAPI = AppEngineDashboardAPI.getInstance();
         appEngineAPI.setClient(mSelectedAccount, mAppEngineClient);
 
+        mLoginStarted = true;
         mAppEngineClient.executeAuthentication();
     }
 
