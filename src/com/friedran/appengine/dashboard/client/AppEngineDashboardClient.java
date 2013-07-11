@@ -49,6 +49,7 @@ public class AppEngineDashboardClient {
     }
 
     public AppEngineDashboardClient(Account account, Context context,
+                                    AppEngineDashboardAuthenticator.OnUserInputRequiredCallback onUserInputRequiredCallback,
                                     PostExecuteCallback postAuthenticationCallback) {
         mAccount = account;
         mApplicationContext = context.getApplicationContext();
@@ -59,6 +60,7 @@ public class AppEngineDashboardClient {
 
         mAppEngineDashboardAuthenticator = new AppEngineDashboardAuthenticator(
                 mAccount, mHttpClient, mApplicationContext,
+                onUserInputRequiredCallback,
             new AppEngineDashboardAuthenticator.PostAuthenticateCallback() {
             @Override
             public void run(boolean result) {

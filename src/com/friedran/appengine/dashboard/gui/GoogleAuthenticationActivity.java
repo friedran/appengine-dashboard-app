@@ -22,6 +22,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 import com.friedran.appengine.dashboard.client.AppEngineDashboardAPI;
+import com.friedran.appengine.dashboard.client.AppEngineDashboardAuthenticator;
 import com.friedran.appengine.dashboard.client.AppEngineDashboardClient;
 
 public class GoogleAuthenticationActivity extends Activity {
@@ -43,9 +44,19 @@ public class GoogleAuthenticationActivity extends Activity {
     protected void onResume() {
         super.onResume();
 
+        Log.i("GoogleAuthenticationActivity", "onResume: " + getIntent().getExtras());
+
         final Context applicationContext = getApplicationContext();
 
         mAppEngineClient = new AppEngineDashboardClient(mAccount, applicationContext,
+            // Called when the user approval is required to authorize us
+            new AppEngineDashboardAuthenticator.OnUserInputRequiredCallback() {
+                @Override
+                public void onUserInputRequired(Intent accountManagerIntent) {
+                    startActivity(accountManagerIntent);
+                }
+            },
+            // Called when the authentication is completed
             new AppEngineDashboardClient.PostExecuteCallback() {
             @Override
             public void run(Bundle resultBundle) {

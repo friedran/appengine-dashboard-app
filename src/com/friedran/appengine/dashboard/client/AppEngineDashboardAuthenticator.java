@@ -32,23 +32,30 @@ public class AppEngineDashboardAuthenticator {
     protected Account mAccount;
     protected DefaultHttpClient mHttpClient;
     protected Context mApplicationContext;
+    protected OnUserInputRequiredCallback mOnUserInputRequiredCallback;
     protected PostAuthenticateCallback mPostAuthenticateCallback;
+
+    public interface OnUserInputRequiredCallback {
+        public void onUserInputRequired(Intent accountManagerIntent);
+    }
 
     public interface PostAuthenticateCallback {
         public void run(boolean result);
     }
 
     public AppEngineDashboardAuthenticator(Account account, DefaultHttpClient httpClient, Context context,
-                                           PostAuthenticateCallback callback) {
+                                           OnUserInputRequiredCallback userInputRequiredCallback,
+                                           PostAuthenticateCallback postAuthenticateCallback) {
         mAccount = account;
         mHttpClient = httpClient;
         mApplicationContext = context.getApplicationContext();
-        mPostAuthenticateCallback = callback;
+        mOnUserInputRequiredCallback = userInputRequiredCallback;
+        mPostAuthenticateCallback = postAuthenticateCallback;
     }
 
     public void executeAuthentication() {
         // Gets the auth token asynchronously, calling the callback with its result.
-        AccountManager.get(mApplicationContext).getAuthToken(mAccount, "ah", false, new GetAuthTokenCallback(), null);
+        AccountManager.get(mApplicationContext).getAuthToken(mAccount, "ah", null, false, new GetAuthTokenCallback(), null);
     }
 
     private class GetAuthTokenCallback implements AccountManagerCallback<Bundle> {
@@ -61,7 +68,7 @@ public class AppEngineDashboardAuthenticator {
                 if(intent != null) {
                     // User input required
                     Log.i("AppEngineDashboardAuthenticator", "User input is required...");
-                    mApplicationContext.startActivity(intent);
+                    mOnUserInputRequiredCallback.onUserInputRequired(intent);
                 } else {
                     Log.i("AppEngineDashboardAuthenticator", "Authenticated, getting auth token...");
                     onGetAuthToken(bundle);
