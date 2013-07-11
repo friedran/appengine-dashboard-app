@@ -71,6 +71,10 @@ public class AppEngineDashboardClient {
         });
     }
 
+    public Account getAccount() {
+        return mAccount;
+    }
+
     public void executeAuthentication() {
         mAppEngineDashboardAuthenticator.executeAuthentication();
     }

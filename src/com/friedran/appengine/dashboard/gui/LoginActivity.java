@@ -19,6 +19,7 @@ import com.friedran.appengine.dashboard.client.AppEngineDashboardClient;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class LoginActivity extends Activity implements View.OnClickListener,
@@ -31,7 +32,6 @@ public class LoginActivity extends Activity implements View.OnClickListener,
     protected AppEngineDashboardClient mAppEngineClient;
 
     protected Map<String, Account> mAccounts;
-    protected Account mSelectedAccount;
 
     // State parameters
     protected boolean mLoginInProgress;
@@ -78,11 +78,11 @@ public class LoginActivity extends Activity implements View.OnClickListener,
         showProgressDialog("Authenticating with Google AppEngine...");
 
         String accountName = (String) mAccountSpinner.getSelectedItem();
-        mSelectedAccount = mAccounts.get(accountName);
-        mAppEngineClient = new AppEngineDashboardClient(mSelectedAccount, this, this, this);
+        Account selectedAccount = mAccounts.get(accountName);
+        mAppEngineClient = new AppEngineDashboardClient(selectedAccount, this, this, this);
 
         AppEngineDashboardAPI appEngineAPI = AppEngineDashboardAPI.getInstance();
-        appEngineAPI.setClient(mSelectedAccount, mAppEngineClient);
+        appEngineAPI.setClient(selectedAccount, mAppEngineClient);
 
         mLoginInProgress = true;
         mAppEngineClient.executeAuthentication();
@@ -126,19 +126,22 @@ public class LoginActivity extends Activity implements View.OnClickListener,
 
                 boolean result = resultBundle.getBoolean(AppEngineDashboardClient.KEY_RESULT);
                 Log.i("GoogleAuthenticationActivity", "GetApplications done, result = " + result);
+                Account targetAccount = mAppEngineClient.getAccount();
 
                 if (result) {
-                    for (String application : resultBundle.getStringArrayList(AppEngineDashboardClient.KEY_APPLICATIONS)) {
-                        Log.i("GoogleAuthenticationActivity", "Application: " + application);
+                    List<String> applications = resultBundle.getStringArrayList(AppEngineDashboardClient.KEY_APPLICATIONS);
+
+                    if (applications.size() > 0) {
+                        Intent intent = new Intent(LoginActivity.this, DashboardActivity.class)
+                                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK)
+                                .putExtra(LoginActivity.EXTRA_ACCOUNT, targetAccount);
+                        startActivity(intent);
+                    } else {
+                        Toast.makeText(LoginActivity.this, "No applications found for " + targetAccount.name, 2000);
                     }
 
-                    Intent intent = new Intent(LoginActivity.this, DashboardActivity.class)
-                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK)
-                            .putExtra(LoginActivity.EXTRA_ACCOUNT, mSelectedAccount);
-                    startActivity(intent);
-
                 } else {
-                    Toast.makeText(LoginActivity.this, "Failed retrieving list of applications, please try again later", 2000);
+                    Toast.makeText(LoginActivity.this, "Failed retrieving list of applications for " + targetAccount.name, 2000);
                 }
             }
         });
