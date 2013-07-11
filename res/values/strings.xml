@@ -20,4 +20,8 @@
     <string name="load_14_days">14 days</string>
     <string name="load_30_days">30 days</string>
     <string name="load_charts">Load Charts</string>
+    <string name="enter_your_account">Choose your AppEngine Account</string>
+    <string name="fill_account_hint">Email</string>
+    <string name="login">Log In</string>
+    <string name="logo">Logo</string>
 </resources>

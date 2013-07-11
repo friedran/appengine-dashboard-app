@@ -29,39 +29,47 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import java.io.IOException;
 
 public class AppEngineDashboardAuthenticator {
+    public static final String AUTH_TOKEN_TYPE = "ah";
     protected Account mAccount;
     protected DefaultHttpClient mHttpClient;
     protected Context mApplicationContext;
+    protected OnUserInputRequiredCallback mOnUserInputRequiredCallback;
     protected PostAuthenticateCallback mPostAuthenticateCallback;
+
+    public interface OnUserInputRequiredCallback {
+        public void onUserInputRequired(Intent accountManagerIntent);
+    }
 
     public interface PostAuthenticateCallback {
         public void run(boolean result);
     }
 
     public AppEngineDashboardAuthenticator(Account account, DefaultHttpClient httpClient, Context context,
-                                           PostAuthenticateCallback callback) {
+                                           OnUserInputRequiredCallback userInputRequiredCallback,
+                                           PostAuthenticateCallback postAuthenticateCallback) {
         mAccount = account;
         mHttpClient = httpClient;
         mApplicationContext = context.getApplicationContext();
-        mPostAuthenticateCallback = callback;
+        mOnUserInputRequiredCallback = userInputRequiredCallback;
+        mPostAuthenticateCallback = postAuthenticateCallback;
     }
 
     public void executeAuthentication() {
         // Gets the auth token asynchronously, calling the callback with its result.
-        AccountManager.get(mApplicationContext).getAuthToken(mAccount, "ah", false, new GetAuthTokenCallback(), null);
+        AccountManager.get(mApplicationContext).getAuthToken(mAccount, AUTH_TOKEN_TYPE, null, false, new GetAuthTokenCallback(), null);
     }
 
     private class GetAuthTokenCallback implements AccountManagerCallback<Bundle> {
         public void run(AccountManagerFuture result) {
             Bundle bundle;
             try {
-                Log.i("AppEngineDashboardAuthenticator", "GetAuthTokenCallback.run started...");
+                Log.i("AppEngineDashboardAuthenticator", "GetAuthTokenCallback.onPostExecute started...");
                 bundle = (Bundle) result.getResult();
                 Intent intent = (Intent)bundle.get(AccountManager.KEY_INTENT);
                 if(intent != null) {
                     // User input required
                     Log.i("AppEngineDashboardAuthenticator", "User input is required...");
-                    mApplicationContext.startActivity(intent);
+                    mOnUserInputRequiredCallback.onUserInputRequired(intent);
                 } else {
                     Log.i("AppEngineDashboardAuthenticator", "Authenticated, getting auth token...");
                     onGetAuthToken(bundle);
