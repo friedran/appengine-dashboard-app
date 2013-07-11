@@ -45,7 +45,7 @@ public class AppEngineDashboardClient {
     public static final String KEY_RESULT = "RESULT";
 
     public interface PostExecuteCallback {
-        public void run(Bundle result);
+        public void onPostExecute(Bundle result);
     }
 
     public AppEngineDashboardClient(Account account, Context context,
@@ -66,7 +66,7 @@ public class AppEngineDashboardClient {
             public void run(boolean result) {
                 Bundle bundle = new Bundle();
                 bundle.putBoolean(KEY_RESULT, result);
-                mPostAuthenticateCallback.run(bundle);
+                mPostAuthenticateCallback.onPostExecute(bundle);
             }
         });
     }
@@ -178,7 +178,7 @@ public class AppEngineDashboardClient {
 
         @Override
         protected void onPostExecute(final Bundle result) {
-            mPostExecuteCallback.run(result);
+            mPostExecuteCallback.onPostExecute(result);
         }
     }
 

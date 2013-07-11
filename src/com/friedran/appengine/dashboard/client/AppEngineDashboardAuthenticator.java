@@ -62,7 +62,7 @@ public class AppEngineDashboardAuthenticator {
         public void run(AccountManagerFuture result) {
             Bundle bundle;
             try {
-                Log.i("AppEngineDashboardAuthenticator", "GetAuthTokenCallback.run started...");
+                Log.i("AppEngineDashboardAuthenticator", "GetAuthTokenCallback.onPostExecute started...");
                 bundle = (Bundle) result.getResult();
                 Intent intent = (Intent)bundle.get(AccountManager.KEY_INTENT);
                 if(intent != null) {

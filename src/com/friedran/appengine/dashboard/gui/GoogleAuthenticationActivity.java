@@ -59,7 +59,7 @@ public class GoogleAuthenticationActivity extends Activity {
             // Called when the authentication is completed
             new AppEngineDashboardClient.PostExecuteCallback() {
             @Override
-            public void run(Bundle resultBundle) {
+            public void onPostExecute(Bundle resultBundle) {
                 boolean result = resultBundle.getBoolean(AppEngineDashboardClient.KEY_RESULT);
                 Log.i("GoogleAuthenticationActivity", "Authentication done, result = " + result);
 
@@ -84,7 +84,7 @@ public class GoogleAuthenticationActivity extends Activity {
 
         mAppEngineClient.executeGetApplications(new AppEngineDashboardClient.PostExecuteCallback() {
             @Override
-            public void run(Bundle resultBundle) {
+            public void onPostExecute(Bundle resultBundle) {
                 safelyDismissProgress();
 
                 boolean result = resultBundle.getBoolean(AppEngineDashboardClient.KEY_RESULT);

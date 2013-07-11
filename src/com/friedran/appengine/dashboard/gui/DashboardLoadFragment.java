@@ -186,7 +186,7 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
         mAppEngineClient.executeGetChartUrl(mApplicationId, metricTypeID, selectedTimeWindow,
                 new AppEngineDashboardClient.PostExecuteCallback() {
                     @Override
-                    public void run(Bundle result) {
+                    public void onPostExecute(Bundle result) {
                         if (!result.getBoolean(AppEngineDashboardClient.KEY_RESULT)) {
                             Log.e("DashboardLoadFragment", "GetChartURL has failed");
                             return;

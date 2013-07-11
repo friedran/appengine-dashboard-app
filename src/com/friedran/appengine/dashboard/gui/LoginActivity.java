@@ -21,7 +21,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class LoginActivity extends Activity implements View.OnClickListener {
+public class LoginActivity extends Activity implements View.OnClickListener,
+        AppEngineDashboardAuthenticator.OnUserInputRequiredCallback,
+        AppEngineDashboardClient.PostExecuteCallback {
     public static final String EXTRA_ACCOUNT = "EXTRA_ACCOUNT";
     protected Spinner mAccountSpinner;
     protected Button mLoginButton;
@@ -70,29 +72,7 @@ public class LoginActivity extends Activity implements View.OnClickListener {
 
         String accountName = (String) mAccountSpinner.getSelectedItem();
         mSelectedAccount = mAccounts.get(accountName);
-        mAppEngineClient = new AppEngineDashboardClient(mSelectedAccount, this,
-                // Called when the user approval is required to authorize us
-                new AppEngineDashboardAuthenticator.OnUserInputRequiredCallback() {
-                    @Override
-                    public void onUserInputRequired(Intent accountManagerIntent) {
-                        startActivity(accountManagerIntent);
-                    }
-                },
-                // Called when the authentication is completed
-                new AppEngineDashboardClient.PostExecuteCallback() {
-                    @Override
-                    public void run(Bundle resultBundle) {
-                        boolean result = resultBundle.getBoolean(AppEngineDashboardClient.KEY_RESULT);
-                        Log.i("GoogleAuthenticationActivity", "Authentication done, result = " + result);
-
-                        if (result) {
-                            onSuccessfulAuthentication();
-                        } else {
-                            safelyDismissProgress();
-                            Toast.makeText(LoginActivity.this, "Authentication failed, please try again later", 2000);
-                        }
-                    }
-                });
+        mAppEngineClient = new AppEngineDashboardClient(mSelectedAccount, this, this, this);
 
         AppEngineDashboardAPI appEngineAPI = AppEngineDashboardAPI.getInstance();
         appEngineAPI.setClient(mSelectedAccount, mAppEngineClient);
@@ -101,12 +81,32 @@ public class LoginActivity extends Activity implements View.OnClickListener {
         mAppEngineClient.executeAuthentication();
     }
 
+    // Called when the user approval is required to authorize us
+    @Override
+    public void onUserInputRequired(Intent accountManagerIntent) {
+        startActivity(accountManagerIntent);
+    }
+
+    // Called when the authentication is completed
+    @Override
+    public void onPostExecute(Bundle resultBundle) {
+        boolean result = resultBundle.getBoolean(AppEngineDashboardClient.KEY_RESULT);
+        Log.i("GoogleAuthenticationActivity", "Authentication done, result = " + result);
+
+        if (result) {
+            onSuccessfulAuthentication();
+        } else {
+            safelyDismissProgress();
+            Toast.makeText(LoginActivity.this, "Authentication failed, please try again later", 2000);
+        }
+    }
+
     private void onSuccessfulAuthentication() {
         mProgressDialog.setMessage("Retrieving list of AppEngine applications...");
 
         mAppEngineClient.executeGetApplications(new AppEngineDashboardClient.PostExecuteCallback() {
             @Override
-            public void run(Bundle resultBundle) {
+            public void onPostExecute(Bundle resultBundle) {
                 safelyDismissProgress();
 
                 boolean result = resultBundle.getBoolean(AppEngineDashboardClient.KEY_RESULT);
