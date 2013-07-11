@@ -32,7 +32,7 @@ public class LoginActivity extends Activity implements View.OnClickListener,
 
     protected Map<String, Account> mAccounts;
     protected Account mSelectedAccount;
-    protected boolean mLoginStarted;
+    protected boolean mLoginInProgress;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,20 +55,25 @@ public class LoginActivity extends Activity implements View.OnClickListener,
         mProgressDialog = new ProgressDialog(this);
         mProgressDialog.setTitle("Loading");
 
-        mLoginStarted = false;
+        mLoginInProgress = false;
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+
+        // If already started the login process, then try to authenticate immediately
+        // (happens when the user just authorized us)
+        if (mLoginInProgress) {
+            showProgressDialog();
+            mAppEngineClient.executeAuthentication();
+        }
     }
 
     /** Happens when the login button is clicked */
     @Override
     public void onClick(View v) {
-        mProgressDialog.setMessage("Authenticating with your Google AppEngine account...");
-        mProgressDialog.show();
-        mLoginButton.setClickable(false);
+        showProgressDialog();
 
         String accountName = (String) mAccountSpinner.getSelectedItem();
         mSelectedAccount = mAccounts.get(accountName);
@@ -77,8 +82,14 @@ public class LoginActivity extends Activity implements View.OnClickListener,
         AppEngineDashboardAPI appEngineAPI = AppEngineDashboardAPI.getInstance();
         appEngineAPI.setClient(mSelectedAccount, mAppEngineClient);
 
-        mLoginStarted = true;
+        mLoginInProgress = true;
         mAppEngineClient.executeAuthentication();
+    }
+
+    private void showProgressDialog() {
+        mProgressDialog.setMessage("Authenticating with Google AppEngine...");
+        mProgressDialog.show();
+        mLoginButton.setClickable(false);
     }
 
     // Called when the user approval is required to authorize us
@@ -96,7 +107,7 @@ public class LoginActivity extends Activity implements View.OnClickListener,
         if (result) {
             onSuccessfulAuthentication();
         } else {
-            safelyDismissProgress();
+            dismissProgress(true);
             Toast.makeText(LoginActivity.this, "Authentication failed, please try again later", 2000);
         }
     }
@@ -107,7 +118,7 @@ public class LoginActivity extends Activity implements View.OnClickListener,
         mAppEngineClient.executeGetApplications(new AppEngineDashboardClient.PostExecuteCallback() {
             @Override
             public void onPostExecute(Bundle resultBundle) {
-                safelyDismissProgress();
+                dismissProgress(true);
 
                 boolean result = resultBundle.getBoolean(AppEngineDashboardClient.KEY_RESULT);
                 Log.i("GoogleAuthenticationActivity", "GetApplications done, result = " + result);
@@ -116,8 +127,9 @@ public class LoginActivity extends Activity implements View.OnClickListener,
                     for (String application : resultBundle.getStringArrayList(AppEngineDashboardClient.KEY_APPLICATIONS)) {
                         Log.i("GoogleAuthenticationActivity", "Application: " + application);
                     }
+
                     Intent intent = new Intent(LoginActivity.this, DashboardActivity.class)
-                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK)
+                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK)
                             .putExtra(LoginActivity.EXTRA_ACCOUNT, mSelectedAccount);
                     startActivity(intent);
 
@@ -131,19 +143,23 @@ public class LoginActivity extends Activity implements View.OnClickListener,
     @Override
     protected void onPause() {
         super.onPause();
-        safelyDismissProgress();
+        dismissProgress(false);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        safelyDismissProgress();
+        dismissProgress(false);
     }
 
-    private void safelyDismissProgress() {
+    private void dismissProgress(boolean stopLoginProcess) {
         if (mProgressDialog.isShowing())
             mProgressDialog.dismiss();
 
         mLoginButton.setClickable(true);
+        if (stopLoginProcess) {
+            Log.i("LoginActivity", "Login progress stopped");
+            mLoginInProgress = false;
+        }
     }
 }
