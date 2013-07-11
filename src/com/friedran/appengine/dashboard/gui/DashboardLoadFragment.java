@@ -13,6 +13,7 @@
  */
 package com.friedran.appengine.dashboard.gui;
 
+import android.accounts.Account;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -28,6 +29,7 @@ import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.widget.*;
 import com.friedran.appengine.dashboard.R;
+import com.friedran.appengine.dashboard.client.AppEngineDashboardAPI;
 import com.friedran.appengine.dashboard.client.AppEngineDashboardClient;
 
 import java.io.InputStream;
@@ -37,17 +39,23 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
     public static final String CHART_URL_BACKGROUND_COLOR_SUFFIX = "&chf=bg,s,E8E8E8";
     public static final int CHART_HEIGHT_PIXELS = 240;
     public static final int CHART_MAX_WIDTH_PIXELS = 1000;
-    private AppEngineDashboardClient mAppEngineClient;
-    private String mApplicationId;
+    public static final String KEY_ACCOUNT = "KEY_ACCOUNT";
+    public static final String KEY_APPLICATION_ID = "KEY_APPLICATION_ID";
     private ChartAdapter mChartGridAdapter;
     private DisplayMetrics mDisplayMetrics;
     private LruCache<String, Bitmap> mChartsMemoryCache;
 
     int mDisplayedTimeID;
 
-    public DashboardLoadFragment(AppEngineDashboardClient client, String applicationID) {
-        mAppEngineClient = client;
-        mApplicationId = applicationID;
+    public static DashboardLoadFragment newInstance(Account account, String applicationID) {
+        Bundle args = new Bundle();
+        args.putParcelable(KEY_ACCOUNT, account);
+        args.putString(KEY_APPLICATION_ID, applicationID);
+
+        DashboardLoadFragment fragment = new DashboardLoadFragment();
+        fragment.setArguments(args);
+
+        return fragment;
     }
 
     @Override
@@ -61,7 +69,10 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
         mDisplayMetrics = new DisplayMetrics();
         getActivity().getWindowManager().getDefaultDisplay().getMetrics(mDisplayMetrics);
 
-        mChartGridAdapter = new ChartAdapter(getActivity());
+        Account account = getArguments().getParcelable(KEY_ACCOUNT);
+        String applicationID = getArguments().getString(KEY_APPLICATION_ID);
+        mChartGridAdapter = new ChartAdapter(getActivity(), AppEngineDashboardAPI.getInstance().getClient(account), applicationID);
+
         GridView chartsGridView = (GridView) layout.findViewById(R.id.load_charts_grid);
         chartsGridView.setAdapter(mChartGridAdapter);
 
@@ -122,10 +133,14 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
 
     private class ChartAdapter extends BaseAdapter {
         private Context mContext;
+        private AppEngineDashboardClient mAppEngineClient;
+        private String mApplicationID;
         private String[] mAppEngineMetrics;
 
-        public ChartAdapter(Context c) {
+        public ChartAdapter(Context c, AppEngineDashboardClient appEngineClient, String applicationID) {
             mContext = c;
+            mAppEngineClient = appEngineClient;
+            mApplicationID = applicationID;
             mAppEngineMetrics = getResources().getStringArray(R.array.load_metric_options);
         }
 
@@ -180,26 +195,27 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
 
             return chartView;
         }
-    }
 
-    private void executeGetAndDisplayChart(final View chartView, final int selectedTimeWindow, final int metricTypeID) {
-        mAppEngineClient.executeGetChartUrl(mApplicationId, metricTypeID, selectedTimeWindow,
-                new AppEngineDashboardClient.PostExecuteCallback() {
-                    @Override
-                    public void onPostExecute(Bundle result) {
-                        if (!result.getBoolean(AppEngineDashboardClient.KEY_RESULT)) {
-                            Log.e("DashboardLoadFragment", "GetChartURL has failed");
-                            return;
+        // Gets and loads the chart into chartView asynchronously
+        private void executeGetAndDisplayChart(final View chartView, final int selectedTimeWindow, final int metricTypeID) {
+            mAppEngineClient.executeGetChartUrl(mApplicationID, metricTypeID, selectedTimeWindow,
+                    new AppEngineDashboardClient.PostExecuteCallback() {
+                        @Override
+                        public void onPostExecute(Bundle result) {
+                            if (!result.getBoolean(AppEngineDashboardClient.KEY_RESULT)) {
+                                Log.e("DashboardLoadFragment", "GetChartURL has failed");
+                                return;
+                            }
+
+                            String chartUrl = result.getString(AppEngineDashboardClient.KEY_CHART_URL);
+                            chartUrl = chartUrl.replaceAll("chs=\\d+x\\d+",
+                                    String.format("chs=%sx%s", Math.min(mDisplayMetrics.widthPixels, CHART_MAX_WIDTH_PIXELS), CHART_HEIGHT_PIXELS));
+                            chartUrl += CHART_URL_BACKGROUND_COLOR_SUFFIX;
+
+                            new ChartDownloadTask(getActivity(), chartView, selectedTimeWindow, metricTypeID, chartUrl).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                         }
-
-                        String chartUrl = result.getString(AppEngineDashboardClient.KEY_CHART_URL);
-                        chartUrl = chartUrl.replaceAll("chs=\\d+x\\d+",
-                                String.format("chs=%sx%s", Math.min(mDisplayMetrics.widthPixels, CHART_MAX_WIDTH_PIXELS), CHART_HEIGHT_PIXELS));
-                        chartUrl += CHART_URL_BACKGROUND_COLOR_SUFFIX;
-
-                        new ChartDownloadTask(getActivity(), chartView, selectedTimeWindow, metricTypeID, chartUrl).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-                    }
-                });
+                    });
+        }
     }
 
     /** Downloads a chart image and displays it asynchronously */

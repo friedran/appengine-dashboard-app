@@ -148,8 +148,8 @@ public class DashboardActivity extends FragmentActivity {
 
     private void updateLoadFragmentFromNavigation(String selectedAccount, String selectedApp) {
         // TODO: Currently ignores the account
-        Fragment dashboardLoadFragment = new DashboardLoadFragment(
-                mAppEngineClient, selectedApp);
+        Fragment dashboardLoadFragment = DashboardLoadFragment.newInstance(
+                mAppEngineClient.getAccount(), selectedApp);
 
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, dashboardLoadFragment).commit();
