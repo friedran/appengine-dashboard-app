@@ -29,6 +29,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import java.io.IOException;
 
 public class AppEngineDashboardAuthenticator {
+    public static final String AUTH_TOKEN_TYPE = "ah";
     protected Account mAccount;
     protected DefaultHttpClient mHttpClient;
     protected Context mApplicationContext;
@@ -55,7 +56,7 @@ public class AppEngineDashboardAuthenticator {
 
     public void executeAuthentication() {
         // Gets the auth token asynchronously, calling the callback with its result.
-        AccountManager.get(mApplicationContext).getAuthToken(mAccount, "ah", null, false, new GetAuthTokenCallback(), null);
+        AccountManager.get(mApplicationContext).getAuthToken(mAccount, AUTH_TOKEN_TYPE, null, false, new GetAuthTokenCallback(), null);
     }
 
     private class GetAuthTokenCallback implements AccountManagerCallback<Bundle> {
