@@ -2,4 +2,5 @@
 
 <resources>
     <dimen name="chart_height">140dp</dimen>
+    <dimen name="login_text_size">24dp</dimen>
 </resources>

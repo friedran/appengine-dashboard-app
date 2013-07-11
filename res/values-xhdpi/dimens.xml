@@ -3,4 +3,5 @@
 <!-- Galaxy Nexus -->
 <resources>
     <dimen name="chart_height">120dp</dimen>
+    <dimen name="login_text_size">20dp</dimen>
 </resources>

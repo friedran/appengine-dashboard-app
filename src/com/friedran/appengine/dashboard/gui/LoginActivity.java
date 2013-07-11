@@ -5,13 +5,15 @@ import android.accounts.AccountManager;
 import android.app.Activity;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
+import android.widget.Spinner;
 import com.friedran.appengine.dashboard.R;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class LoginActivity extends Activity {
+    protected Spinner mAccountSpinner;
+
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login);
@@ -21,16 +23,15 @@ public class LoginActivity extends Activity {
             accountNames.add(account.name);
         }
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_dropdown_item_1line, accountNames);
-        AutoCompleteTextView textView = (AutoCompleteTextView)
-                findViewById(R.id.login_account_text_view);
-        textView.setAdapter(adapter);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, accountNames);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mAccountSpinner = (Spinner)
+                findViewById(R.id.login_account_spinner);
+        mAccountSpinner.setAdapter(adapter);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-
     }
 }
