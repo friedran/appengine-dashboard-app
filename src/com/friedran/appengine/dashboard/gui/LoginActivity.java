@@ -32,7 +32,10 @@ public class LoginActivity extends Activity implements View.OnClickListener,
 
     protected Map<String, Account> mAccounts;
     protected Account mSelectedAccount;
+
+    // State parameters
     protected boolean mLoginInProgress;
+    protected boolean mHasRequestedUserInput;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,6 +59,7 @@ public class LoginActivity extends Activity implements View.OnClickListener,
         mProgressDialog.setTitle("Loading");
 
         mLoginInProgress = false;
+        mHasRequestedUserInput = false;
     }
 
     @Override
@@ -95,6 +99,14 @@ public class LoginActivity extends Activity implements View.OnClickListener,
     // Called when the user approval is required to authorize us
     @Override
     public void onUserInputRequired(Intent accountManagerIntent) {
+        // We can request the user authorization only once in the login process.
+        // If we failed getting it, then we should stop the login process.
+        if (mHasRequestedUserInput) {
+            dismissProgress(true);
+            return;
+        }
+
+        mHasRequestedUserInput = true;
         startActivity(accountManagerIntent);
     }
 
@@ -160,6 +172,7 @@ public class LoginActivity extends Activity implements View.OnClickListener,
         if (stopLoginProcess) {
             Log.i("LoginActivity", "Login progress stopped");
             mLoginInProgress = false;
+            mHasRequestedUserInput = false;
         }
     }
 }
