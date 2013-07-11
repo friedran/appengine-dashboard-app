@@ -38,7 +38,7 @@ public class LoginActivity extends Activity implements View.OnClickListener,
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login);
 
-        mAccounts = Arrays.asList(AccountManager.get(this).getAccounts());
+        mAccounts = Arrays.asList(AccountManager.get(this).getAccountsByType("com.google"));
         List<String> accountNames = new ArrayList<String>();
         for (Account account : mAccounts) {
             accountNames.add(account.name);
@@ -109,7 +109,7 @@ public class LoginActivity extends Activity implements View.OnClickListener,
             onSuccessfulAuthentication();
         } else {
             dismissProgress(true);
-            Toast.makeText(LoginActivity.this, "Authentication failed, perhaps it's not a Google account?", 2000).show();
+            Toast.makeText(LoginActivity.this, "Authentication failed, please make sure you have Internet connectivity and try again", 7000).show();
         }
     }
 

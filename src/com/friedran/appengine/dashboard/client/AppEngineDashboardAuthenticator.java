@@ -74,15 +74,10 @@ public class AppEngineDashboardAuthenticator {
                     Log.i("AppEngineDashboardAuthenticator", "Authenticated, getting auth token...");
                     onGetAuthToken(bundle);
                 }
-            } catch (OperationCanceledException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (AuthenticatorException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+            } catch (Exception e) {
+                // Can happen because of various like connectivity issues, google server errors, etc.
+                Log.e("AppEngineDashboardAuthenticator", "Exception caught from GetAuthTokenCallback", e);
+                mPostAuthenticateCallback.run(false);
             }
         }
     }
@@ -92,7 +87,7 @@ public class AppEngineDashboardAuthenticator {
         Log.i("AppEngineDashboardAuthenticator", "onGetAuthToken: Got the auth token " + authToken);
 
         if (authToken == null) {
-            // Failure, probably not a real google account
+            // Failure, looks like an illegal account
             mPostAuthenticateCallback.run(false);
         } else {
             new LoginToAppEngineTask().execute(authToken);
