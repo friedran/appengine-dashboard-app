@@ -66,10 +66,9 @@ public class LoginActivity extends Activity implements View.OnClickListener,
     protected void onResume() {
         super.onResume();
 
-        // If already started the login process, then try to authenticate immediately
-        // (happens when the user just authorized us)
+        // If we're in the middle of the login process, then continue automatically
         if (mLoginInProgress) {
-            showProgressDialog();
+            showProgressDialog("Authenticating with Google AppEngine...");
             mAppEngineClient.executeAuthentication();
         }
     }
@@ -77,7 +76,7 @@ public class LoginActivity extends Activity implements View.OnClickListener,
     /** Happens when the login button is clicked */
     @Override
     public void onClick(View v) {
-        showProgressDialog();
+        showProgressDialog("Authenticating with Google AppEngine...");
 
         String accountName = (String) mAccountSpinner.getSelectedItem();
         mSelectedAccount = mAccounts.get(accountName);
@@ -90,17 +89,11 @@ public class LoginActivity extends Activity implements View.OnClickListener,
         mAppEngineClient.executeAuthentication();
     }
 
-    private void showProgressDialog() {
-        mProgressDialog.setMessage("Authenticating with Google AppEngine...");
-        mProgressDialog.show();
-        mLoginButton.setClickable(false);
-    }
-
     // Called when the user approval is required to authorize us
     @Override
     public void onUserInputRequired(Intent accountManagerIntent) {
-        // We can request the user authorization only once in the login process.
-        // If we failed getting it, then we should stop the login process.
+        // If we've already requested the user input and failed, then stop the login process and
+        // wait for him to click the "Login" button again.
         if (mHasRequestedUserInput) {
             dismissProgress(true);
             return;
@@ -125,7 +118,7 @@ public class LoginActivity extends Activity implements View.OnClickListener,
     }
 
     private void onSuccessfulAuthentication() {
-        mProgressDialog.setMessage("Retrieving list of AppEngine applications...");
+        showProgressDialog("Retrieving AppEngine applications...");
 
         mAppEngineClient.executeGetApplications(new AppEngineDashboardClient.PostExecuteCallback() {
             @Override
@@ -162,6 +155,12 @@ public class LoginActivity extends Activity implements View.OnClickListener,
     protected void onStop() {
         super.onStop();
         dismissProgress(false);
+    }
+
+    private void showProgressDialog(String message) {
+        mProgressDialog.setMessage(message);
+        mProgressDialog.show();
+        mLoginButton.setClickable(false);
     }
 
     private void dismissProgress(boolean stopLoginProcess) {
