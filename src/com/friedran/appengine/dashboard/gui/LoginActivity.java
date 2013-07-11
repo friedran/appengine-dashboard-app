@@ -112,7 +112,7 @@ public class LoginActivity extends Activity implements View.OnClickListener,
             onSuccessfulAuthentication();
         } else {
             dismissProgress(true);
-            Toast.makeText(LoginActivity.this, "Authentication failed, please try again later", 2000).show();
+            Toast.makeText(LoginActivity.this, "Authentication failed, perhaps it's not a Google account?", 2000).show();
         }
     }
 

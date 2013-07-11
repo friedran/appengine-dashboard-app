@@ -90,7 +90,13 @@ public class AppEngineDashboardAuthenticator {
     protected void onGetAuthToken(Bundle bundle) {
         String authToken = bundle.getString(AccountManager.KEY_AUTHTOKEN);
         Log.i("AppEngineDashboardAuthenticator", "onGetAuthToken: Got the auth token " + authToken);
-        new LoginToAppEngineTask().execute(authToken);
+
+        if (authToken == null) {
+            // Failure, probably not a real google account
+            mPostAuthenticateCallback.run(false);
+        } else {
+            new LoginToAppEngineTask().execute(authToken);
+        }
     }
 
     private class LoginToAppEngineTask extends AsyncTask<String, Void, Boolean> {
