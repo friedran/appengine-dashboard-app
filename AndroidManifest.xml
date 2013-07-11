@@ -19,9 +19,6 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".gui.GoogleAuthenticationActivity"
-                  android:label="@string/app_name">
-        </activity>
         <activity android:name=".gui.DashboardActivity"
                   android:label="@string/app_name">
         </activity>

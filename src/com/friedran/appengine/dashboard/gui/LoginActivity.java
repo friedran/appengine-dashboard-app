@@ -106,7 +106,7 @@ public class LoginActivity extends Activity implements View.OnClickListener,
     @Override
     public void onPostExecute(Bundle resultBundle) {
         boolean result = resultBundle.getBoolean(AppEngineDashboardClient.KEY_RESULT);
-        Log.i("GoogleAuthenticationActivity", "Authentication done, result = " + result);
+        Log.i("LoginActivity", "Authentication done, result = " + result);
 
         if (result) {
             onSuccessfulAuthentication();
@@ -125,7 +125,7 @@ public class LoginActivity extends Activity implements View.OnClickListener,
                 dismissProgress(true);
 
                 boolean result = resultBundle.getBoolean(AppEngineDashboardClient.KEY_RESULT);
-                Log.i("GoogleAuthenticationActivity", "GetApplications done, result = " + result);
+                Log.i("LoginActivity", "GetApplications done, result = " + result);
                 Account targetAccount = mAppEngineClient.getAccount();
 
                 if (result) {
