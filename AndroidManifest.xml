@@ -20,7 +20,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".gui.DashboardActivity"
-                  android:label="@string/app_name">
+                  android:label="@string/app_name"
+                  android:configChanges="orientation|screenSize">
         </activity>
     </application>
 </manifest>
