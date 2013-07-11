@@ -13,7 +13,7 @@
  */
 package com.friedran.appengine.dashboard.gui;
 
-import android.accounts.*;
+import android.accounts.Account;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -21,17 +21,18 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
-import com.friedran.appengine.dashboard.R;
 import com.friedran.appengine.dashboard.client.AppEngineDashboardAPI;
 import com.friedran.appengine.dashboard.client.AppEngineDashboardClient;
 
 public class GoogleAuthenticationActivity extends Activity {
-
+    Account mAccount;
     ProgressDialog mProgressDialog;
     AppEngineDashboardClient mAppEngineClient;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mAccount = getIntent().getParcelableExtra(LoginActivity.EXTRA_ACCOUNT);
 
         mProgressDialog = new ProgressDialog(this);
         mProgressDialog.setTitle("Loading");
@@ -43,11 +44,8 @@ public class GoogleAuthenticationActivity extends Activity {
         super.onResume();
 
         final Context applicationContext = getApplicationContext();
-        AccountManager accountManager = AccountManager.get(applicationContext);
 
-        Account defaultAccount = accountManager.getAccounts()[0];
-
-        mAppEngineClient = new AppEngineDashboardClient(defaultAccount, applicationContext,
+        mAppEngineClient = new AppEngineDashboardClient(mAccount, applicationContext,
             new AppEngineDashboardClient.PostExecuteCallback() {
             @Override
             public void run(Bundle resultBundle) {
@@ -64,7 +62,7 @@ public class GoogleAuthenticationActivity extends Activity {
         });
 
         AppEngineDashboardAPI appEngineAPI = AppEngineDashboardAPI.getInstance();
-        appEngineAPI.setClient(defaultAccount, mAppEngineClient);
+        appEngineAPI.setClient(mAccount, mAppEngineClient);
 
         mAppEngineClient.executeAuthentication();
         mProgressDialog.show();
@@ -86,7 +84,8 @@ public class GoogleAuthenticationActivity extends Activity {
                         Log.i("GoogleAuthenticationActivity", "Application: " + application);
                     }
                     Intent intent = new Intent(GoogleAuthenticationActivity.this, DashboardActivity.class)
-                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
+                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK)
+                            .putExtra(LoginActivity.EXTRA_ACCOUNT, mAccount);
                     startActivity(intent);
 
                 } else {

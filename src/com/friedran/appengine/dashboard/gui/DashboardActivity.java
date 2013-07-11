@@ -14,9 +14,7 @@
 package com.friedran.appengine.dashboard.gui;
 
 import android.accounts.Account;
-import android.accounts.AccountManager;
 import android.app.ActionBar;
-import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
@@ -54,15 +52,12 @@ public class DashboardActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.dashboard);
 
-        Context applicationContext = getApplicationContext();
-        AccountManager accountManager = AccountManager.get(applicationContext);
+        Account defaultAccount = getIntent().getParcelableExtra(LoginActivity.EXTRA_ACCOUNT);
 
-        Account[] accounts = accountManager.getAccounts();
         List<String> accountNames = new ArrayList<String>();
-        for (Account account : accounts) {
-            accountNames.add(account.name);
-        }
-        mAppEngineClient = AppEngineDashboardAPI.getInstance().getClient(accounts[0]);
+        accountNames.add(defaultAccount.name);
+
+        mAppEngineClient = AppEngineDashboardAPI.getInstance().getClient(defaultAccount);
         List<String> applicationsList = mAppEngineClient.getLastRetrievedApplications();
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
