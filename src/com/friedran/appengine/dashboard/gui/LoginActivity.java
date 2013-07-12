@@ -5,7 +5,9 @@ import android.accounts.AccountManager;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -16,18 +18,24 @@ import com.friedran.appengine.dashboard.R;
 import com.friedran.appengine.dashboard.client.AppEngineDashboardAPI;
 import com.friedran.appengine.dashboard.client.AppEngineDashboardAuthenticator;
 import com.friedran.appengine.dashboard.client.AppEngineDashboardClient;
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 
 import java.util.*;
 
 public class LoginActivity extends Activity implements View.OnClickListener,
         AppEngineDashboardAuthenticator.OnUserInputRequiredCallback,
         AppEngineDashboardClient.PostExecuteCallback {
+
     public static final String EXTRA_ACCOUNT = "EXTRA_ACCOUNT";
+    public static final String KEY_LOGIN_ACCOUNT = "KEY_LOGIN_ACCOUNT";
+
     protected Spinner mAccountSpinner;
     protected Button mLoginButton;
     protected ProgressDialog mProgressDialog;
     protected AppEngineDashboardClient mAppEngineClient;
 
+    protected SharedPreferences mPreferences;
     protected List<Account> mAccounts;
 
     // State parameters
@@ -55,6 +63,18 @@ public class LoginActivity extends Activity implements View.OnClickListener,
 
         mProgressDialog = new ProgressDialog(this);
         mProgressDialog.setTitle("Loading");
+
+        mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+        String accountJson = mPreferences.getString(KEY_LOGIN_ACCOUNT, null);
+        if (accountJson != null) {
+            try {
+                Account existingAccount = (new Gson()).fromJson(accountJson, Account.class);
+            } catch (JsonSyntaxException e) {
+                Log.e("LoginActivity", "Saved account is corrupted, resetting the repository");
+                mPreferences.edit().remove(KEY_LOGIN_ACCOUNT);
+            }
+        }
 
         mLoginInProgress = false;
         mHasRequestedUserInput = false;
@@ -129,10 +149,7 @@ public class LoginActivity extends Activity implements View.OnClickListener,
                     List<String> applications = resultBundle.getStringArrayList(AppEngineDashboardClient.KEY_APPLICATIONS);
 
                     if (applications.size() > 0) {
-                        Intent intent = new Intent(LoginActivity.this, DashboardActivity.class)
-                                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK)
-                                .putExtra(LoginActivity.EXTRA_ACCOUNT, targetAccount);
-                        startActivity(intent);
+                        onSuccessfulLogin(targetAccount);
                     } else {
                         Toast.makeText(LoginActivity.this, "No applications found for " + targetAccount.name, 2000).show();
                     }
@@ -142,6 +159,17 @@ public class LoginActivity extends Activity implements View.OnClickListener,
                 }
             }
         });
+    }
+
+    private void onSuccessfulLogin(Account account) {
+        Gson gson = new Gson();
+        String accountJson = gson.toJson(account);
+        mPreferences.edit().putString(KEY_LOGIN_ACCOUNT, accountJson);
+
+        Intent intent = new Intent(this, DashboardActivity.class)
+                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK)
+                .putExtra(LoginActivity.EXTRA_ACCOUNT, account);
+        startActivity(intent);
     }
 
     @Override
