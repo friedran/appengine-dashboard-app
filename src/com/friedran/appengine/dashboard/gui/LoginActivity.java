@@ -37,6 +37,7 @@ public class LoginActivity extends Activity implements View.OnClickListener,
 
     protected SharedPreferences mPreferences;
     protected List<Account> mAccounts;
+    protected Account mSavedAccount;
 
     // State parameters
     protected boolean mLoginInProgress;
@@ -66,18 +67,24 @@ public class LoginActivity extends Activity implements View.OnClickListener,
 
         mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
-        String accountJson = mPreferences.getString(KEY_LOGIN_ACCOUNT, null);
-        if (accountJson != null) {
-            try {
-                Account existingAccount = (new Gson()).fromJson(accountJson, Account.class);
-            } catch (JsonSyntaxException e) {
-                Log.e("LoginActivity", "Saved account is corrupted, resetting the repository");
-                mPreferences.edit().remove(KEY_LOGIN_ACCOUNT);
-            }
-        }
+        mSavedAccount = getSavedAccount();
 
         mLoginInProgress = false;
         mHasRequestedUserInput = false;
+    }
+
+    private Account getSavedAccount() {
+        String accountJson = mPreferences.getString(KEY_LOGIN_ACCOUNT, null);
+        if (accountJson == null)
+            return null;
+
+        try {
+            return (new Gson()).fromJson(accountJson, Account.class);
+        } catch (JsonSyntaxException e) {
+            Log.e("LoginActivity", "Saved account is corrupted, resetting the repository");
+            mPreferences.edit().remove(KEY_LOGIN_ACCOUNT);
+            return null;
+        }
     }
 
     @Override
