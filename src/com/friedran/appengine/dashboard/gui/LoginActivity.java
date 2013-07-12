@@ -10,10 +10,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.Spinner;
-import android.widget.Toast;
+import android.widget.*;
 import com.friedran.appengine.dashboard.R;
 import com.friedran.appengine.dashboard.client.AppEngineDashboardAPI;
 import com.friedran.appengine.dashboard.client.AppEngineDashboardAuthenticator;
@@ -30,6 +27,7 @@ public class LoginActivity extends Activity implements View.OnClickListener,
     public static final String EXTRA_ACCOUNT = "EXTRA_ACCOUNT";
     public static final String KEY_LOGIN_ACCOUNT = "KEY_LOGIN_ACCOUNT";
 
+    protected LinearLayout mEnterAccountLayout;
     protected Spinner mAccountSpinner;
     protected Button mLoginButton;
     protected ProgressDialog mProgressDialog;
@@ -46,6 +44,8 @@ public class LoginActivity extends Activity implements View.OnClickListener,
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login);
+
+        mEnterAccountLayout = (LinearLayout) findViewById(R.id.login_enter_account_layout);
 
         mAccounts = Arrays.asList(AccountManager.get(this).getAccountsByType("com.google"));
         List<String> accountNames = new ArrayList<String>();
@@ -98,11 +98,17 @@ public class LoginActivity extends Activity implements View.OnClickListener,
 
         // If we're in the middle of the login process, then continue automatically
         if (mLoginInProgress) {
+            mEnterAccountLayout.setVisibility(View.INVISIBLE);
             mAppEngineClient.executeAuthentication();
 
-        // Otherwise, if we have a saved account then automatically start the login process with it
+        // if we have a saved account then automatically start the login process with it
         } else if (mSavedAccount != null) {
+            mEnterAccountLayout.setVisibility(View.INVISIBLE);
             startAuthentication(mSavedAccount);
+
+        // Nothing? Wait for the "Login" click
+        } else {
+            mEnterAccountLayout.setVisibility(View.VISIBLE);
         }
     }
 
@@ -233,5 +239,7 @@ public class LoginActivity extends Activity implements View.OnClickListener,
     private void resetSavedAccount() {
         mPreferences.edit().remove(KEY_LOGIN_ACCOUNT).commit();
         mSavedAccount = null;
+
+        mEnterAccountLayout.setVisibility(View.VISIBLE);
     }
 }
