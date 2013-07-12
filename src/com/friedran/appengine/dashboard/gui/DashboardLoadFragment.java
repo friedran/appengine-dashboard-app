@@ -176,15 +176,14 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
         @Override
         public View getView(int position, View chartView, ViewGroup parent) {
             LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            if (chartView == null) {
-                chartView = inflater.inflate(R.layout.load_charts_grid_item, null);
-            }
+            chartView = inflater.inflate(R.layout.load_charts_grid_item, null);
 
             TextView textView = (TextView) chartView.findViewById(R.id.load_chart_title);
             textView.setText(mAppEngineMetrics[position]);
 
             Bitmap chartImage = getChartImageFromCache(position, mDisplayedTimeID);
             if (chartImage != null) {
+                Log.i("DashboardLoadFragment", String.format("Updated chart from cache: %d, %d", position, mDisplayedTimeID));
                 updateChartImage(chartView, chartImage);
 
             } else {
