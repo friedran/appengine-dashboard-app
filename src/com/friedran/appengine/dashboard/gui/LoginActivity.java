@@ -75,11 +75,16 @@ public class LoginActivity extends Activity implements View.OnClickListener,
 
     private Account getSavedAccount() {
         String accountJson = mPreferences.getString(KEY_LOGIN_ACCOUNT, null);
-        if (accountJson == null)
+        if (accountJson == null) {
+            Log.i("LoginActivity", "No saved account found");
             return null;
+        }
 
         try {
-            return (new Gson()).fromJson(accountJson, Account.class);
+            Account savedAccount = (new Gson()).fromJson(accountJson, Account.class);
+            Log.i("LoginActivity", "Got a saved account: " + savedAccount.name);
+            return savedAccount;
+
         } catch (JsonSyntaxException e) {
             Log.e("LoginActivity", "Saved account is corrupted, resetting the repository");
             resetSavedAccount();
@@ -182,10 +187,11 @@ public class LoginActivity extends Activity implements View.OnClickListener,
 
     private void onSuccessfulLogin(Account account) {
         // Updates the saved account if required
-        if (!mSavedAccount.equals(account)) {
+        if (!account.equals(mSavedAccount)) {
             Gson gson = new Gson();
             String accountJson = gson.toJson(account);
             mPreferences.edit().putString(KEY_LOGIN_ACCOUNT, accountJson);
+            Log.i("LoginActivity", "Saved account " + account);
         }
 
         Intent intent = new Intent(this, DashboardActivity.class)
