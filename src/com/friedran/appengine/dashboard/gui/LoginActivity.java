@@ -82,7 +82,7 @@ public class LoginActivity extends Activity implements View.OnClickListener,
             return (new Gson()).fromJson(accountJson, Account.class);
         } catch (JsonSyntaxException e) {
             Log.e("LoginActivity", "Saved account is corrupted, resetting the repository");
-            mPreferences.edit().remove(KEY_LOGIN_ACCOUNT);
+            resetSavedAccount();
             return null;
         }
     }
@@ -218,5 +218,10 @@ public class LoginActivity extends Activity implements View.OnClickListener,
             mLoginInProgress = false;
             mHasRequestedUserInput = false;
         }
+    }
+
+    private void resetSavedAccount() {
+        mPreferences.edit().remove(KEY_LOGIN_ACCOUNT);
+        mSavedAccount = null;
     }
 }
