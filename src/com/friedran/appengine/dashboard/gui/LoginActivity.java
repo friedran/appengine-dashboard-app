@@ -127,6 +127,7 @@ public class LoginActivity extends Activity implements View.OnClickListener,
         // wait for him to click the "Login" button again.
         if (mHasRequestedUserInput) {
             dismissProgress(true);
+            resetSavedAccount();
             return;
         }
 
@@ -143,8 +144,7 @@ public class LoginActivity extends Activity implements View.OnClickListener,
         if (result) {
             onSuccessfulAuthentication();
         } else {
-            dismissProgress(true);
-            Toast.makeText(LoginActivity.this, "Authentication failed, please make sure you have Internet connectivity and try again", 7000).show();
+            onFailedLogin("Authentication failed, please make sure you have Internet connectivity and try again");
         }
     }
 
@@ -154,26 +154,30 @@ public class LoginActivity extends Activity implements View.OnClickListener,
         mAppEngineClient.executeGetApplications(new AppEngineDashboardClient.PostExecuteCallback() {
             @Override
             public void onPostExecute(Bundle resultBundle) {
-                dismissProgress(true);
-
                 boolean result = resultBundle.getBoolean(AppEngineDashboardClient.KEY_RESULT);
                 Log.i("LoginActivity", "GetApplications done, result = " + result);
                 Account targetAccount = mAppEngineClient.getAccount();
 
-                if (result) {
-                    List<String> applications = resultBundle.getStringArrayList(AppEngineDashboardClient.KEY_APPLICATIONS);
-
-                    if (applications.size() > 0) {
-                        onSuccessfulLogin(targetAccount);
-                    } else {
-                        Toast.makeText(LoginActivity.this, "No applications found for " + targetAccount.name, 2000).show();
-                    }
-
-                } else {
-                    Toast.makeText(LoginActivity.this, "Failed retrieving list of applications for " + targetAccount.name, 2000).show();
+                if (!result) {
+                    onFailedLogin("Failed retrieving list of applications for " + targetAccount.name);
+                    return;
                 }
+
+                if (resultBundle.getStringArrayList(AppEngineDashboardClient.KEY_APPLICATIONS).size() == 0) {
+                    onFailedLogin("No applications found for " + targetAccount.name);
+                    return;
+                }
+
+                onSuccessfulLogin(targetAccount);
+                dismissProgress(true);
             }
         });
+    }
+
+    private void onFailedLogin(String message) {
+        dismissProgress(true);
+        resetSavedAccount();
+        Toast.makeText(LoginActivity.this, message, 5000).show();
     }
 
     private void onSuccessfulLogin(Account account) {
