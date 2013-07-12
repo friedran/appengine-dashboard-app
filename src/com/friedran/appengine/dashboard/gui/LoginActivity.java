@@ -190,7 +190,7 @@ public class LoginActivity extends Activity implements View.OnClickListener,
         if (!account.equals(mSavedAccount)) {
             Gson gson = new Gson();
             String accountJson = gson.toJson(account);
-            mPreferences.edit().putString(KEY_LOGIN_ACCOUNT, accountJson);
+            mPreferences.edit().putString(KEY_LOGIN_ACCOUNT, accountJson).commit();
             Log.i("LoginActivity", "Saved account " + account);
         }
 
@@ -231,7 +231,7 @@ public class LoginActivity extends Activity implements View.OnClickListener,
     }
 
     private void resetSavedAccount() {
-        mPreferences.edit().remove(KEY_LOGIN_ACCOUNT);
+        mPreferences.edit().remove(KEY_LOGIN_ACCOUNT).commit();
         mSavedAccount = null;
     }
 }
