@@ -94,20 +94,28 @@ public class LoginActivity extends Activity implements View.OnClickListener,
         // If we're in the middle of the login process, then continue automatically
         if (mLoginInProgress) {
             mAppEngineClient.executeAuthentication();
+
+        // Otherwise, if we have a saved account then automatically start the login process with it
+        } else if (mSavedAccount != null) {
+            startAuthentication(mSavedAccount);
         }
     }
 
     /** Happens when the login button is clicked */
     @Override
     public void onClick(View v) {
-        showProgressDialog("Authenticating with Google AppEngine...");
-
         Account selectedAccount = mAccounts.get(mAccountSpinner.getSelectedItemPosition());
+
+        startAuthentication(selectedAccount);
+    }
+
+    private void startAuthentication(Account selectedAccount) {
         mAppEngineClient = new AppEngineDashboardClient(selectedAccount, this, this, this);
 
         AppEngineDashboardAPI appEngineAPI = AppEngineDashboardAPI.getInstance();
         appEngineAPI.setClient(selectedAccount, mAppEngineClient);
 
+        showProgressDialog("Authenticating with Google AppEngine...");
         mLoginInProgress = true;
         mAppEngineClient.executeAuthentication();
     }
@@ -169,9 +177,12 @@ public class LoginActivity extends Activity implements View.OnClickListener,
     }
 
     private void onSuccessfulLogin(Account account) {
-        Gson gson = new Gson();
-        String accountJson = gson.toJson(account);
-        mPreferences.edit().putString(KEY_LOGIN_ACCOUNT, accountJson);
+        // Updates the saved account if required
+        if (!mSavedAccount.equals(account)) {
+            Gson gson = new Gson();
+            String accountJson = gson.toJson(account);
+            mPreferences.edit().putString(KEY_LOGIN_ACCOUNT, accountJson);
+        }
 
         Intent intent = new Intent(this, DashboardActivity.class)
                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK)
