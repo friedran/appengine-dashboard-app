@@ -26,6 +26,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.*;
 import com.friedran.appengine.dashboard.R;
@@ -44,6 +45,8 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
     private ChartAdapter mChartGridAdapter;
     private DisplayMetrics mDisplayMetrics;
     private LruCache<String, Bitmap> mChartsMemoryCache;
+
+    private Animation mFadeInAnimation;
 
     int mDisplayedTimeID;
 
@@ -75,6 +78,8 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
 
         GridView chartsGridView = (GridView) layout.findViewById(R.id.load_charts_grid);
         chartsGridView.setAdapter(mChartGridAdapter);
+
+        mFadeInAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fadein);
 
         mChartsMemoryCache = initChartsMemoryCache();
 
@@ -282,8 +287,9 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
 
         ViewSwitcher viewSwitcher = (ViewSwitcher) chartView.findViewById(R.id.load_chart_switcher);
         if (viewSwitcher.getDisplayedChild() != 1) {
-            if (animate)
-                viewSwitcher.setAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.fadein));
+            if (animate) {
+                viewSwitcher.setAnimation(mFadeInAnimation);
+            }
             else
                 viewSwitcher.setAnimation(null);
             viewSwitcher.showNext();

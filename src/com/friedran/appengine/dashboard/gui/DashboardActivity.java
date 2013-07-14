@@ -36,6 +36,7 @@ import android.widget.ListView;
 import com.friedran.appengine.dashboard.R;
 import com.friedran.appengine.dashboard.client.AppEngineDashboardAPI;
 import com.friedran.appengine.dashboard.client.AppEngineDashboardClient;
+import com.friedran.appengine.dashboard.utils.DashboardPreferences;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -207,7 +208,11 @@ public class DashboardActivity extends FragmentActivity {
     }
 
     private void logout() {
+        new DashboardPreferences(this).resetSavedAccount();
 
+        Intent intent = new Intent(this, LoginActivity.class)
+                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
     }
 
     private void sendFeedback() {
