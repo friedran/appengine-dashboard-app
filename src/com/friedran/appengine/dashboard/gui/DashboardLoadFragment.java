@@ -131,6 +131,11 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
         // Do Nothing
     }
 
+    public void refresh() {
+        mChartsMemoryCache.evictAll();
+        mChartGridAdapter.notifyDataSetChanged();
+    }
+
     private class ChartAdapter extends BaseAdapter {
         private Context mContext;
         private AppEngineDashboardClient mAppEngineClient;

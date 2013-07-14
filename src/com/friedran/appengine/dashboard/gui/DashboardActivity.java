@@ -147,7 +147,6 @@ public class DashboardActivity extends FragmentActivity {
     }
 
     private void updateLoadFragmentFromNavigation(String selectedAccount, String selectedApp) {
-        // TODO: Currently ignores the account
         Fragment dashboardLoadFragment = DashboardLoadFragment.newInstance(
                 mAppEngineClient.getAccount(), selectedApp);
 
@@ -172,7 +171,32 @@ public class DashboardActivity extends FragmentActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        return mDrawerToggle.onOptionsItemSelected(item) || super.onOptionsItemSelected(item);
+        switch (item.getItemId()) {
+            case R.id.refresh:
+                refresh();
+                return true;
+
+//            case R.id.feedback:
+//                showFeedback();
+//                return true;
+//
+//            case R.id.about:
+//                showAbout();
+//                return true;
+
+            default:
+                return mDrawerToggle.onOptionsItemSelected(item) || super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void refresh() {
+        DashboardLoadFragment loadFragment = (DashboardLoadFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+        if (loadFragment == null) {
+            Log.e("DashboardActivity", "Null fragment");
+            return;
+        }
+
+        loadFragment.refresh();
     }
 
     /**
