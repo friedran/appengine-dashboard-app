@@ -15,6 +15,7 @@ package com.friedran.appengine.dashboard.gui;
 
 import android.accounts.Account;
 import android.app.ActionBar;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
@@ -176,10 +177,10 @@ public class DashboardActivity extends FragmentActivity {
                 refresh();
                 return true;
 
-//            case R.id.feedback:
-//                showFeedback();
-//                return true;
-//
+            case R.id.feedback:
+                sendFeedback();
+                return true;
+
 //            case R.id.about:
 //                showAbout();
 //                return true;
@@ -197,6 +198,15 @@ public class DashboardActivity extends FragmentActivity {
         }
 
         loadFragment.refresh();
+    }
+
+    private void sendFeedback() {
+        final Intent intent = new Intent(android.content.Intent.ACTION_SEND);
+        intent.setType("text/html");
+        intent.putExtra(android.content.Intent.EXTRA_EMAIL, new String[]{getString(R.string.mail_feedback_address)});
+        intent.putExtra(android.content.Intent.EXTRA_SUBJECT, getString(R.string.mail_feedback_subject));
+        intent.putExtra(android.content.Intent.EXTRA_TEXT, getString(R.string.mail_feedback_message));
+        startActivity(Intent.createChooser(intent, getString(R.string.title_send_feedback)));
     }
 
     /**
