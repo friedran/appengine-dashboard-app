@@ -189,7 +189,7 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
             Bitmap chartImage = getChartImageFromCache(position, mDisplayedTimeID);
             if (chartImage != null) {
                 Log.i("DashboardLoadFragment", String.format("Updated chart from cache: %d, %d", position, mDisplayedTimeID));
-                updateChartImage(chartView, chartImage);
+                updateChartImage(chartView, chartImage, false);
 
             } else {
                 // Load the image asynchronously, while displaying the progress animation
@@ -257,7 +257,7 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
 
         @Override
         protected void onPostExecute(Bitmap result) {
-            updateChartImage(mChartView, result);
+            updateChartImage(mChartView, result, true);
         }
     }
 
@@ -276,14 +276,17 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
         }
     }
 
-    private void updateChartImage(View chartView, Bitmap image) {
+    private void updateChartImage(View chartView, Bitmap image, boolean animate) {
         ImageView chartImageView = (ImageView) chartView.findViewById(R.id.load_chart_image);
         chartImageView.setImageBitmap(image);
 
-        ViewSwitcher switcherView = (ViewSwitcher) chartView.findViewById(R.id.load_chart_switcher);
-        if (switcherView.getDisplayedChild() != 1) {
-            switcherView.setAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.fadein));
-            switcherView.showNext();
+        ViewSwitcher viewSwitcher = (ViewSwitcher) chartView.findViewById(R.id.load_chart_switcher);
+        if (viewSwitcher.getDisplayedChild() != 1) {
+            if (animate)
+                viewSwitcher.setAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.fadein));
+            else
+                viewSwitcher.setAnimation(null);
+            viewSwitcher.showNext();
         }
     }
 }
