@@ -179,6 +179,10 @@ public class DashboardActivity extends FragmentActivity {
                 refresh();
                 return true;
 
+            case R.id.change_account:
+                logout();
+                return true;
+
             case R.id.feedback:
                 sendFeedback();
                 return true;
@@ -200,6 +204,10 @@ public class DashboardActivity extends FragmentActivity {
         }
 
         loadFragment.refresh();
+    }
+
+    private void logout() {
+
     }
 
     private void sendFeedback() {

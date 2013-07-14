@@ -5,9 +5,7 @@ import android.accounts.AccountManager;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.*;
@@ -15,25 +13,25 @@ import com.friedran.appengine.dashboard.R;
 import com.friedran.appengine.dashboard.client.AppEngineDashboardAPI;
 import com.friedran.appengine.dashboard.client.AppEngineDashboardAuthenticator;
 import com.friedran.appengine.dashboard.client.AppEngineDashboardClient;
-import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
+import com.friedran.appengine.dashboard.utils.DashboardPreferences;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class LoginActivity extends Activity implements View.OnClickListener,
         AppEngineDashboardAuthenticator.OnUserInputRequiredCallback,
         AppEngineDashboardClient.PostExecuteCallback {
 
     public static final String EXTRA_ACCOUNT = "EXTRA_ACCOUNT";
-    public static final String KEY_LOGIN_ACCOUNT = "KEY_LOGIN_ACCOUNT";
 
     protected LinearLayout mEnterAccountLayout;
     protected Spinner mAccountSpinner;
     protected Button mLoginButton;
     protected ProgressDialog mProgressDialog;
     protected AppEngineDashboardClient mAppEngineClient;
+    protected DashboardPreferences mPreferences;
 
-    protected SharedPreferences mPreferences;
     protected List<Account> mAccounts;
     protected Account mSavedAccount;
 
@@ -65,31 +63,12 @@ public class LoginActivity extends Activity implements View.OnClickListener,
         mProgressDialog = new ProgressDialog(this);
         mProgressDialog.setTitle("Loading");
 
-        mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        mPreferences = new DashboardPreferences(this);
 
-        mSavedAccount = getSavedAccount();
+        mSavedAccount = mPreferences.getSavedAccount();
 
         mLoginInProgress = false;
         mHasRequestedUserInput = false;
-    }
-
-    private Account getSavedAccount() {
-        String accountJson = mPreferences.getString(KEY_LOGIN_ACCOUNT, null);
-        if (accountJson == null) {
-            Log.i("LoginActivity", "No saved account found");
-            return null;
-        }
-
-        try {
-            Account savedAccount = (new Gson()).fromJson(accountJson, Account.class);
-            Log.i("LoginActivity", "Got a saved account: " + savedAccount.name);
-            return savedAccount;
-
-        } catch (JsonSyntaxException e) {
-            Log.e("LoginActivity", "Saved account is corrupted, resetting the repository");
-            resetSavedAccount();
-            return null;
-        }
     }
 
     @Override
@@ -194,9 +173,7 @@ public class LoginActivity extends Activity implements View.OnClickListener,
     private void onSuccessfulLogin(Account account) {
         // Updates the saved account if required
         if (!account.equals(mSavedAccount)) {
-            Gson gson = new Gson();
-            String accountJson = gson.toJson(account);
-            mPreferences.edit().putString(KEY_LOGIN_ACCOUNT, accountJson).commit();
+            mPreferences.saveAccount(account);
             Log.i("LoginActivity", "Saved account " + account);
         }
 
@@ -237,9 +214,9 @@ public class LoginActivity extends Activity implements View.OnClickListener,
     }
 
     private void resetSavedAccount() {
-        mPreferences.edit().remove(KEY_LOGIN_ACCOUNT).commit();
-        mSavedAccount = null;
+        mPreferences.resetSavedAccount();
 
+        mSavedAccount = null;
         mEnterAccountLayout.setVisibility(View.VISIBLE);
     }
 }
