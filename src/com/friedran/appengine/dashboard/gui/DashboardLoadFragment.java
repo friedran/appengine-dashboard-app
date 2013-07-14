@@ -14,6 +14,7 @@
 package com.friedran.appengine.dashboard.gui;
 
 import android.accounts.Account;
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -26,7 +27,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.*;
 import com.friedran.appengine.dashboard.R;
@@ -42,11 +42,11 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
     public static final int CHART_MAX_WIDTH_PIXELS = 1000;
     public static final String KEY_ACCOUNT = "KEY_ACCOUNT";
     public static final String KEY_APPLICATION_ID = "KEY_APPLICATION_ID";
+
+    private Activity mActivity;
     private ChartAdapter mChartGridAdapter;
     private DisplayMetrics mDisplayMetrics;
     private LruCache<String, Bitmap> mChartsMemoryCache;
-
-    private Animation mFadeInAnimation;
 
     int mDisplayedTimeID;
 
@@ -66,20 +66,20 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
                              Bundle savedInstanceState) {
         LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.load_fragment, container, false);
 
+        mActivity = getActivity();
+
         setSpinnerWithItems(layout, R.array.load_time_options, R.id.load_chart_time_spinner);
         mDisplayedTimeID = 0;
 
         mDisplayMetrics = new DisplayMetrics();
-        getActivity().getWindowManager().getDefaultDisplay().getMetrics(mDisplayMetrics);
+        mActivity.getWindowManager().getDefaultDisplay().getMetrics(mDisplayMetrics);
 
         Account account = getArguments().getParcelable(KEY_ACCOUNT);
         String applicationID = getArguments().getString(KEY_APPLICATION_ID);
-        mChartGridAdapter = new ChartAdapter(getActivity(), AppEngineDashboardAPI.getInstance().getClient(account), applicationID);
+        mChartGridAdapter = new ChartAdapter(mActivity, AppEngineDashboardAPI.getInstance().getClient(account), applicationID);
 
         GridView chartsGridView = (GridView) layout.findViewById(R.id.load_charts_grid);
         chartsGridView.setAdapter(mChartGridAdapter);
-
-        mFadeInAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fadein);
 
         mChartsMemoryCache = initChartsMemoryCache();
 
@@ -103,7 +103,7 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
         Spinner spinner = (Spinner) layout.findViewById(spinnerResourceID);
 
         // Set options list
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(),
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(mActivity,
                 optionsListResourceID, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
@@ -221,7 +221,7 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
                                     String.format("chs=%sx%s", Math.min(mDisplayMetrics.widthPixels, CHART_MAX_WIDTH_PIXELS), CHART_HEIGHT_PIXELS));
                             chartUrl += CHART_URL_BACKGROUND_COLOR_SUFFIX;
 
-                            new ChartDownloadTask(getActivity(), chartView, selectedTimeWindow, metricTypeID, chartUrl).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                            new ChartDownloadTask(mActivity, chartView, selectedTimeWindow, metricTypeID, chartUrl).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                         }
                     });
         }
@@ -288,7 +288,7 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
         ViewSwitcher viewSwitcher = (ViewSwitcher) chartView.findViewById(R.id.load_chart_switcher);
         if (viewSwitcher.getDisplayedChild() != 1) {
             if (animate) {
-                viewSwitcher.setAnimation(mFadeInAnimation);
+                viewSwitcher.setAnimation(AnimationUtils.loadAnimation(mActivity, R.anim.fadein));
             }
             else
                 viewSwitcher.setAnimation(null);

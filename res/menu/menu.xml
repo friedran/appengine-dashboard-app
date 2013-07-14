@@ -6,8 +6,8 @@
 
     <item android:id="@+id/refresh"
           android:title="@string/refresh" />
-    <item android:id="@+id/change_account"
-          android:title="@string/change_account" />
+    <item android:id="@+id/logout"
+          android:title="@string/logout" />
     <item android:id="@+id/feedback"
           android:title="@string/feedback" />
     <item android:id="@+id/about"

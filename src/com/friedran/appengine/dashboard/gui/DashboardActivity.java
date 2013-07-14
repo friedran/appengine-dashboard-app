@@ -180,7 +180,7 @@ public class DashboardActivity extends FragmentActivity {
                 refresh();
                 return true;
 
-            case R.id.change_account:
+            case R.id.logout:
                 logout();
                 return true;
 
