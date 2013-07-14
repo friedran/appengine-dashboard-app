@@ -13,7 +13,10 @@ import com.friedran.appengine.dashboard.R;
 import com.friedran.appengine.dashboard.client.AppEngineDashboardAPI;
 import com.friedran.appengine.dashboard.client.AppEngineDashboardAuthenticator;
 import com.friedran.appengine.dashboard.client.AppEngineDashboardClient;
+import com.friedran.appengine.dashboard.utils.AnalyticsUtils;
 import com.friedran.appengine.dashboard.utils.DashboardPreferences;
+import com.google.analytics.tracking.android.EasyTracker;
+import com.google.analytics.tracking.android.Tracker;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,6 +37,7 @@ public class LoginActivity extends Activity implements View.OnClickListener,
 
     protected List<Account> mAccounts;
     protected Account mSavedAccount;
+    protected Tracker mTracker;
 
     // State parameters
     protected boolean mLoginInProgress;
@@ -69,6 +73,14 @@ public class LoginActivity extends Activity implements View.OnClickListener,
 
         mLoginInProgress = false;
         mHasRequestedUserInput = false;
+
+        mTracker = AnalyticsUtils.getTracker(this);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        EasyTracker.getInstance().activityStart(this);
     }
 
     @Override
@@ -94,6 +106,8 @@ public class LoginActivity extends Activity implements View.OnClickListener,
     /** Happens when the login button is clicked */
     @Override
     public void onClick(View v) {
+        mTracker.sendEvent("ui_action", "button_click", "login", null);
+
         Account selectedAccount = mAccounts.get(mAccountSpinner.getSelectedItemPosition());
 
         startAuthentication(selectedAccount);
@@ -118,6 +132,7 @@ public class LoginActivity extends Activity implements View.OnClickListener,
         if (mHasRequestedUserInput) {
             dismissProgress(true);
             resetSavedAccount();
+            mTracker.sendEvent("ui_event", "auth_error", "user_disapproved", null);
             return;
         }
 
@@ -135,6 +150,7 @@ public class LoginActivity extends Activity implements View.OnClickListener,
             onSuccessfulAuthentication();
         } else {
             onFailedLogin("Authentication failed, please make sure you have Internet connectivity and try again");
+            mTracker.sendEvent("ui_event", "auth_error", "auth_failed", null);
         }
     }
 
@@ -150,11 +166,13 @@ public class LoginActivity extends Activity implements View.OnClickListener,
 
                 if (!result) {
                     onFailedLogin("Failed retrieving list of applications for " + targetAccount.name);
+                    mTracker.sendEvent("ui_event", "auth_error", "get_applications_failed", null);
                     return;
                 }
 
                 if (resultBundle.getStringArrayList(AppEngineDashboardClient.KEY_APPLICATIONS).size() == 0) {
                     onFailedLogin("No applications found for " + targetAccount.name);
+                    mTracker.sendEvent("ui_event", "auth_error", "no_applications", null);
                     return;
                 }
 
@@ -171,6 +189,8 @@ public class LoginActivity extends Activity implements View.OnClickListener,
     }
 
     private void onSuccessfulLogin(Account account) {
+        mTracker.sendEvent("ui_event", "auth", "auth_successful", null);
+
         // Updates the saved account if required
         if (!account.equals(mSavedAccount)) {
             mPreferences.saveAccount(account);
@@ -192,6 +212,8 @@ public class LoginActivity extends Activity implements View.OnClickListener,
     @Override
     protected void onStop() {
         super.onStop();
+
+        EasyTracker.getInstance().activityStop(this);
         dismissProgress(false);
     }
 

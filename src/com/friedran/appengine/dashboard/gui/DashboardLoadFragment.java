@@ -32,6 +32,8 @@ import android.widget.*;
 import com.friedran.appengine.dashboard.R;
 import com.friedran.appengine.dashboard.client.AppEngineDashboardAPI;
 import com.friedran.appengine.dashboard.client.AppEngineDashboardClient;
+import com.friedran.appengine.dashboard.utils.AnalyticsUtils;
+import com.google.analytics.tracking.android.Tracker;
 
 import java.io.InputStream;
 
@@ -47,6 +49,8 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
     private ChartAdapter mChartGridAdapter;
     private DisplayMetrics mDisplayMetrics;
     private LruCache<String, Bitmap> mChartsMemoryCache;
+
+    private Tracker mTracker;
 
     int mDisplayedTimeID;
 
@@ -82,6 +86,8 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
         chartsGridView.setAdapter(mChartGridAdapter);
 
         mChartsMemoryCache = initChartsMemoryCache();
+
+        mTracker = AnalyticsUtils.getTracker(mActivity);
 
         return layout;
     }
@@ -126,6 +132,8 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         if (position != mDisplayedTimeID) {
             Log.i("DashboardLoadFragment", "Time option selected: " + mDisplayedTimeID + " ==> " + position);
+            mTracker.sendEvent("ui_action", "spinner_click", "time_spinner_" + position, null);
+
             mDisplayedTimeID = position;
             mChartGridAdapter.notifyDataSetChanged();
         }
@@ -214,6 +222,7 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
                             if (!result.getBoolean(AppEngineDashboardClient.KEY_RESULT)) {
                                 Log.e("DashboardLoadFragment", "GetChartURL has failed");
                                 updateChartImage(chartView, null, true);
+                                mTracker.sendException("GetChartURL failed", false);
                                 return;
                             }
 
@@ -256,6 +265,7 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
 
             } catch (Exception e) {
                 Log.e("Error", e.getMessage(), e);
+                mTracker.sendException("ChartDownloader", e, false);
             }
 
             return decodedBitmap;

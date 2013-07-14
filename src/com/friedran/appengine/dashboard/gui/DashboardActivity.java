@@ -36,7 +36,10 @@ import android.widget.ListView;
 import com.friedran.appengine.dashboard.R;
 import com.friedran.appengine.dashboard.client.AppEngineDashboardAPI;
 import com.friedran.appengine.dashboard.client.AppEngineDashboardClient;
+import com.friedran.appengine.dashboard.utils.AnalyticsUtils;
 import com.friedran.appengine.dashboard.utils.DashboardPreferences;
+import com.google.analytics.tracking.android.EasyTracker;
+import com.google.analytics.tracking.android.Tracker;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +51,8 @@ public class DashboardActivity extends FragmentActivity {
     private ActionBarDrawerToggle mDrawerToggle;
     private AppEngineDashboardClient mAppEngineClient;
 
+    private Tracker mTracker;
+
     /**
      * Called when the activity is first created.
      */
@@ -55,6 +60,8 @@ public class DashboardActivity extends FragmentActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.dashboard);
+
+        mTracker = AnalyticsUtils.getTracker(this);
 
         Account defaultAccount = getIntent().getParcelableExtra(LoginActivity.EXTRA_ACCOUNT);
 
@@ -72,6 +79,7 @@ public class DashboardActivity extends FragmentActivity {
         mDrawerAccountsList.setOnItemClickListener(new ListView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                mTracker.sendEvent("ui_action", "button_click", "select_account", null);
                 selectAccountItem(position);
                 updateUIWithChosenParameters();
             }
@@ -83,6 +91,7 @@ public class DashboardActivity extends FragmentActivity {
         mDrawerApplicationsList.setOnItemClickListener(new ListView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                mTracker.sendEvent("ui_action", "button_click", "select_application", null);
                 selectApplicationItem(position);
                 updateUIWithChosenParameters();
             }
@@ -115,6 +124,18 @@ public class DashboardActivity extends FragmentActivity {
         ActionBar actionBar = getActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);  // enable ActionBar app icon to behave as action to toggle nav drawer
         actionBar.setHomeButtonEnabled(true);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        EasyTracker.getInstance().activityStart(this);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        EasyTracker.getInstance().activityStop(this);
     }
 
     private void selectAccountItem(int position) {
@@ -175,6 +196,8 @@ public class DashboardActivity extends FragmentActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        mTracker.sendEvent("ui_action", "option_click", (String) item.getTitle(), null);
+
         switch (item.getItemId()) {
             case R.id.refresh:
                 refresh();
