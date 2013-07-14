@@ -24,4 +24,5 @@
     <string name="fill_account_hint">Email</string>
     <string name="login">Log In</string>
     <string name="logo">Logo</string>
+    <string name="about">About</string>
 </resources>
