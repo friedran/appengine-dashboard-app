@@ -11,6 +11,17 @@
 #   http://developer.android.com/guide/developing/tools/proguard.html
 
 # Add any project specific keep options here:
+-dontskipnonpubliclibraryclasses
+-dontobfuscate
+-forceprocessing
+-optimizationpasses 5
+
+-keep class * extends android.app.Activity
+-assumenosideeffects class android.util.Log {
+    public static *** i(...);
+    public static *** d(...);
+    public static *** v(...);
+}
 
 # If your project uses WebView with JS, uncomment the following
 # and specify the fully qualified class name to the JavaScript interface
