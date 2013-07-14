@@ -15,6 +15,8 @@ package com.friedran.appengine.dashboard.gui;
 
 import android.accounts.Account;
 import android.app.ActionBar;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -181,9 +183,9 @@ public class DashboardActivity extends FragmentActivity {
                 sendFeedback();
                 return true;
 
-//            case R.id.about:
-//                showAbout();
-//                return true;
+            case R.id.about:
+                showAbout();
+                return true;
 
             default:
                 return mDrawerToggle.onOptionsItemSelected(item) || super.onOptionsItemSelected(item);
@@ -207,6 +209,18 @@ public class DashboardActivity extends FragmentActivity {
         intent.putExtra(android.content.Intent.EXTRA_SUBJECT, getString(R.string.mail_feedback_subject));
         intent.putExtra(android.content.Intent.EXTRA_TEXT, getString(R.string.mail_feedback_message));
         startActivity(Intent.createChooser(intent, getString(R.string.title_send_feedback)));
+    }
+
+    private void showAbout() {
+        new AlertDialog.Builder(this)
+                .setTitle("About AppEngine Dashboard")
+                .setMessage("This is a very preliminary version.\nSend us feedback if you'd like more features!")
+                .setCancelable(false)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        // Do nothing
+                    }
+                }).show();
     }
 
     /**
