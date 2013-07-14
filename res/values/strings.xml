@@ -24,4 +24,10 @@
     <string name="fill_account_hint">Email</string>
     <string name="login">Log In</string>
     <string name="logo">Logo</string>
+    <string name="about">About</string>
+    <string name="mail_feedback_address">contact@friedran.org</string>
+    <string name="mail_feedback_subject">Feedback on your app</string>
+    <string name="mail_feedback_message">Hi,
+        \n\nYour Feedback sample app rocks! I would like to give you some feedback:\n</string>
+    <string name="title_send_feedback">Send feedback</string>
 </resources>

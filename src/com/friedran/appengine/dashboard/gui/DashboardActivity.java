@@ -15,6 +15,9 @@ package com.friedran.appengine.dashboard.gui;
 
 import android.accounts.Account;
 import android.app.ActionBar;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
@@ -147,7 +150,6 @@ public class DashboardActivity extends FragmentActivity {
     }
 
     private void updateLoadFragmentFromNavigation(String selectedAccount, String selectedApp) {
-        // TODO: Currently ignores the account
         Fragment dashboardLoadFragment = DashboardLoadFragment.newInstance(
                 mAppEngineClient.getAccount(), selectedApp);
 
@@ -172,7 +174,53 @@ public class DashboardActivity extends FragmentActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        return mDrawerToggle.onOptionsItemSelected(item) || super.onOptionsItemSelected(item);
+        switch (item.getItemId()) {
+            case R.id.refresh:
+                refresh();
+                return true;
+
+            case R.id.feedback:
+                sendFeedback();
+                return true;
+
+            case R.id.about:
+                showAbout();
+                return true;
+
+            default:
+                return mDrawerToggle.onOptionsItemSelected(item) || super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void refresh() {
+        DashboardLoadFragment loadFragment = (DashboardLoadFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+        if (loadFragment == null) {
+            Log.e("DashboardActivity", "Null fragment");
+            return;
+        }
+
+        loadFragment.refresh();
+    }
+
+    private void sendFeedback() {
+        final Intent intent = new Intent(android.content.Intent.ACTION_SEND);
+        intent.setType("text/html");
+        intent.putExtra(android.content.Intent.EXTRA_EMAIL, new String[]{getString(R.string.mail_feedback_address)});
+        intent.putExtra(android.content.Intent.EXTRA_SUBJECT, getString(R.string.mail_feedback_subject));
+        intent.putExtra(android.content.Intent.EXTRA_TEXT, getString(R.string.mail_feedback_message));
+        startActivity(Intent.createChooser(intent, getString(R.string.title_send_feedback)));
+    }
+
+    private void showAbout() {
+        new AlertDialog.Builder(this)
+                .setTitle("About AppEngine Dashboard")
+                .setMessage("This is a very preliminary version.\nSend us feedback if you'd like more features!")
+                .setCancelable(false)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        // Do nothing
+                    }
+                }).show();
     }
 
     /**
