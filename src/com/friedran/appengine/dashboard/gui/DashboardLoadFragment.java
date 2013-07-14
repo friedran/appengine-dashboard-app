@@ -213,6 +213,7 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
                         public void onPostExecute(Bundle result) {
                             if (!result.getBoolean(AppEngineDashboardClient.KEY_RESULT)) {
                                 Log.e("DashboardLoadFragment", "GetChartURL has failed");
+                                updateChartImage(chartView, null, true);
                                 return;
                             }
 
@@ -246,16 +247,16 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
         @Override
         protected Bitmap doInBackground(String... params) {
             Bitmap decodedBitmap = null;
+
             try {
                 Log.i("DashboardLoadFragment", String.format("Downloading chart (%s, %s) from: %s", mTimeWindowID, mMetricTypeID, mUrl));
                 InputStream in = new java.net.URL(mUrl).openStream();
                 decodedBitmap = BitmapFactory.decodeStream(in);
-            } catch (Exception e) {
-                Log.e("Error", e.getMessage());
-                e.printStackTrace();
-            }
+                updateChartImageInCache(mMetricTypeID, mTimeWindowID, decodedBitmap);
 
-            updateChartImageInCache(mMetricTypeID, mTimeWindowID, decodedBitmap);
+            } catch (Exception e) {
+                Log.e("Error", e.getMessage(), e);
+            }
 
             return decodedBitmap;
         }
@@ -283,7 +284,13 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
 
     private void updateChartImage(View chartView, Bitmap image, boolean animate) {
         ImageView chartImageView = (ImageView) chartView.findViewById(R.id.load_chart_image);
-        chartImageView.setImageBitmap(image);
+
+        if (image != null) {
+            chartImageView.setImageBitmap(image);
+        } else {
+            chartImageView.setImageResource(android.R.color.transparent);
+            Toast.makeText(mActivity, "Failed downloading charts, please make sure you have Internet connectivity and try refreshing", 2000).show();
+        }
 
         ViewSwitcher viewSwitcher = (ViewSwitcher) chartView.findViewById(R.id.load_chart_switcher);
         if (viewSwitcher.getDisplayedChild() != 1) {
