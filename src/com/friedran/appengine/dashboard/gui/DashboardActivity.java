@@ -40,6 +40,7 @@ import com.friedran.appengine.dashboard.utils.AnalyticsUtils;
 import com.friedran.appengine.dashboard.utils.DashboardPreferences;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.google.analytics.tracking.android.Tracker;
+import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,6 +51,8 @@ public class DashboardActivity extends SherlockFragmentActivity {
     private ListView mDrawerApplicationsList;
     private ActionBarDrawerToggle mDrawerToggle;
     private AppEngineDashboardClient mAppEngineClient;
+
+    private PullToRefreshAttacher mPullToRefreshAttacher;
 
     private Tracker mTracker;
 
@@ -119,6 +122,8 @@ public class DashboardActivity extends SherlockFragmentActivity {
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);  // enable ActionBar app icon to behave as action to toggle nav drawer
         actionBar.setHomeButtonEnabled(true);
+
+        mPullToRefreshAttacher = new PullToRefreshAttacher(this);
     }
 
     @Override
@@ -131,6 +136,10 @@ public class DashboardActivity extends SherlockFragmentActivity {
     public void onStop() {
         super.onStop();
         EasyTracker.getInstance().activityStop(this);
+    }
+
+    PullToRefreshAttacher getPullToRefreshAttacher() {
+        return mPullToRefreshAttacher;
     }
 
     private void selectAccountItem(int position) {

@@ -34,10 +34,11 @@ import com.friedran.appengine.dashboard.client.AppEngineDashboardAPI;
 import com.friedran.appengine.dashboard.client.AppEngineDashboardClient;
 import com.friedran.appengine.dashboard.utils.AnalyticsUtils;
 import com.google.analytics.tracking.android.Tracker;
+import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
 
 import java.io.InputStream;
 
-public class DashboardLoadFragment extends SherlockFragment implements AdapterView.OnItemSelectedListener {
+public class DashboardLoadFragment extends SherlockFragment implements AdapterView.OnItemSelectedListener, PullToRefreshAttacher.OnRefreshListener {
 
     public static final String CHART_URL_BACKGROUND_COLOR_SUFFIX = "&chf=bg,s,E8E8E8";
     public static final int CHART_HEIGHT_PIXELS = 240;
@@ -45,8 +46,9 @@ public class DashboardLoadFragment extends SherlockFragment implements AdapterVi
     public static final String KEY_ACCOUNT = "KEY_ACCOUNT";
     public static final String KEY_APPLICATION_ID = "KEY_APPLICATION_ID";
 
-    private Activity mActivity;
+    private DashboardActivity mActivity;
     private ChartAdapter mChartGridAdapter;
+    private PullToRefreshAttacher mPullToRefreshAttacher;
     private DisplayMetrics mDisplayMetrics;
     private LruCache<String, Bitmap> mChartsMemoryCache;
 
@@ -70,7 +72,7 @@ public class DashboardLoadFragment extends SherlockFragment implements AdapterVi
                              Bundle savedInstanceState) {
         LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.load_fragment, container, false);
 
-        mActivity = getSherlockActivity();
+        mActivity = (DashboardActivity) getSherlockActivity();
 
         setSpinnerWithItems(layout, R.array.load_time_options, R.id.load_chart_time_spinner);
         mDisplayedTimeID = 0;
@@ -88,6 +90,9 @@ public class DashboardLoadFragment extends SherlockFragment implements AdapterVi
         mChartsMemoryCache = initChartsMemoryCache();
 
         mTracker = AnalyticsUtils.getTracker(mActivity);
+
+        mPullToRefreshAttacher = mActivity.getPullToRefreshAttacher();
+        mPullToRefreshAttacher.setRefreshableView(chartsGridView, this);
 
         return layout;
     }
@@ -142,6 +147,11 @@ public class DashboardLoadFragment extends SherlockFragment implements AdapterVi
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
         // Do Nothing
+    }
+
+    @Override
+    public void onRefreshStarted(View view) {
+        refresh();
     }
 
     public void refresh() {
@@ -311,5 +321,8 @@ public class DashboardLoadFragment extends SherlockFragment implements AdapterVi
                 viewSwitcher.setAnimation(null);
             viewSwitcher.showNext();
         }
+
+        // Mark the refresh UI as complete once anyone of the charts has been loaded.
+        mPullToRefreshAttacher.setRefreshComplete();
     }
 }
