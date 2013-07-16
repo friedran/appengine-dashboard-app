@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata modelVersion="1.1.0">
+  <groupId>com.github.chrisbanes.actionbarpulltorefresh</groupId>
+  <artifactId>library</artifactId>
+  <version>0.5-SNAPSHOT</version>
+  <versioning>
+    <snapshot>
+      <localCopy>true</localCopy>
+    </snapshot>
+    <lastUpdated>20130716210547</lastUpdated>
+    <snapshotVersions>
+      <snapshotVersion>
+        <extension>aar</extension>
+        <value>0.5-SNAPSHOT</value>
+        <updated>20130716210547</updated>
+      </snapshotVersion>
+      <snapshotVersion>
+        <extension>pom</extension>
+        <value>0.5-SNAPSHOT</value>
+        <updated>20130716210547</updated>
+      </snapshotVersion>
+    </snapshotVersions>
+  </versioning>
+</metadata>
