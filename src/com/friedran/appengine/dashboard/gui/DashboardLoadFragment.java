@@ -20,7 +20,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.util.LruCache;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -29,6 +28,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.widget.*;
+import com.actionbarsherlock.app.SherlockFragment;
 import com.friedran.appengine.dashboard.R;
 import com.friedran.appengine.dashboard.client.AppEngineDashboardAPI;
 import com.friedran.appengine.dashboard.client.AppEngineDashboardClient;
@@ -37,7 +37,7 @@ import com.google.analytics.tracking.android.Tracker;
 
 import java.io.InputStream;
 
-public class DashboardLoadFragment extends Fragment implements AdapterView.OnItemSelectedListener {
+public class DashboardLoadFragment extends SherlockFragment implements AdapterView.OnItemSelectedListener {
 
     public static final String CHART_URL_BACKGROUND_COLOR_SUFFIX = "&chf=bg,s,E8E8E8";
     public static final int CHART_HEIGHT_PIXELS = 240;
@@ -70,7 +70,7 @@ public class DashboardLoadFragment extends Fragment implements AdapterView.OnIte
                              Bundle savedInstanceState) {
         LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.load_fragment, container, false);
 
-        mActivity = getActivity();
+        mActivity = getSherlockActivity();
 
         setSpinnerWithItems(layout, R.array.load_time_options, R.id.load_chart_time_spinner);
         mDisplayedTimeID = 0;

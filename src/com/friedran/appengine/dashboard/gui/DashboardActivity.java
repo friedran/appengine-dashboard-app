@@ -14,25 +14,25 @@
 package com.friedran.appengine.dashboard.gui;
 
 import android.accounts.Account;
-import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.SherlockFragment;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 import com.friedran.appengine.dashboard.R;
 import com.friedran.appengine.dashboard.client.AppEngineDashboardAPI;
 import com.friedran.appengine.dashboard.client.AppEngineDashboardClient;
@@ -44,7 +44,7 @@ import com.google.analytics.tracking.android.Tracker;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DashboardActivity extends FragmentActivity {
+public class DashboardActivity extends SherlockFragmentActivity {
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerAccountsList;
     private ListView mDrawerApplicationsList;
@@ -106,11 +106,6 @@ public class DashboardActivity extends FragmentActivity {
             public void onDrawerOpened(View drawerView) {
                 invalidateOptionsMenu();
             }
-
-            @Override
-            public boolean onOptionsItemSelected(MenuItem item) {
-                return super.onOptionsItemSelected(item);
-            }
         };
         mDrawerLayout.setDrawerListener(mDrawerToggle);
 
@@ -121,7 +116,7 @@ public class DashboardActivity extends FragmentActivity {
         }
         updateUIWithChosenParameters();
 
-        ActionBar actionBar = getActionBar();
+        ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);  // enable ActionBar app icon to behave as action to toggle nav drawer
         actionBar.setHomeButtonEnabled(true);
     }
@@ -167,12 +162,13 @@ public class DashboardActivity extends FragmentActivity {
             return;
         }
 
-        getActionBar().setTitle(selectedAccount);
-        getActionBar().setSubtitle(selectedApp);
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setTitle(selectedAccount);
+        actionBar.setSubtitle(selectedApp);
     }
 
     private void updateLoadFragmentFromNavigation(String selectedAccount, String selectedApp) {
-        Fragment dashboardLoadFragment = DashboardLoadFragment.newInstance(
+        SherlockFragment dashboardLoadFragment = DashboardLoadFragment.newInstance(
                 mAppEngineClient.getAccount(), selectedApp);
 
         getSupportFragmentManager().beginTransaction()
@@ -189,7 +185,7 @@ public class DashboardActivity extends FragmentActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
+        MenuInflater inflater = getSupportMenuInflater();
         inflater.inflate(R.menu.menu, menu);
         return true;
     }
@@ -199,6 +195,14 @@ public class DashboardActivity extends FragmentActivity {
         mTracker.sendEvent("ui_action", "option_click", (String) item.getTitle(), null);
 
         switch (item.getItemId()) {
+            case android.R.id.home:
+                if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
+                    mDrawerLayout.closeDrawer(GravityCompat.START);
+                } else {
+                    mDrawerLayout.openDrawer(GravityCompat.START);
+                }
+                return true;
+
             case R.id.refresh:
                 refresh();
                 return true;
@@ -216,7 +220,7 @@ public class DashboardActivity extends FragmentActivity {
                 return true;
 
             default:
-                return mDrawerToggle.onOptionsItemSelected(item) || super.onOptionsItemSelected(item);
+                return super.onOptionsItemSelected(item);
         }
     }
 

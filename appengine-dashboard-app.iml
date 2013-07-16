@@ -67,6 +67,7 @@
     <orderEntry type="library" name="support-v4-13.0.0" level="project" />
     <orderEntry type="library" name="gson-2.2.4" level="project" />
     <orderEntry type="library" name="libGoogleAnalyticsV2" level="project" />
+    <orderEntry type="library" name="ComActionbarsherlockActionbarsherlock432SNAPSHOT.aar" level="project" />
   </component>
 </module>
 
