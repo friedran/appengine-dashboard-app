@@ -18,6 +18,7 @@ dependencies {
     compile fileTree(dir: 'libs', include: '*.jar')
     compile "com.android.support:support-v4:13.0.0"
     compile "com.google.code.gson:gson:2.2.4"
+    compile "com.actionbarsherlock:actionbarsherlock:4.3.1"
 }
 
 android {
@@ -25,7 +26,7 @@ android {
     buildToolsVersion "17.0.0"
 
     defaultConfig {
-        minSdkVersion 5
+        minSdkVersion 7
         targetSdkVersion 17
     }
 
