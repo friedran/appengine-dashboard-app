@@ -162,8 +162,9 @@ public class DashboardActivity extends SherlockFragmentActivity {
             return;
         }
 
-        getActionBar().setTitle(selectedAccount);
-        getActionBar().setSubtitle(selectedApp);
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setTitle(selectedAccount);
+        actionBar.setSubtitle(selectedApp);
     }
 
     private void updateLoadFragmentFromNavigation(String selectedAccount, String selectedApp) {
