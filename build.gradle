@@ -10,6 +10,37 @@ buildscript {
 
 apply plugin: 'android'
 
+repositories{
+    mavenCentral()
+}
+
+dependencies {
+    //compile fileTree(dir: 'libs', include: '*.jar')
+    compile files('libs/libGoogleAnalyticsV2.jar')
+    compile files('libs/gson-2.2.4.jar')
+    compile files('libs/android-support-v13.jar')
+}
+
 android {
     compileSdkVersion 17
+    buildToolsVersion "17.0.0"
+
+    defaultConfig {
+        minSdkVersion 5
+        targetSdkVersion 17
+    }
+
+    sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs = ['src']
+            resources.srcDirs = ['src']
+            aidl.srcDirs = ['src']
+            renderscript.srcDirs = ['src']
+            res.srcDirs = ['res']
+            assets.srcDirs = ['assets']
+        }
+
+        instrumentTest.setRoot('tests')
+    }
 }
