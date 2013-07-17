@@ -27,6 +27,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragment;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
@@ -40,10 +41,11 @@ import com.friedran.appengine.dashboard.utils.AnalyticsUtils;
 import com.friedran.appengine.dashboard.utils.DashboardPreferences;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.google.analytics.tracking.android.Tracker;
-import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
 
 public class DashboardActivity extends SherlockFragmentActivity {
     private DrawerLayout mDrawerLayout;
@@ -74,8 +76,7 @@ public class DashboardActivity extends SherlockFragmentActivity {
         mAppEngineClient = AppEngineDashboardAPI.getInstance().getClient(defaultAccount);
         List<String> applicationsList = mAppEngineClient.getLastRetrievedApplications();
 
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
+        initDrawerOnPhoneLayout();
 
         mDrawerAccountsList = (ListView) findViewById(R.id.drawer_accounts);
         mDrawerAccountsList.setAdapter(new ArrayAdapter<String>(this, R.layout.drawer_accounts_list_item, accountNames));
@@ -100,6 +101,24 @@ public class DashboardActivity extends SherlockFragmentActivity {
             }
         });
 
+        // Mark the default account
+        if (savedInstanceState == null) {
+            selectAccountItem(0);
+            selectApplicationItem(0);
+        }
+        updateUIWithChosenParameters();
+
+        mPullToRefreshAttacher = new PullToRefreshAttacher(this);
+    }
+
+    private void initDrawerOnPhoneLayout() {
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+
+        // For tablets - disable the drawer navigation logic
+        if (mDrawerLayout == null)
+            return;
+
+        mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
                 R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_close) {
             public void onDrawerClosed(View view) {
@@ -112,18 +131,9 @@ public class DashboardActivity extends SherlockFragmentActivity {
         };
         mDrawerLayout.setDrawerListener(mDrawerToggle);
 
-        // Mark the default account
-        if (savedInstanceState == null) {
-            selectAccountItem(0);
-            selectApplicationItem(0);
-        }
-        updateUIWithChosenParameters();
-
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);  // enable ActionBar app icon to behave as action to toggle nav drawer
         actionBar.setHomeButtonEnabled(true);
-
-        mPullToRefreshAttacher = new PullToRefreshAttacher(this);
     }
 
     @Override
@@ -143,7 +153,7 @@ public class DashboardActivity extends SherlockFragmentActivity {
     }
 
     private void selectAccountItem(int position) {
-        mDrawerLayout.closeDrawer(GravityCompat.START);
+        closeOrOpenDrawerIfExists(true);
 
         if (mDrawerAccountsList.getSelectedItemPosition() != position)
             mDrawerApplicationsList.setItemChecked(0, true);
@@ -152,9 +162,19 @@ public class DashboardActivity extends SherlockFragmentActivity {
     }
 
     private void selectApplicationItem(int position) {
-        mDrawerLayout.closeDrawer(GravityCompat.START);
+        closeOrOpenDrawerIfExists(true);
 
         mDrawerApplicationsList.setItemChecked(position, true);
+    }
+
+    private void closeOrOpenDrawerIfExists(boolean forceClose) {
+        if (mDrawerLayout == null)
+            return;
+
+        if (forceClose || mDrawerLayout.isDrawerOpen(GravityCompat.START))
+            mDrawerLayout.closeDrawer(GravityCompat.START);
+        else
+            mDrawerLayout.openDrawer(GravityCompat.START);
     }
 
     private void updateUIWithChosenParameters() {
@@ -205,11 +225,7 @@ public class DashboardActivity extends SherlockFragmentActivity {
 
         switch (item.getItemId()) {
             case android.R.id.home:
-                if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
-                    mDrawerLayout.closeDrawer(GravityCompat.START);
-                } else {
-                    mDrawerLayout.openDrawer(GravityCompat.START);
-                }
+                closeOrOpenDrawerIfExists(false);
                 return true;
 
             case R.id.refresh:
@@ -279,12 +295,14 @@ public class DashboardActivity extends SherlockFragmentActivity {
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        mDrawerToggle.syncState();
+        if (mDrawerToggle != null)
+            mDrawerToggle.syncState();
     }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        mDrawerToggle.onConfigurationChanged(newConfig);
+        if (mDrawerToggle != null)
+            mDrawerToggle.onConfigurationChanged(newConfig);
     }
 }
