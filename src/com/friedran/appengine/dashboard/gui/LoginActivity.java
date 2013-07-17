@@ -71,6 +71,8 @@ public class LoginActivity extends Activity implements View.OnClickListener,
         mHasRequestedUserInput = false;
 
         mTracker = AnalyticsUtils.getTracker(this);
+
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }
 
     @Override
