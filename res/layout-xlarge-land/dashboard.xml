@@ -42,6 +42,14 @@
 
     </LinearLayout>
 
+
+    <View
+            android:layout_width="7dp"
+            android:layout_height="match_parent"
+            android:background="@drawable/drop_shadow"
+            >
+    </View>
+
     <!-- The main content view -->
     <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
                  android:id="@+id/fragment_container"
