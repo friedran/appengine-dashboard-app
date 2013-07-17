@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                                        android:id="@+id/drawer_layout"
-                                        android:layout_width="match_parent"
-                                        android:layout_height="match_parent"
-                                        >
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="horizontal"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+
     <!-- The main content view -->
     <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
                  android:id="@+id/fragment_container"
@@ -27,16 +27,16 @@
                   android:dividerHeight="1dp"/>
 
         <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-                         android:layout_width="match_parent"
-                         android:layout_height="wrap_content"
-                         android:gravity="center_vertical"
-                         android:padding="12dp"
-                         android:drawablePadding="10dp"
-                         android:text="@string/applications"
-                         android:textAllCaps="true"
-                         android:textAppearance="@android:style/TextAppearance.Small"
-                         android:textColor="@color/text_gray"
-                         android:textStyle="bold" />
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:gravity="center_vertical"
+                  android:padding="12dp"
+                  android:drawablePadding="10dp"
+                  android:text="@string/applications"
+                  android:textAllCaps="true"
+                  android:textAppearance="@android:style/TextAppearance.Small"
+                  android:textColor="@color/text_gray"
+                  android:textStyle="bold" />
 
         <View style="@style/Divider"/>
 
@@ -49,4 +49,4 @@
 
     </LinearLayout>
 
-</android.support.v4.widget.DrawerLayout>
+</LinearLayout>
