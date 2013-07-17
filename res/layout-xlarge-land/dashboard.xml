@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="horizontal"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+
+    <!-- The navigation list -->
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                  android:orientation="vertical"
+                  android:layout_gravity="start"
+                  android:layout_width="300dp"
+                  android:layout_height="match_parent"
+                  android:background="@color/background_gray">
+
+        <ListView android:id="@+id/drawer_accounts"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:choiceMode="singleChoice"
+                  android:divider="@color/divider_gray"
+                  android:dividerHeight="1dp"/>
+
+        <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:gravity="center_vertical"
+                  android:padding="12dp"
+                  android:drawablePadding="10dp"
+                  android:text="@string/applications"
+                  android:textAllCaps="true"
+                  android:textAppearance="@android:style/TextAppearance.Small"
+                  android:textColor="@color/text_gray"
+                  android:textStyle="bold" />
+
+        <View style="@style/Divider"/>
+
+        <ListView android:id="@+id/drawer_applications"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:choiceMode="singleChoice"
+                  android:divider="@color/divider_gray"
+                  android:dividerHeight="1dp"/>
+
+    </LinearLayout>
+
+    <!-- The main content view -->
+    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                 android:id="@+id/fragment_container"
+                 android:layout_width="match_parent"
+                 android:layout_height="match_parent">
+    </FrameLayout>
+
+</LinearLayout>
