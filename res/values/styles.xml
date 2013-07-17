@@ -12,4 +12,8 @@
         <item name="android:background">@drawable/custom_btn_genoa</item>
         <item name="android:padding">10dip</item>
     </style>
+    <style name="ThemeHoloLightNoActionBar" parent="android:Theme.Holo.Light">
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
 </resources>
