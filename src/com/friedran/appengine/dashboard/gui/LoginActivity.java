@@ -9,7 +9,12 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
-import android.widget.*;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.Spinner;
+import android.widget.Toast;
+
 import com.friedran.appengine.dashboard.R;
 import com.friedran.appengine.dashboard.client.AppEngineDashboardAPI;
 import com.friedran.appengine.dashboard.client.AppEngineDashboardAuthenticator;
@@ -50,17 +55,7 @@ public class LoginActivity extends Activity implements View.OnClickListener,
 
         mEnterAccountLayout = (LinearLayout) findViewById(R.id.login_enter_account_layout);
 
-        mAccounts = Arrays.asList(AccountManager.get(this).getAccountsByType("com.google"));
-        List<String> accountNames = new ArrayList<String>();
-        for (Account account : mAccounts) {
-            accountNames.add(account.name);
-        }
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(
-                this, android.R.layout.simple_spinner_item, new ArrayList<String>(accountNames));
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mAccountSpinner = (Spinner) findViewById(R.id.login_account_spinner);
-        mAccountSpinner.setAdapter(adapter);
 
         mLoginButton = (Button) findViewById(R.id.login_button);
         mLoginButton.setOnClickListener(this);
@@ -82,6 +77,34 @@ public class LoginActivity extends Activity implements View.OnClickListener,
     protected void onStart() {
         super.onStart();
         EasyTracker.getInstance().activityStart(this);
+
+        // Refresh the accounts and spinner everytime the activity is restarted.
+        mAccounts = Arrays.asList(AccountManager.get(this).getAccountsByType("com.google"));
+        mAccountSpinner.setAdapter(createAccountsSpinnerAdapter(mAccounts));
+
+        // Set the login and spinner items according to whether there's any account
+        if (mAccounts.size() == 0) {
+            mAccountSpinner.setVisibility(View.INVISIBLE);
+            mLoginButton.setText(R.string.add_existing_account);
+            mTracker.sendEvent("ui_event", "activity_shown", "show_add_account", null);
+
+        } else {
+            mAccountSpinner.setVisibility(View.VISIBLE);
+            mLoginButton.setText(R.string.login);
+            mTracker.sendEvent("ui_event", "activity_shown", "show_login", null);
+        }
+    }
+
+    private ArrayAdapter<String> createAccountsSpinnerAdapter(List<Account> accounts) {
+        List<String> accountNames = new ArrayList<String>();
+        for (Account account : accounts) {
+            accountNames.add(account.name);
+        }
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+                this, android.R.layout.simple_spinner_item, new ArrayList<String>(accountNames));
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        return adapter;
     }
 
     @Override
@@ -102,18 +125,6 @@ public class LoginActivity extends Activity implements View.OnClickListener,
         } else {
             mEnterAccountLayout.setVisibility(View.VISIBLE);
         }
-
-        // Set the login and spinner items according to whether there's any account or not
-        if (mAccounts.size() == 0) {
-            mAccountSpinner.setVisibility(View.INVISIBLE);
-            mLoginButton.setText(R.string.add_existing_account);
-            mTracker.sendEvent("ui_event", "activity_shown", "show_add_account", null);
-        } else {
-            mAccountSpinner.setVisibility(View.VISIBLE);
-            mLoginButton.setText(R.string.login);
-            mTracker.sendEvent("ui_event", "activity_shown", "show_login", null);
-        }
-
     }
 
     /** Happens when the login button is clicked */
