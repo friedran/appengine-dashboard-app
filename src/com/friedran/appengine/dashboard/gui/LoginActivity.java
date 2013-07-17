@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.*;
@@ -101,15 +102,33 @@ public class LoginActivity extends Activity implements View.OnClickListener,
         } else {
             mEnterAccountLayout.setVisibility(View.VISIBLE);
         }
+
+        // Set the login and spinner items according to whether there's any account or not
+        if (mAccounts.size() == 0) {
+            mAccountSpinner.setVisibility(View.INVISIBLE);
+            mLoginButton.setText(R.string.add_existing_account);
+            mTracker.sendEvent("ui_event", "activity_shown", "show_add_account", null);
+        } else {
+            mAccountSpinner.setVisibility(View.VISIBLE);
+            mLoginButton.setText(R.string.login);
+            mTracker.sendEvent("ui_event", "activity_shown", "show_login", null);
+        }
+
     }
 
     /** Happens when the login button is clicked */
     @Override
     public void onClick(View v) {
+        // No accounts configured
+        if (mAccounts.size() == 0) {
+            mTracker.sendEvent("ui_action", "button_click", "add_account", null);
+            startActivity(new Intent(Settings.ACTION_ADD_ACCOUNT));
+            return;
+        }
+
         mTracker.sendEvent("ui_action", "button_click", "login", null);
 
         Account selectedAccount = mAccounts.get(mAccountSpinner.getSelectedItemPosition());
-
         startAuthentication(selectedAccount);
     }
 
