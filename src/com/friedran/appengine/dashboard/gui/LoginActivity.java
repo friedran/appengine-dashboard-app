@@ -140,6 +140,7 @@ public class LoginActivity extends Activity implements View.OnClickListener,
         // Nothing? Wait for the "Login" click
         } else {
             mEnterAccountLayout.setVisibility(View.VISIBLE);
+            AnalyticsUtils.setBugSenseUserIdentifier(AnalyticsUtils.ANONYMOUS_IDENTIFIER);
         }
     }
 
@@ -153,9 +154,11 @@ public class LoginActivity extends Activity implements View.OnClickListener,
             return;
         }
 
-        mTracker.sendEvent("ui_action", "button_click", "login", null);
-
         Account selectedAccount = mAccounts.get(mAccountSpinner.getSelectedItemPosition());
+
+        mTracker.sendEvent("ui_action", "button_click", "login", null);
+        AnalyticsUtils.setBugSenseUserIdentifier(selectedAccount.name);
+
         startAuthentication(selectedAccount);
     }
 

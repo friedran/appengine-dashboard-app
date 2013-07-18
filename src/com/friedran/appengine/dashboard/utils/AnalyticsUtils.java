@@ -21,6 +21,8 @@ import com.google.analytics.tracking.android.Tracker;
 
 public class AnalyticsUtils {
 
+    public static final String ANONYMOUS_IDENTIFIER = "Anonymous";
+
     private static final String GA_TRACKER_ID = "UA-42449637-1";
     private static final String BUGSENSE_API_KEY = "a95edbf9";
 
@@ -31,4 +33,9 @@ public class AnalyticsUtils {
     public static void initBugSense(Context context) {
         BugSenseHandler.initAndStartSession(context, BUGSENSE_API_KEY);
     }
+
+    public static void setBugSenseUserIdentifier(String userIdentifier) {
+        BugSenseHandler.setUserIdentifier(userIdentifier);
+    }
+
 }
