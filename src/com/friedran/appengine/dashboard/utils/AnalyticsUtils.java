@@ -30,6 +30,11 @@ public class AnalyticsUtils {
         return GoogleAnalytics.getInstance(context).getTracker(GA_TRACKER_ID);
     }
 
+    public static void sendEvent(Tracker tracker, String category, String event, String value, Long timing) {
+        tracker.sendEvent(category, event, value, timing);
+        BugSenseHandler.leaveBreadcrumb(String.format("%s - %s (%s)", category, event, value));
+    }
+
     public static void initBugSense(Context context) {
         BugSenseHandler.initAndStartSession(context, BUGSENSE_API_KEY);
     }

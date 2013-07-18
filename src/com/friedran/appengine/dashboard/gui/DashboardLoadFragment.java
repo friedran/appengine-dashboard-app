@@ -138,7 +138,7 @@ public class DashboardLoadFragment extends SherlockFragment implements AdapterVi
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         if (position != mDisplayedTimeID) {
             LogUtils.i("DashboardLoadFragment", "Time option selected: " + mDisplayedTimeID + " ==> " + position);
-            mTracker.sendEvent("ui_action", "spinner_click", "time_spinner_" + position, null);
+            AnalyticsUtils.sendEvent(mTracker, "ui_action", "spinner_click", "time_spinner_" + position, null);
 
             mDisplayedTimeID = position;
             mChartGridAdapter.notifyDataSetChanged();
@@ -233,7 +233,7 @@ public class DashboardLoadFragment extends SherlockFragment implements AdapterVi
                             if (!result.getBoolean(AppEngineDashboardClient.KEY_RESULT)) {
                                 LogUtils.e("DashboardLoadFragment", "GetChartURL has failed");
                                 updateChartImage(chartView, null, true);
-                                mTracker.sendEvent("ui_event", "get_chart_url_failed", "get_chart_url_failed", null);
+                                AnalyticsUtils.sendEvent(mTracker, "ui_event", "get_chart_url_failed", "get_chart_url_failed", null);
                                 return;
                             }
 

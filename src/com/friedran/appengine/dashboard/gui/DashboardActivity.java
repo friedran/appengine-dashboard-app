@@ -85,7 +85,7 @@ public class DashboardActivity extends SherlockFragmentActivity {
         mDrawerAccountsList.setOnItemClickListener(new ListView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                mTracker.sendEvent("ui_action", "button_click", "select_account", null);
+                AnalyticsUtils.sendEvent(mTracker, "ui_action", "button_click", "select_account", null);
                 selectAccountItem(position);
                 updateUIWithChosenParameters();
             }
@@ -97,7 +97,7 @@ public class DashboardActivity extends SherlockFragmentActivity {
         mDrawerApplicationsList.setOnItemClickListener(new ListView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                mTracker.sendEvent("ui_action", "button_click", "select_application", null);
+                AnalyticsUtils.sendEvent(mTracker, "ui_action", "button_click", "select_application", null);
                 selectApplicationItem(position);
                 updateUIWithChosenParameters();
             }
@@ -225,7 +225,7 @@ public class DashboardActivity extends SherlockFragmentActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        mTracker.sendEvent("ui_action", "option_click", (String) item.getTitle(), null);
+        AnalyticsUtils.sendEvent(mTracker, "ui_action", "option_click", (String) item.getTitle(), null);
 
         switch (item.getItemId()) {
             case android.R.id.home:

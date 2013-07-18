@@ -102,12 +102,12 @@ public class LoginActivity extends Activity implements View.OnClickListener,
         if (mAccounts.size() == 0) {
             mAccountSpinner.setVisibility(View.INVISIBLE);
             mLoginButton.setText(R.string.add_existing_account);
-            mTracker.sendEvent("ui_event", "activity_shown", "show_add_account", null);
+            AnalyticsUtils.sendEvent(mTracker, "ui_event", "activity_shown", "show_add_account", null);
 
         } else {
             mAccountSpinner.setVisibility(View.VISIBLE);
             mLoginButton.setText(R.string.login);
-            mTracker.sendEvent("ui_event", "activity_shown", "show_login", null);
+            AnalyticsUtils.sendEvent(mTracker, "ui_event", "activity_shown", "show_login", null);
         }
     }
 
@@ -149,14 +149,14 @@ public class LoginActivity extends Activity implements View.OnClickListener,
     public void onClick(View v) {
         // No accounts configured
         if (mAccounts.size() == 0) {
-            mTracker.sendEvent("ui_action", "button_click", "add_account", null);
+            AnalyticsUtils.sendEvent(mTracker, "ui_action", "button_click", "add_account", null);
             startActivity(new Intent(Settings.ACTION_ADD_ACCOUNT));
             return;
         }
 
         Account selectedAccount = mAccounts.get(mAccountSpinner.getSelectedItemPosition());
 
-        mTracker.sendEvent("ui_action", "button_click", "login", null);
+        AnalyticsUtils.sendEvent(mTracker, "ui_action", "button_click", "login", null);
         AnalyticsUtils.setBugSenseUserIdentifier(selectedAccount.name);
 
         startAuthentication(selectedAccount);
@@ -181,7 +181,7 @@ public class LoginActivity extends Activity implements View.OnClickListener,
         if (mHasRequestedUserInput) {
             dismissProgress(true);
             resetSavedAccount();
-            mTracker.sendEvent("ui_event", "auth_error", "user_disapproved", null);
+            AnalyticsUtils.sendEvent(mTracker, "ui_event", "auth_error", "user_disapproved", null);
             return;
         }
 
@@ -199,7 +199,7 @@ public class LoginActivity extends Activity implements View.OnClickListener,
             onSuccessfulAuthentication();
         } else {
             onFailedLogin("Authentication failed, please make sure you have Internet connectivity and try again");
-            mTracker.sendEvent("ui_event", "auth_error", "auth_failed", null);
+            AnalyticsUtils.sendEvent(mTracker, "ui_event", "auth_error", "auth_failed", null);
         }
     }
 
@@ -215,13 +215,13 @@ public class LoginActivity extends Activity implements View.OnClickListener,
 
                 if (!result) {
                     onFailedLogin("Failed retrieving list of applications for " + targetAccount.name);
-                    mTracker.sendEvent("ui_event", "auth_error", "get_applications_failed", null);
+                    AnalyticsUtils.sendEvent(mTracker, "ui_event", "auth_error", "get_applications_failed", null);
                     return;
                 }
 
                 if (resultBundle.getStringArrayList(AppEngineDashboardClient.KEY_APPLICATIONS).size() == 0) {
                     onFailedLogin("No applications found for " + targetAccount.name);
-                    mTracker.sendEvent("ui_event", "auth_error", "no_applications", null);
+                    AnalyticsUtils.sendEvent(mTracker, "ui_event", "auth_error", "no_applications", null);
                     return;
                 }
 
@@ -238,7 +238,7 @@ public class LoginActivity extends Activity implements View.OnClickListener,
     }
 
     private void onSuccessfulLogin(Account account) {
-        mTracker.sendEvent("ui_event", "auth", "auth_successful", null);
+        AnalyticsUtils.sendEvent(mTracker, "ui_event", "auth", "auth_successful", null);
 
         // Updates the saved account if required
         if (!account.equals(mSavedAccount)) {
