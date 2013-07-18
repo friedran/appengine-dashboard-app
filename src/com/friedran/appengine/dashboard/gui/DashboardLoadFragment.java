@@ -99,7 +99,7 @@ public class DashboardLoadFragment extends SherlockFragment implements AdapterVi
 
     private LruCache<String, Bitmap> initChartsMemoryCache() {
         final int maxMemoryInKBs = (int) (Runtime.getRuntime().maxMemory() / 1024);
-        final int cacheSize = maxMemoryInKBs / 10;
+        final int cacheSize = maxMemoryInKBs / 5;
 
         return new LruCache<String, Bitmap>(cacheSize) {
             @Override
