@@ -64,6 +64,7 @@ public class LoginActivity extends Activity implements View.OnClickListener,
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        AnalyticsUtils.initBugSense(this);
         setContentView(R.layout.login);
 
         mEnterAccountLayout = (LinearLayout) findViewById(R.id.login_enter_account_layout);
