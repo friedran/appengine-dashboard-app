@@ -246,6 +246,7 @@ public class LoginActivity extends Activity implements View.OnClickListener,
             LogUtils.i("LoginActivity", "Saved account " + account);
         }
 
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         Intent intent = new Intent(this, DashboardActivity.class)
                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK)
                 .putExtra(LoginActivity.EXTRA_ACCOUNT, account);

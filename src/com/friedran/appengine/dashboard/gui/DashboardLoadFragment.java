@@ -14,7 +14,6 @@
 package com.friedran.appengine.dashboard.gui;
 
 import android.accounts.Account;
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -22,12 +21,21 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.util.LruCache;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
-import android.widget.*;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
+import android.widget.GridView;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.ViewSwitcher;
+
 import com.actionbarsherlock.app.SherlockFragment;
 import com.friedran.appengine.dashboard.R;
 import com.friedran.appengine.dashboard.client.AppEngineDashboardAPI;
@@ -35,9 +43,10 @@ import com.friedran.appengine.dashboard.client.AppEngineDashboardClient;
 import com.friedran.appengine.dashboard.utils.AnalyticsUtils;
 import com.friedran.appengine.dashboard.utils.LogUtils;
 import com.google.analytics.tracking.android.Tracker;
-import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
 
 import java.io.InputStream;
+
+import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
 
 public class DashboardLoadFragment extends SherlockFragment implements AdapterView.OnItemSelectedListener, PullToRefreshAttacher.OnRefreshListener {
 

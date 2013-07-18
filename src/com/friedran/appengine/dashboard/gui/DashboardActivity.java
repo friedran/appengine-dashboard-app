@@ -65,7 +65,6 @@ public class DashboardActivity extends SherlockFragmentActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        AnalyticsUtils.initBugSense(this);
         setContentView(R.layout.dashboard);
 
         mTracker = AnalyticsUtils.getTracker(this);
