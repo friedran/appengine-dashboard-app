@@ -69,6 +69,7 @@
     <orderEntry type="library" name="libGoogleAnalyticsV2" level="project" />
     <orderEntry type="library" name="ComActionbarsherlockActionbarsherlock432SNAPSHOT.aar" level="project" />
     <orderEntry type="library" name="ComGithubChrisbanesActionbarpulltorefreshLibrary05SNAPSHOT.aar" level="project" />
+    <orderEntry type="library" name="bugsense-3.4" level="project" />
   </component>
 </module>
 

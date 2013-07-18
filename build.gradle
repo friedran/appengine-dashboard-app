@@ -13,6 +13,7 @@ apply plugin: 'android'
 repositories{
     mavenCentral()
     maven { url 'libs' }
+    maven { url 'http://gradle.bugsense.com' }
 }
 
 dependencies {
@@ -23,6 +24,7 @@ dependencies {
     compile "com.github.chrisbanes.actionbarpulltorefresh:library:0.5-SNAPSHOT"
     compile "com.android.support:support-v4:13.0.0"
     compile "com.google.code.gson:gson:2.2.4"
+    compile "com.bugsense.trace:bugsense:3.4"
 
     compile fileTree(dir: 'libs', include: '*.jar')
 }
