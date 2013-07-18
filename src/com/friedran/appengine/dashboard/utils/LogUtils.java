@@ -15,6 +15,7 @@ package com.friedran.appengine.dashboard.utils;
 
 import android.util.Log;
 
+import com.bugsense.trace.BugSenseHandler;
 import com.google.analytics.tracking.android.EasyTracker;
 
 public class LogUtils {
@@ -38,10 +39,11 @@ public class LogUtils {
         }
     }
 
-    public static void e(String tag, String message, Throwable throwable) {
+    public static void e(String tag, String message, Exception exception) {
         if (LOGGING) {
-            Log.e(tag, message, throwable);
-            EasyTracker.getTracker().sendException(throwable.getMessage(), false);
+            Log.e(tag, message, exception);
+            EasyTracker.getTracker().sendException(exception.getMessage(), false);
+            BugSenseHandler.sendException(exception);
         }
     }
 }
