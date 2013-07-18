@@ -15,6 +15,8 @@ package com.friedran.appengine.dashboard.utils;
 
 import android.util.Log;
 
+import com.google.analytics.tracking.android.EasyTracker;
+
 public class LogUtils {
     private static final boolean LOGGING = false;
 
@@ -39,6 +41,7 @@ public class LogUtils {
     public static void e(String tag, String message, Throwable throwable) {
         if (LOGGING) {
             Log.e(tag, message, throwable);
+            EasyTracker.getTracker().sendException(throwable.getMessage(), false);
         }
     }
 }

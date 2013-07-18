@@ -233,7 +233,7 @@ public class DashboardLoadFragment extends SherlockFragment implements AdapterVi
                             if (!result.getBoolean(AppEngineDashboardClient.KEY_RESULT)) {
                                 LogUtils.e("DashboardLoadFragment", "GetChartURL has failed");
                                 updateChartImage(chartView, null, true);
-                                mTracker.sendException("GetChartURL failed", false);
+                                mTracker.sendEvent("ui_event", "get_chart_url_failed", "get_chart_url_failed", null);
                                 return;
                             }
 
@@ -275,8 +275,7 @@ public class DashboardLoadFragment extends SherlockFragment implements AdapterVi
                 updateChartImageInCache(mMetricTypeID, mTimeWindowID, decodedBitmap);
 
             } catch (Exception e) {
-                LogUtils.e("Error", e.getMessage(), e);
-                mTracker.sendException("ChartDownloader", e, false);
+                LogUtils.e("DashboardLoadFragment", e.getMessage(), e);
             }
 
             return decodedBitmap;
