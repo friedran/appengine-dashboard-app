@@ -33,6 +33,7 @@ import com.friedran.appengine.dashboard.R;
 import com.friedran.appengine.dashboard.client.AppEngineDashboardAPI;
 import com.friedran.appengine.dashboard.client.AppEngineDashboardClient;
 import com.friedran.appengine.dashboard.utils.AnalyticsUtils;
+import com.friedran.appengine.dashboard.utils.LogUtils;
 import com.google.analytics.tracking.android.Tracker;
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
 
@@ -136,7 +137,7 @@ public class DashboardLoadFragment extends SherlockFragment implements AdapterVi
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         if (position != mDisplayedTimeID) {
-            Log.i("DashboardLoadFragment", "Time option selected: " + mDisplayedTimeID + " ==> " + position);
+            LogUtils.i("DashboardLoadFragment", "Time option selected: " + mDisplayedTimeID + " ==> " + position);
             mTracker.sendEvent("ui_action", "spinner_click", "time_spinner_" + position, null);
 
             mDisplayedTimeID = position;
@@ -211,7 +212,7 @@ public class DashboardLoadFragment extends SherlockFragment implements AdapterVi
 
             Bitmap chartImage = getChartImageFromCache(position, mDisplayedTimeID);
             if (chartImage != null) {
-                Log.i("DashboardLoadFragment", String.format("Updated chart from cache: %d, %d", position, mDisplayedTimeID));
+                LogUtils.i("DashboardLoadFragment", String.format("Updated chart from cache: %d, %d", position, mDisplayedTimeID));
                 updateChartImage(chartView, chartImage, false);
 
             } else {
@@ -230,7 +231,7 @@ public class DashboardLoadFragment extends SherlockFragment implements AdapterVi
                         @Override
                         public void onPostExecute(Bundle result) {
                             if (!result.getBoolean(AppEngineDashboardClient.KEY_RESULT)) {
-                                Log.e("DashboardLoadFragment", "GetChartURL has failed");
+                                LogUtils.e("DashboardLoadFragment", "GetChartURL has failed");
                                 updateChartImage(chartView, null, true);
                                 mTracker.sendException("GetChartURL failed", false);
                                 return;
@@ -268,13 +269,13 @@ public class DashboardLoadFragment extends SherlockFragment implements AdapterVi
             Bitmap decodedBitmap = null;
 
             try {
-                Log.i("DashboardLoadFragment", String.format("Downloading chart (%s, %s) from: %s", mTimeWindowID, mMetricTypeID, mUrl));
+                LogUtils.i("DashboardLoadFragment", String.format("Downloading chart (%s, %s) from: %s", mTimeWindowID, mMetricTypeID, mUrl));
                 InputStream in = new java.net.URL(mUrl).openStream();
                 decodedBitmap = BitmapFactory.decodeStream(in);
                 updateChartImageInCache(mMetricTypeID, mTimeWindowID, decodedBitmap);
 
             } catch (Exception e) {
-                Log.e("Error", e.getMessage(), e);
+                LogUtils.e("Error", e.getMessage(), e);
                 mTracker.sendException("ChartDownloader", e, false);
             }
 

@@ -19,6 +19,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import com.friedran.appengine.dashboard.utils.AppEngineParserUtils;
+import com.friedran.appengine.dashboard.utils.LogUtils;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -95,7 +97,7 @@ public class AppEngineDashboardClient {
                         result.putBoolean(KEY_RESULT, true);
 
                     } catch (IOException e) {
-                        Log.e("AppEngineDashboardClient", "Failed parsing the GetApplications response", e);
+                        LogUtils.e("AppEngineDashboardClient", "Failed parsing the GetApplications response", e);
                         result.putBoolean(KEY_RESULT, false);
                     }
                     return result;
@@ -130,7 +132,7 @@ public class AppEngineDashboardClient {
                         result.putString(KEY_CHART_URL, chart_url);
 
                     } catch (Exception e) {
-                        Log.e("AppEngineDashboardClient#onPostExecuteGetChartURL", "Exception caught when tried to parse result", e);
+                        LogUtils.e("AppEngineDashboardClient#onPostExecuteGetChartURL", "Exception caught when tried to parse result", e);
                         e.printStackTrace();
                         result.putBoolean(KEY_RESULT, false);
                     }
@@ -162,7 +164,7 @@ public class AppEngineDashboardClient {
             Bundle result = new Bundle();
 
             try {
-                Log.i("AppEngineDashboardClient", "Executing authenticated request: " + mURL);
+                LogUtils.i("AppEngineDashboardClient", "Executing authenticated request: " + mURL);
                 HttpGet httpGet = new HttpGet(mURL);
                 HttpResponse response = mHttpClient.execute(httpGet);
 
@@ -173,7 +175,7 @@ public class AppEngineDashboardClient {
                 responseEntity.consumeContent();
 
             } catch (Exception e) {
-                Log.e("AuthenticatedRequestTask", "Exception raised while handling request for " + mURL, e);
+                LogUtils.e("AuthenticatedRequestTask", "Exception raised while handling request for " + mURL, e);
                 result.putBoolean(KEY_RESULT, false);
             }
 

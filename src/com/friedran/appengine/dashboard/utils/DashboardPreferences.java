@@ -1,3 +1,16 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.friedran.appengine.dashboard.utils;
 
 import android.accounts.Account;
@@ -25,17 +38,17 @@ public class DashboardPreferences {
     public Account getSavedAccount() {
         String accountJson = mPreferences.getString(KEY_LOGIN_ACCOUNT, null);
         if (accountJson == null) {
-            Log.i("LoginActivity", "No saved account found");
+            LogUtils.i("LoginActivity", "No saved account found");
             return null;
         }
 
         try {
             Account savedAccount = (new Gson()).fromJson(accountJson, Account.class);
-            Log.i("LoginActivity", "Got a saved account: " + savedAccount.name);
+            LogUtils.i("LoginActivity", "Got a saved account: " + savedAccount.name);
             return savedAccount;
 
         } catch (JsonSyntaxException e) {
-            Log.e("LoginActivity", "Saved account is corrupted, resetting the repository");
+            LogUtils.e("LoginActivity", "Saved account is corrupted, resetting the repository");
             resetSavedAccount();
             return null;
         }

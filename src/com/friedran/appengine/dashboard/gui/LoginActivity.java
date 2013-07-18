@@ -1,3 +1,16 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.friedran.appengine.dashboard.gui;
 
 import android.accounts.Account;
@@ -7,7 +20,6 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -21,6 +33,7 @@ import com.friedran.appengine.dashboard.client.AppEngineDashboardAuthenticator;
 import com.friedran.appengine.dashboard.client.AppEngineDashboardClient;
 import com.friedran.appengine.dashboard.utils.AnalyticsUtils;
 import com.friedran.appengine.dashboard.utils.DashboardPreferences;
+import com.friedran.appengine.dashboard.utils.LogUtils;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.google.analytics.tracking.android.Tracker;
 
@@ -176,7 +189,7 @@ public class LoginActivity extends Activity implements View.OnClickListener,
     @Override
     public void onPostExecute(Bundle resultBundle) {
         boolean result = resultBundle.getBoolean(AppEngineDashboardClient.KEY_RESULT);
-        Log.i("LoginActivity", "Authentication done, result = " + result);
+        LogUtils.i("LoginActivity", "Authentication done, result = " + result);
 
         if (result) {
             onSuccessfulAuthentication();
@@ -193,7 +206,7 @@ public class LoginActivity extends Activity implements View.OnClickListener,
             @Override
             public void onPostExecute(Bundle resultBundle) {
                 boolean result = resultBundle.getBoolean(AppEngineDashboardClient.KEY_RESULT);
-                Log.i("LoginActivity", "GetApplications done, result = " + result);
+                LogUtils.i("LoginActivity", "GetApplications done, result = " + result);
                 Account targetAccount = mAppEngineClient.getAccount();
 
                 if (!result) {
@@ -226,7 +239,7 @@ public class LoginActivity extends Activity implements View.OnClickListener,
         // Updates the saved account if required
         if (!account.equals(mSavedAccount)) {
             mPreferences.saveAccount(account);
-            Log.i("LoginActivity", "Saved account " + account);
+            LogUtils.i("LoginActivity", "Saved account " + account);
         }
 
         Intent intent = new Intent(this, DashboardActivity.class)
@@ -261,7 +274,7 @@ public class LoginActivity extends Activity implements View.OnClickListener,
 
         mLoginButton.setClickable(true);
         if (stopLoginProcess) {
-            Log.i("LoginActivity", "Login progress stopped");
+            LogUtils.i("LoginActivity", "Login progress stopped");
             mLoginInProgress = false;
             mHasRequestedUserInput = false;
         }

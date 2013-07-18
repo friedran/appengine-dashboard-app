@@ -14,7 +14,8 @@
 package com.friedran.appengine.dashboard.client;
 
 import android.accounts.Account;
-import android.util.Log;
+
+import com.friedran.appengine.dashboard.utils.LogUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -40,7 +41,7 @@ public class AppEngineDashboardAPI {
 
             return sInstance;
         } catch (Exception e) {
-            Log.e("AppEngineDashboardAPI", "Couldn't create the AppEngineDashboardAPI instance", e);
+            LogUtils.e("AppEngineDashboardAPI", "Couldn't create the AppEngineDashboardAPI instance", e);
             return null;
         }
     }

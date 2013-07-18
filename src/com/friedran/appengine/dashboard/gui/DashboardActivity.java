@@ -39,6 +39,7 @@ import com.friedran.appengine.dashboard.client.AppEngineDashboardAPI;
 import com.friedran.appengine.dashboard.client.AppEngineDashboardClient;
 import com.friedran.appengine.dashboard.utils.AnalyticsUtils;
 import com.friedran.appengine.dashboard.utils.DashboardPreferences;
+import com.friedran.appengine.dashboard.utils.LogUtils;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.google.analytics.tracking.android.Tracker;
 
@@ -189,7 +190,7 @@ public class DashboardActivity extends SherlockFragmentActivity {
 
     private void updateActionBarTitleFromNavigation(String selectedAccount, String selectedApp) {
         if (selectedAccount==null || selectedApp==null) {
-            Log.e("DashboardActivity", "No selected Account/App");
+            LogUtils.e("DashboardActivity", "No selected Account/App");
             return;
         }
 
@@ -254,7 +255,7 @@ public class DashboardActivity extends SherlockFragmentActivity {
     private void refresh() {
         DashboardLoadFragment loadFragment = (DashboardLoadFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
         if (loadFragment == null) {
-            Log.e("DashboardActivity", "Null fragment");
+            LogUtils.e("DashboardActivity", "Null fragment");
             return;
         }
 
