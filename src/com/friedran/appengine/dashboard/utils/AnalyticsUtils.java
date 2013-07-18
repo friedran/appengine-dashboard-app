@@ -41,6 +41,7 @@ public class AnalyticsUtils {
 
     public static void setBugSenseUserIdentifier(String userIdentifier) {
         BugSenseHandler.setUserIdentifier(userIdentifier);
+        BugSenseHandler.addCrashExtraData("user", userIdentifier);
     }
 
 }
