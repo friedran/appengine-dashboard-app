@@ -125,6 +125,9 @@ public class AppEngineDashboardAuthenticator {
                     if(cookie.getName().equals("SACSID"))
                         return true;
                 }
+
+                throw new IOException("LoginToAppEngineTask failed: SACSID Cookie not found");
+
             } catch (IOException e) {
                 LogUtils.e("LoginToAppEngineTask", "IOException caught from authenticator logic", e);
             } finally {
