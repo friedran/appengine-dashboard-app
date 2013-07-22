@@ -21,7 +21,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 
 import com.friedran.appengine.dashboard.utils.LogUtils;
 
@@ -62,30 +61,28 @@ public class AppEngineDashboardAuthenticator {
     public void executeAuthentication() {
         // Gets the auth token asynchronously, calling the callback with its result (uses the deprecated API which is the only
         // one supported from API level 5).
-        AccountManager.get(mApplicationContext).getAuthToken(mAccount, AUTH_TOKEN_TYPE, false, new GetAuthTokenCallback(), null);
-    }
-
-    private class GetAuthTokenCallback implements AccountManagerCallback<Bundle> {
-        public void run(AccountManagerFuture result) {
-            Bundle bundle;
-            try {
-                LogUtils.i("AppEngineDashboardAuthenticator", "GetAuthTokenCallback.onPostExecute started...");
-                bundle = (Bundle) result.getResult();
-                Intent intent = (Intent)bundle.get(AccountManager.KEY_INTENT);
-                if(intent != null) {
-                    // User input required
-                    LogUtils.i("AppEngineDashboardAuthenticator", "User input is required...");
-                    mOnUserInputRequiredCallback.onUserInputRequired(intent);
-                } else {
-                    LogUtils.i("AppEngineDashboardAuthenticator", "Authenticated, getting auth token...");
-                    onGetAuthToken(bundle);
+        AccountManager.get(mApplicationContext).getAuthToken(mAccount, AUTH_TOKEN_TYPE, false, new AccountManagerCallback<Bundle>() {
+            public void run(AccountManagerFuture result) {
+                Bundle bundle;
+                try {
+                    LogUtils.i("AppEngineDashboardAuthenticator", "GetAuthTokenCallback.onPostExecute started...");
+                    bundle = (Bundle) result.getResult();
+                    Intent intent = (Intent)bundle.get(AccountManager.KEY_INTENT);
+                    if(intent != null) {
+                        // User input required
+                        LogUtils.i("AppEngineDashboardAuthenticator", "User input is required...");
+                        mOnUserInputRequiredCallback.onUserInputRequired(intent);
+                    } else {
+                        LogUtils.i("AppEngineDashboardAuthenticator", "Authenticated, getting auth token...");
+                        onGetAuthToken(bundle);
+                    }
+                } catch (Exception e) {
+                    // Can happen because of various like connectivity issues, google server errors, etc.
+                    LogUtils.e("AppEngineDashboardAuthenticator", "Exception caught from GetAuthTokenCallback", e);
+                    mPostAuthenticateCallback.run(false);
                 }
-            } catch (Exception e) {
-                // Can happen because of various like connectivity issues, google server errors, etc.
-                LogUtils.e("AppEngineDashboardAuthenticator", "Exception caught from GetAuthTokenCallback", e);
-                mPostAuthenticateCallback.run(false);
             }
-        }
+        }, null);
     }
 
     protected void onGetAuthToken(Bundle bundle) {
@@ -133,7 +130,8 @@ public class AppEngineDashboardAuthenticator {
             } finally {
                 mHttpClient.getParams().setBooleanParameter(ClientPNames.HANDLE_REDIRECTS, true);
             }
-            LogUtils.i("AppEngineDashboardAuthenticator", "LoginToAppEngine failed...");
+            LogUtils.e("AppEngineDashboardAuthenticator", "LoginToAppEngine failed...");
+
             return false;
         }
 
