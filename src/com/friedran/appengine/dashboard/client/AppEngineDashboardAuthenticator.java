@@ -21,7 +21,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 
 import com.friedran.appengine.dashboard.utils.LogUtils;
 
@@ -40,6 +39,7 @@ public class AppEngineDashboardAuthenticator {
     protected Context mApplicationContext;
     protected OnUserInputRequiredCallback mOnUserInputRequiredCallback;
     protected PostAuthenticateCallback mPostAuthenticateCallback;
+    protected String mAuthToken;
 
     public interface OnUserInputRequiredCallback {
         public void onUserInputRequired(Intent accountManagerIntent);
@@ -59,44 +59,53 @@ public class AppEngineDashboardAuthenticator {
         mPostAuthenticateCallback = postAuthenticateCallback;
     }
 
-    public void executeAuthentication() {
-        // Gets the auth token asynchronously, calling the callback with its result (uses the deprecated API which is the only
-        // one supported from API level 5).
-        AccountManager.get(mApplicationContext).getAuthToken(mAccount, AUTH_TOKEN_TYPE, false, new GetAuthTokenCallback(), null);
+    public void invalidateAuthToken() {
+        if (mAuthToken == null) {
+            LogUtils.e("AppEngineDashboardAuthenticator", "AuthToken hasn't been retrieved yet..");
+            return;
+        }
+
+        LogUtils.i("AppEngineDashboardAuthenticator", "Invalidating the previous authToken: " + mAuthToken);
+        AccountManager.get(mApplicationContext).invalidateAuthToken(mAccount.type, mAuthToken);
+        mAuthToken = null;
     }
 
-    private class GetAuthTokenCallback implements AccountManagerCallback<Bundle> {
-        public void run(AccountManagerFuture result) {
-            Bundle bundle;
-            try {
-                LogUtils.i("AppEngineDashboardAuthenticator", "GetAuthTokenCallback.onPostExecute started...");
-                bundle = (Bundle) result.getResult();
-                Intent intent = (Intent)bundle.get(AccountManager.KEY_INTENT);
-                if(intent != null) {
-                    // User input required
-                    LogUtils.i("AppEngineDashboardAuthenticator", "User input is required...");
-                    mOnUserInputRequiredCallback.onUserInputRequired(intent);
-                } else {
-                    LogUtils.i("AppEngineDashboardAuthenticator", "Authenticated, getting auth token...");
-                    onGetAuthToken(bundle);
+    public void executeAuthentication() {
+        // Gets the auth token asynchronously, calling the callback with its result (uses the
+        // deprecated API which is the only one supported from API level 5).
+        AccountManager.get(mApplicationContext).getAuthToken(mAccount, AUTH_TOKEN_TYPE, false, new AccountManagerCallback<Bundle>() {
+            public void run(AccountManagerFuture result) {
+                Bundle bundle;
+                try {
+                    LogUtils.i("AppEngineDashboardAuthenticator", "GetAuthTokenCallback.onPostExecute started...");
+                    bundle = (Bundle) result.getResult();
+                    Intent intent = (Intent)bundle.get(AccountManager.KEY_INTENT);
+                    if(intent != null) {
+                        // User input required
+                        LogUtils.i("AppEngineDashboardAuthenticator", "User input is required...");
+                        mOnUserInputRequiredCallback.onUserInputRequired(intent);
+                    } else {
+                        LogUtils.i("AppEngineDashboardAuthenticator", "Authenticated, getting auth token...");
+                        onGetAuthToken(bundle);
+                    }
+                } catch (Exception e) {
+                    // Can happen because of various like connectivity issues, google server errors, etc.
+                    LogUtils.e("AppEngineDashboardAuthenticator", "Exception caught from GetAuthTokenCallback", e);
+                    mPostAuthenticateCallback.run(false);
                 }
-            } catch (Exception e) {
-                // Can happen because of various like connectivity issues, google server errors, etc.
-                LogUtils.e("AppEngineDashboardAuthenticator", "Exception caught from GetAuthTokenCallback", e);
-                mPostAuthenticateCallback.run(false);
             }
-        }
+        }, null);
     }
 
     protected void onGetAuthToken(Bundle bundle) {
-        String authToken = bundle.getString(AccountManager.KEY_AUTHTOKEN);
-        LogUtils.i("AppEngineDashboardAuthenticator", "onGetAuthToken: Got the auth token " + authToken);
+        mAuthToken = bundle.getString(AccountManager.KEY_AUTHTOKEN);
+        LogUtils.i("AppEngineDashboardAuthenticator", "onGetAuthToken: Got the auth token " + mAuthToken);
 
-        if (authToken == null) {
+        if (mAuthToken == null) {
             // Failure, looks like an illegal account
             mPostAuthenticateCallback.run(false);
         } else {
-            new LoginToAppEngineTask().execute(authToken);
+            new LoginToAppEngineTask().execute();
         }
     }
 
@@ -105,20 +114,19 @@ public class AppEngineDashboardAuthenticator {
         protected Boolean doInBackground(String... params) {
             try {
                 LogUtils.i("AppEngineDashboardAuthenticator", "LoginToAppEngine starting...");
-                String authToken = params[0];
 
                 // Don't follow redirects
                 mHttpClient.getParams().setBooleanParameter(ClientPNames.HANDLE_REDIRECTS, false);
 
-                String url = "https://appengine.google.com/_ah/login?continue=http://localhost/&auth=" + authToken;
+                String url = "https://appengine.google.com/_ah/login?continue=http://localhost/&auth=" + mAuthToken;
                 LogUtils.i("LoginToAppEngineTask", "Executing GET request: " + url);
                 HttpGet httpGet = new HttpGet(url);
                 HttpResponse response;
                 response = mHttpClient.execute(httpGet);
                 response.getEntity().consumeContent();
-                if(response.getStatusLine().getStatusCode() != 302)
-                    // Response should be a redirect
-                    return false;
+                int statusCode = response.getStatusLine().getStatusCode();
+                if (statusCode != 302)
+                    throw new IOException("LoginToAppEngineTask failed: Got an unexpected status code: " + statusCode);
 
                 for(Cookie cookie : mHttpClient.getCookieStore().getCookies()) {
                     LogUtils.i("LoginToAppEngineTask", "Cookie name: " + cookie.getName());
@@ -126,14 +134,15 @@ public class AppEngineDashboardAuthenticator {
                         return true;
                 }
 
-                throw new IOException("LoginToAppEngineTask failed: SACSID Cookie not found");
+                // No cookie means an invalid token, we have to fail...
 
             } catch (IOException e) {
                 LogUtils.e("LoginToAppEngineTask", "IOException caught from authenticator logic", e);
             } finally {
                 mHttpClient.getParams().setBooleanParameter(ClientPNames.HANDLE_REDIRECTS, true);
             }
-            LogUtils.i("AppEngineDashboardAuthenticator", "LoginToAppEngine failed...");
+            LogUtils.e("AppEngineDashboardAuthenticator", "LoginToAppEngine failed...");
+
             return false;
         }
 

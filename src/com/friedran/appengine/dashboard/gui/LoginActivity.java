@@ -61,6 +61,7 @@ public class LoginActivity extends Activity implements View.OnClickListener,
     // State parameters
     protected boolean mLoginInProgress;
     protected boolean mHasRequestedUserInput;
+    protected boolean mHasFailedAuthentication;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,6 +84,7 @@ public class LoginActivity extends Activity implements View.OnClickListener,
 
         mLoginInProgress = false;
         mHasRequestedUserInput = false;
+        mHasFailedAuthentication = false;
 
         mTracker = AnalyticsUtils.getTracker(this);
 
@@ -170,6 +172,7 @@ public class LoginActivity extends Activity implements View.OnClickListener,
 
         showProgressDialog("Authenticating with Google AppEngine...");
         mLoginInProgress = true;
+        mHasFailedAuthentication = false;
         mAppEngineClient.executeAuthentication();
     }
 
@@ -198,8 +201,25 @@ public class LoginActivity extends Activity implements View.OnClickListener,
         if (result) {
             onSuccessfulAuthentication();
         } else {
+            onFailedAuthentication();
+        }
+    }
+
+    private void onFailedAuthentication() {
+        // First failure - invalidate auth token and retry
+        if (!mHasFailedAuthentication) {
+            mHasFailedAuthentication = true;
+
+            AnalyticsUtils.sendEvent(mTracker, "ui_event", "auth", "invalidating_token", null);
+
+            showProgressDialog("Re-authenticating with Google AppEngine...");
+            mAppEngineClient.invalidateAuthenticationToken();
+            mAppEngineClient.executeAuthentication();
+
+        // Second failure - Stop
+        } else {
+            AnalyticsUtils.sendEvent(mTracker, "ui_event", "auth_error", "auth_failed_twice", null);
             onFailedLogin("Authentication failed, please make sure you have Internet connectivity and try again");
-            AnalyticsUtils.sendEvent(mTracker, "ui_event", "auth_error", "auth_failed", null);
         }
     }
 
