@@ -38,9 +38,9 @@ public class AppEngineDashboardClient {
     protected Account mAccount;
     protected DefaultHttpClient mHttpClient;
     protected Context mApplicationContext;
-    protected AppEngineDashboardAuthenticator mAppEngineDashboardAuthenticator;
 
     protected PostExecuteCallback mPostAuthenticateCallback;
+    protected AppEngineDashboardAuthenticator.OnUserInputRequiredCallback mOnUserInputRequiredCallback;
 
     protected ArrayList<String> mLastRetrievedApplications;
 
@@ -56,21 +56,10 @@ public class AppEngineDashboardClient {
         mAccount = account;
         mApplicationContext = context.getApplicationContext();
         mPostAuthenticateCallback = postAuthenticationCallback;
+        mOnUserInputRequiredCallback = onUserInputRequiredCallback;
 
         mLastRetrievedApplications = new ArrayList<String>();
         mHttpClient = new DefaultHttpClient();
-
-        mAppEngineDashboardAuthenticator = new AppEngineDashboardAuthenticator(
-                mAccount, mHttpClient, mApplicationContext,
-                onUserInputRequiredCallback,
-            new AppEngineDashboardAuthenticator.PostAuthenticateCallback() {
-            @Override
-            public void run(boolean result) {
-                Bundle bundle = new Bundle();
-                bundle.putBoolean(KEY_RESULT, result);
-                mPostAuthenticateCallback.onPostExecute(bundle);
-            }
-        });
     }
 
     public Account getAccount() {
@@ -78,7 +67,19 @@ public class AppEngineDashboardClient {
     }
 
     public void executeAuthentication() {
-        mAppEngineDashboardAuthenticator.executeAuthentication();
+        AppEngineDashboardAuthenticator authenticator = new AppEngineDashboardAuthenticator(
+                mAccount, mHttpClient, mApplicationContext,
+                mOnUserInputRequiredCallback,
+                new AppEngineDashboardAuthenticator.PostAuthenticateCallback() {
+                    @Override
+                    public void run(boolean result) {
+                        Bundle bundle = new Bundle();
+                        bundle.putBoolean(KEY_RESULT, result);
+                        mPostAuthenticateCallback.onPostExecute(bundle);
+                    }
+                });
+
+        authenticator.executeAuthentication();
     }
 
     /**
