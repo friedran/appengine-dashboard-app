@@ -59,8 +59,8 @@ public class AppEngineDashboardAuthenticator {
     }
 
     public void executeAuthentication() {
-        // Gets the auth token asynchronously, calling the callback with its result (uses the deprecated API which is the only
-        // one supported from API level 5).
+        // Gets the auth token asynchronously, calling the callback with its result (uses the
+        // deprecated API which is the only one supported from API level 5).
         AccountManager.get(mApplicationContext).getAuthToken(mAccount, AUTH_TOKEN_TYPE, false, new AccountManagerCallback<Bundle>() {
             public void run(AccountManagerFuture result) {
                 Bundle bundle;
