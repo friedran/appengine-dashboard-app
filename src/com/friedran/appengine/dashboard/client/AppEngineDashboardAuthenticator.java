@@ -39,6 +39,7 @@ public class AppEngineDashboardAuthenticator {
     protected Context mApplicationContext;
     protected OnUserInputRequiredCallback mOnUserInputRequiredCallback;
     protected PostAuthenticateCallback mPostAuthenticateCallback;
+    protected String mAuthToken;
 
     public interface OnUserInputRequiredCallback {
         public void onUserInputRequired(Intent accountManagerIntent);
@@ -86,14 +87,14 @@ public class AppEngineDashboardAuthenticator {
     }
 
     protected void onGetAuthToken(Bundle bundle) {
-        String authToken = bundle.getString(AccountManager.KEY_AUTHTOKEN);
-        LogUtils.i("AppEngineDashboardAuthenticator", "onGetAuthToken: Got the auth token " + authToken);
+        mAuthToken = bundle.getString(AccountManager.KEY_AUTHTOKEN);
+        LogUtils.i("AppEngineDashboardAuthenticator", "onGetAuthToken: Got the auth token " + mAuthToken);
 
-        if (authToken == null) {
+        if (mAuthToken == null) {
             // Failure, looks like an illegal account
             mPostAuthenticateCallback.run(false);
         } else {
-            new LoginToAppEngineTask().execute(authToken);
+            new LoginToAppEngineTask().execute();
         }
     }
 
@@ -102,20 +103,19 @@ public class AppEngineDashboardAuthenticator {
         protected Boolean doInBackground(String... params) {
             try {
                 LogUtils.i("AppEngineDashboardAuthenticator", "LoginToAppEngine starting...");
-                String authToken = params[0];
 
                 // Don't follow redirects
                 mHttpClient.getParams().setBooleanParameter(ClientPNames.HANDLE_REDIRECTS, false);
 
-                String url = "https://appengine.google.com/_ah/login?continue=http://localhost/&auth=" + authToken;
+                String url = "https://appengine.google.com/_ah/login?continue=http://localhost/&auth=" + mAuthToken;
                 LogUtils.i("LoginToAppEngineTask", "Executing GET request: " + url);
                 HttpGet httpGet = new HttpGet(url);
                 HttpResponse response;
                 response = mHttpClient.execute(httpGet);
                 response.getEntity().consumeContent();
-                if(response.getStatusLine().getStatusCode() != 302)
-                    // Response should be a redirect
-                    return false;
+                int statusCode = response.getStatusLine().getStatusCode();
+                if (statusCode != 302)
+                    throw new IOException("LoginToAppEngineTask failed: Got an unexpected status code: " + statusCode);
 
                 for(Cookie cookie : mHttpClient.getCookieStore().getCookies()) {
                     LogUtils.i("LoginToAppEngineTask", "Cookie name: " + cookie.getName());
