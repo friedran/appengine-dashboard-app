@@ -65,8 +65,9 @@ public class AppEngineDashboardAuthenticator {
             return;
         }
 
+        LogUtils.i("AppEngineDashboardAuthenticator", "Invalidating the previous authToken: " + mAuthToken);
         AccountManager.get(mApplicationContext).invalidateAuthToken(mAccount.type, mAuthToken);
-        LogUtils.i("AppEngineDashboardAuthenticator", "Invalidated the previous authToken: " + mAuthToken);
+        mAuthToken = null;
     }
 
     public void executeAuthentication() {
