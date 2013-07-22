@@ -212,7 +212,7 @@ public class LoginActivity extends Activity implements View.OnClickListener,
 
             AnalyticsUtils.sendEvent(mTracker, "ui_event", "auth", "invalidating_token", null);
 
-            showProgressDialog("Renewing Auth Token with AppEngine...");
+            showProgressDialog("Re-authenticating with Google AppEngine...");
             mAppEngineClient.invalidateAuthenticationToken();
             mAppEngineClient.executeAuthentication();
 
