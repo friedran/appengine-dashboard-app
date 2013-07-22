@@ -59,6 +59,16 @@ public class AppEngineDashboardAuthenticator {
         mPostAuthenticateCallback = postAuthenticateCallback;
     }
 
+    public void invalidateAuthToken() {
+        if (mAuthToken == null) {
+            LogUtils.e("AppEngineDashboardAuthenticator", "AuthToken hasn't been retrieved yet..");
+            return;
+        }
+
+        AccountManager.get(mApplicationContext).invalidateAuthToken(mAccount.type, mAuthToken);
+        LogUtils.i("AppEngineDashboardAuthenticator", "Invalidated the previous authToken: " + mAuthToken);
+    }
+
     public void executeAuthentication() {
         // Gets the auth token asynchronously, calling the callback with its result (uses the
         // deprecated API which is the only one supported from API level 5).
@@ -123,7 +133,7 @@ public class AppEngineDashboardAuthenticator {
                         return true;
                 }
 
-                throw new IOException("LoginToAppEngineTask failed: SACSID Cookie not found");
+                // No cookie means an invalid token, we have to fail...
 
             } catch (IOException e) {
                 LogUtils.e("LoginToAppEngineTask", "IOException caught from authenticator logic", e);
