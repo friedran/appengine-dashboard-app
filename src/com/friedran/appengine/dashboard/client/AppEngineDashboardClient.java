@@ -67,7 +67,7 @@ public class AppEngineDashboardClient {
     }
 
     public void executeAuthentication() {
-        AppEngineDashboardAuthenticator authenticator = new AppEngineDashboardAuthenticator(
+        new AppEngineDashboardAuthenticator(
                 mAccount, mHttpClient, mApplicationContext,
                 mOnUserInputRequiredCallback,
                 new AppEngineDashboardAuthenticator.PostAuthenticateCallback() {
@@ -77,9 +77,7 @@ public class AppEngineDashboardClient {
                         bundle.putBoolean(KEY_RESULT, result);
                         mPostAuthenticateCallback.onPostExecute(bundle);
                     }
-                });
-
-        authenticator.executeAuthentication();
+        }).executeAuthentication();
     }
 
     /**
