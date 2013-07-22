@@ -38,9 +38,9 @@ public class AppEngineDashboardClient {
     protected Account mAccount;
     protected DefaultHttpClient mHttpClient;
     protected Context mApplicationContext;
+    protected AppEngineDashboardAuthenticator mAuthenticator;
 
     protected PostExecuteCallback mPostAuthenticateCallback;
-    protected AppEngineDashboardAuthenticator.OnUserInputRequiredCallback mOnUserInputRequiredCallback;
 
     protected ArrayList<String> mLastRetrievedApplications;
 
@@ -56,20 +56,13 @@ public class AppEngineDashboardClient {
         mAccount = account;
         mApplicationContext = context.getApplicationContext();
         mPostAuthenticateCallback = postAuthenticationCallback;
-        mOnUserInputRequiredCallback = onUserInputRequiredCallback;
 
         mLastRetrievedApplications = new ArrayList<String>();
         mHttpClient = new DefaultHttpClient();
-    }
 
-    public Account getAccount() {
-        return mAccount;
-    }
-
-    public void executeAuthentication() {
-        new AppEngineDashboardAuthenticator(
+        mAuthenticator = new AppEngineDashboardAuthenticator(
                 mAccount, mHttpClient, mApplicationContext,
-                mOnUserInputRequiredCallback,
+                onUserInputRequiredCallback,
                 new AppEngineDashboardAuthenticator.PostAuthenticateCallback() {
                     @Override
                     public void run(boolean result) {
@@ -77,7 +70,19 @@ public class AppEngineDashboardClient {
                         bundle.putBoolean(KEY_RESULT, result);
                         mPostAuthenticateCallback.onPostExecute(bundle);
                     }
-        }).executeAuthentication();
+                });
+    }
+
+    public Account getAccount() {
+        return mAccount;
+    }
+
+    public void executeAuthentication() {
+        mAuthenticator.executeAuthentication();
+    }
+
+    public void invalidateAuthenticationToken() {
+        mAuthenticator.invalidateAuthToken();
     }
 
     /**
